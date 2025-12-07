@@ -1,7 +1,9 @@
 package com.example.apartment_predictor;
 
 import java.time.LocalDate;
+import jakarta.persistence.Entity;
 
+@Entity // Indicates that this class is an entity in the data model
 public class Owner {
 
     private  String id;
