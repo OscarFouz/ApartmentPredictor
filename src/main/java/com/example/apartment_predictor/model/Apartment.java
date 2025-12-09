@@ -1,10 +1,14 @@
-package com.example.apartment_predictor;
+package com.example.apartment_predictor.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-@Entity // Indicates that this class is an entity in the data model
+import java.util.UUID;
+
+@Entity
 public class Apartment {
 
+    @Id
     private String id;
     private Long price;
     private Integer area;
@@ -14,8 +18,7 @@ public class Apartment {
     private String mainroad;
     private String guestroom;
     private String basement;
-    private String hotwater;
-    private String heating;
+    private String hotwaterheating;
     private String airconditioning;
     private Integer parking;
     private String prefarea;
@@ -25,10 +28,11 @@ public class Apartment {
     public Apartment() {}
 
     // Constructor with all fields
-    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms, 
-                    Integer stories, String mainroad, String guestroom, String basement,
-                    String hotwater, String heating, String airconditioning, 
-                    Integer parking, String prefarea, String furnishingstatus) {
+    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
+                     Integer stories, String mainroad, String guestroom, String basement,
+                     String hotwaterheating, String airconditioning,
+                     Integer parking, String prefarea, String furnishingstatus) {
+        this.id = UUID.randomUUID().toString();
         this.price = price;
         this.area = area;
         this.bedrooms = bedrooms;
@@ -37,8 +41,7 @@ public class Apartment {
         this.mainroad = mainroad;
         this.guestroom = guestroom;
         this.basement = basement;
-        this.hotwater = hotwater;
-        this.heating = heating;
+        this.hotwaterheating = hotwaterheating;
         this.airconditioning = airconditioning;
         this.parking = parking;
         this.prefarea = prefarea;
@@ -112,20 +115,12 @@ public class Apartment {
         this.basement = basement;
     }
 
-    public String getHotwater() {
-        return hotwater;
+    public String getHotwaterheating() {
+        return hotwaterheating;
     }
 
-    public void setHotwater(String hotwater) {
-        this.hotwater = hotwater;
-    }
-
-    public String getHeating() {
-        return heating;
-    }
-
-    public void setHeating(String heating) {
-        this.heating = heating;
+    public void setHotwaterheating(String hotwaterheating) {
+        this.hotwaterheating = hotwaterheating;
     }
 
     public String getAirconditioning() {
@@ -179,8 +174,7 @@ public class Apartment {
                 ", mainroad='" + mainroad + '\'' +
                 ", guestroom='" + guestroom + '\'' +
                 ", basement='" + basement + '\'' +
-                ", hotwater='" + hotwater + '\'' +
-                ", heating='" + heating + '\'' +
+                ", hotwater='" + hotwaterheating + '\'' +
                 ", airconditioning='" + airconditioning + '\'' +
                 ", parking=" + parking +
                 ", prefarea='" + prefarea + '\'' +
