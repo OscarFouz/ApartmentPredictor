@@ -179,4 +179,75 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
             System.out.println(review);
         }
     }
+
+    public void testApartmentsInsert() {
+        // Create review objects based on sample data
+        Apartment apartment1 = new Apartment();
+        //apartment1.setId(java.util.UUID.randomUUID().toString());
+        apartment1.setPrice(325621L);
+        apartment1.setArea(2365);
+        apartment1.setBedrooms(4);
+        apartment1.setBathrooms(5);
+        apartment1.setStories(3);
+        apartment1.setMainroad("yes");
+        apartment1.setGuestroom("yes");
+        apartment1.setBasement("yes");
+        apartment1.setHotwaterheating("yes");
+        apartment1.setAirconditioning("yes");
+        apartment1.setParking(3);
+        apartment1.setPrefarea("yes");
+        apartment1.setFurnishingstatus("yes");
+
+
+
+        Apartment apartment2 = new Apartment();
+        //apartment2.setId(java.util.UUID.randomUUID().toString());
+        apartment2.setPrice(58423L);
+        apartment2.setArea(32);
+        apartment2.setBedrooms(1);
+        apartment2.setBathrooms(1);
+        apartment2.setStories(5);
+        apartment2.setMainroad("yes");
+        apartment2.setGuestroom("yes");
+        apartment2.setBasement("yes");
+        apartment2.setHotwaterheating("yes");
+        apartment2.setAirconditioning("yes");
+        apartment2.setParking(0);
+        apartment2.setPrefarea("yes");
+        apartment2.setFurnishingstatus("yes");
+
+        Apartment apartment3 = new Apartment();
+        //apartment3.setId(java.util.UUID.randomUUID().toString());
+        apartment3.setPrice(741852L);
+        apartment3.setArea(6666);
+        apartment3.setBedrooms(12);
+        apartment3.setBathrooms(16);
+        apartment3.setStories(5);
+        apartment3.setMainroad("yes");
+        apartment3.setGuestroom("yes");
+        apartment3.setBasement("yes");
+        apartment3.setHotwaterheating("yes");
+        apartment3.setAirconditioning("yes");
+        apartment3.setParking(12);
+        apartment3.setPrefarea("yes");
+        apartment3.setFurnishingstatus("yes");
+
+
+
+        // Save reviews to database
+        apartmentRepository.save(apartment1);
+        apartmentRepository.save(apartment2);
+        apartmentRepository.save(apartment3);
+
+
+        // Display all reviews in the database
+        int index = 0;
+        System.out.println("\n=== Reviews in the Database ===");
+        for (Apartment apartment : apartmentRepository.findAll()) {
+            index++;
+            System.out.println("#" + index);
+            System.out.println(apartment);
+        }
+    }
+
 }
