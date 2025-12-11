@@ -1,9 +1,12 @@
 package com.example.apartment_predictor.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity // Indicates that this class is an entity in the data model
 public class Reviewer {
+
+    @Id
     private String id;
     private String name;
     private String email;
