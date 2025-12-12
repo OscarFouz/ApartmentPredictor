@@ -1,3 +1,4 @@
+
 package com.example.apartment_predictor.model;
 
 import jakarta.persistence.Entity;
@@ -34,21 +35,20 @@ public class Review {
         this.rating = rating;
     }
 
-    public Review(String title, String content, Integer rating, LocalDate reviewDate) {
-        this.id = UUID.randomUUID().toString();
+    public Review(String id, String title, String content, Integer rating) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.rating = rating;
-        this.reviewDate = reviewDate;
     }
 
     public String getId() {
         return id;
     }
 
-    /*public void setId(String id) {
+    public void setId(String id) {
         this.id = id;
-    }*/
+    }
 
     public String getTitle() {
         return title;
@@ -86,14 +86,6 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
-    /*public Apartment getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(Apartment apartment) {
-        this.apartment = apartment;
-    }
-*/
     @Override
     public String toString() {
         return "Review{" +
