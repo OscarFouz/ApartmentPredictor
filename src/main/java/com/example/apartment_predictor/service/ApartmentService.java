@@ -11,6 +11,7 @@ public class ApartmentService {
     // implement CRUD operations: read
     public List<Apartment> findAll() {
 
+
         return null;
     }
 

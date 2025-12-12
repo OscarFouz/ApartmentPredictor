@@ -1,3 +1,4 @@
+
 package com.example.apartment_predictor;
 
 import com.example.apartment_predictor.model.Apartment;
@@ -26,8 +27,8 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        //testApartmentsInsert();
-        //testReviewsInsert();
+//        testApartmentsInsert();
+//        testReviewsInsert();
 
     }
 
