@@ -2,7 +2,8 @@ package com.example.apartment_predictor.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import com.example.apartment_predictor.model.Apartment;
+//import com.example.apartment_predictor.model.Apartment;
+
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
