@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Apartment {
 
     @Id
-    private String id;
+    protected String id;
     private Long price;
     private Integer area;
     private Integer bedrooms;
@@ -25,14 +25,22 @@ public class Apartment {
     private String prefarea;
     private String furnishingstatus;
 
+    @OneToMany(
+            mappedBy = "apartment",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
+    private List<Review> reviews = new ArrayList<>();
+
     // Default constructor
-    public Apartment() {}
+    public Apartment() {
+        this.id = UUID.randomUUID().toString();
+    }
 
     // Constructor with all fields
-    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
-                     Integer stories, String mainroad, String guestroom, String basement,
-                     String hotwaterheating, String airconditioning,
-                     Integer parking, String prefarea, String furnishingstatus) {
+    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms, 
+                    Integer stories, String mainroad, String guestroom, String basement,
+                    String hotwaterheating, String airconditioning,
+                    Integer parking, String prefarea, String furnishingstatus) {
         this.id = UUID.randomUUID().toString();
         this.price = price;
         this.area = area;
@@ -49,126 +57,145 @@ public class Apartment {
         this.furnishingstatus = furnishingstatus;
     }
 
+    // helpers
 
-    // Getters
+    public void addReview(Review review) {
+        reviews.add(review);
+        review.setApartment(this);
+    }
+
+    public void removeReview(Review review) {
+        reviews.remove(review);
+        review.setApartment(null);
+    }
+
+
+    // Getters and Setters
     public Long getPrice() {
         return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
     }
 
     public Integer getArea() {
         return area;
     }
 
-    public Integer getBedrooms() {
-        return bedrooms;
-    }
-
-    public Integer getBathrooms() {
-        return bathrooms;
-    }
-
-    public Integer getStories() {
-        return stories;
-    }
-
-    public String getMainroad() {
-        return mainroad;
-    }
-
-    public String getGuestroom() {
-        return guestroom;
-    }
-
-    public String getBasement() {
-        return basement;
-    }
-
-    public String getHotwaterheating() {
-        return hotwaterheating;
-    }
-
-    public String getAirconditioning() {
-        return airconditioning;
-    }
-
-    public Integer getParking() {
-        return parking;
-    }
-
-    public String getPrefarea() {
-        return prefarea;
-    }
-
-    public String getFurnishingstatus() {
-        return furnishingstatus;
-    }
-
-
-    public String getId() {
-        return id;
-    }
-
-    //Setters
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-
     public void setArea(Integer area) {
         this.area = area;
+    }
+
+    public Integer getBedrooms() {
+        return bedrooms;
     }
 
     public void setBedrooms(Integer bedrooms) {
         this.bedrooms = bedrooms;
     }
 
+    public Integer getBathrooms() {
+        return bathrooms;
+    }
+
     public void setBathrooms(Integer bathrooms) {
         this.bathrooms = bathrooms;
+    }
+
+    public Integer getStories() {
+        return stories;
     }
 
     public void setStories(Integer stories) {
         this.stories = stories;
     }
 
+    public String getMainroad() {
+        return mainroad;
+    }
+
     public void setMainroad(String mainroad) {
         this.mainroad = mainroad;
+    }
+
+    public String getGuestroom() {
+        return guestroom;
     }
 
     public void setGuestroom(String guestroom) {
         this.guestroom = guestroom;
     }
 
+    public String getBasement() {
+        return basement;
+    }
+
     public void setBasement(String basement) {
         this.basement = basement;
+    }
+
+    public String getHotwaterheating() {
+        return hotwaterheating;
     }
 
     public void setHotwaterheating(String hotwaterheating) {
         this.hotwaterheating = hotwaterheating;
     }
 
+    public String getAirconditioning() {
+        return airconditioning;
+    }
+
     public void setAirconditioning(String airconditioning) {
         this.airconditioning = airconditioning;
+    }
+
+    public Integer getParking() {
+        return parking;
     }
 
     public void setParking(Integer parking) {
         this.parking = parking;
     }
 
+    public String getPrefarea() {
+        return prefarea;
+    }
+
     public void setPrefarea(String prefarea) {
         this.prefarea = prefarea;
+    }
+
+    public String getFurnishingstatus() {
+        return furnishingstatus;
     }
 
     public void setFurnishingstatus(String furnishingstatus) {
         this.furnishingstatus = furnishingstatus;
     }
 
-    /*public void setId(String id) {
+    public String getId() {
+        return id;
+    }
+
+   /* public void setId(String id) {
         this.id = id;
     }*/
+
+   public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
 
     @Override
     public String toString() {
         return "Apartment{" +
-                "price=" + price +
+                "id=" + id +
+                ", price=" + price +
                 ", area=" + area +
                 ", bedrooms=" + bedrooms +
                 ", bathrooms=" + bathrooms +
@@ -181,6 +208,7 @@ public class Apartment {
                 ", parking=" + parking +
                 ", prefarea='" + prefarea + '\'' +
                 ", furnishingstatus='" + furnishingstatus + '\'' +
+                ", reviews='" + reviews.size() + '\'' +
                 '}';
     }
 }
