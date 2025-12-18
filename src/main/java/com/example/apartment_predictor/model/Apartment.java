@@ -211,4 +211,46 @@ public class Apartment {
                 ", reviews='" + reviews.size() + '\'' +
                 '}';
     }
+
+
+    public double estimateRentalIncomePerMonth(){
+       /*
+       *Purpose: Estimates potential monthly rental income.
+        Placement: Declare in ResidentialProperty returning 0 by default (owner-occupied assumption).
+        Overrides:
+
+        Apartment: moderate amount based on bedrooms and floorLevel.
+        Duplex: high (double the single-unit rate + bonus if separate utilities).
+        Townhouse: similar to apartment but slightly higher.
+        House: optional override if marketed as rental.
+        Benefit: Strong example of selective overriding — not all properties generate rental income easily.
+        *
+        *
+
+        double monthlyRental = 0;
+
+        //if apartamento es de ownwr
+
+        //incremento por habitacion
+
+        //doble de standar si es duplex implemento por servicios
+
+        //incremento por adosado
+
+        //house alquiler anulación opcional
+
+
+        /*
+        - generar class adosado
+        - atributo alquilado
+        - coincide alquilado owner
+        - si alquilado anulación de venta
+        */
+        */
+        */
+        */
+
+
+        return monthlyRental;
+
 }

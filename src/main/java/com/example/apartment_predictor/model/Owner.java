@@ -1,6 +1,12 @@
 package com.example.apartment_predictor.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Owner {
 
@@ -13,6 +19,12 @@ public class Owner {
     private String idLegalOwner;
     private LocalDate registrationDate;
     private int qtyDaysAsOwner;
+
+    @OneToMany(
+            mappedBy = "apartment",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
+    private List<Apartment> apartments = new ArrayList<>();
 
     public Owner(){}
 
