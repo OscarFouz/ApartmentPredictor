@@ -24,6 +24,12 @@ public class Apartment {
     private Integer parking;
     private String prefarea;
     private String furnishingstatus;
+    @JoinColumn
+    private String idOwner;
+
+    @ManyToOne
+    @JoinColumn(name = "idOwner")
+    private Owner owner;
 
     @OneToMany(
             mappedBy = "apartment",
@@ -213,7 +219,7 @@ public class Apartment {
     }
 
 
-    public double estimateRentalIncomePerMonth(){
+    public double estimateRentalIncomePerMonth() {
        /*
        *Purpose: Estimates potential monthly rental income.
         Placement: Declare in ResidentialProperty returning 0 by default (owner-occupied assumption).
@@ -225,7 +231,7 @@ public class Apartment {
         House: optional override if marketed as rental.
         Benefit: Strong example of selective overriding — not all properties generate rental income easily.
         *
-        *
+        */
 
         double monthlyRental = 0;
 
@@ -246,11 +252,9 @@ public class Apartment {
         - coincide alquilado owner
         - si alquilado anulación de venta
         */
-        */
-        */
-        */
 
 
         return monthlyRental;
+    }
 
 }

@@ -1,15 +1,15 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@Entity
 public class Owner {
-
+    @Id
     private  String id;
     private String name;
     private String email;
@@ -26,7 +26,7 @@ public class Owner {
             fetch = FetchType.EAGER)
     private List<Apartment> apartments = new ArrayList<>();
 
-    public Owner(){}
+    public Owner(){this.id = UUID.randomUUID().toString();}
 
     public Owner(String name, String email, int age, boolean isActive, boolean isBusiness, String idLegalOwner, LocalDate registrationDate, int qtyDaysAsOwner) {
         this.name = name;
