@@ -69,7 +69,7 @@ class ApartmentPredictorApplicationTests {
 
         reviewRepository.save(review1);
 
-        apartment1.getReviews().add(review1);
+        //apartment1.getReviews().add(review1);
 
         apartmentRepository.save(apartment1);
 
@@ -112,7 +112,7 @@ class ApartmentPredictorApplicationTests {
             System.out.println(review);
         }
 
-        
+
 
 
     }

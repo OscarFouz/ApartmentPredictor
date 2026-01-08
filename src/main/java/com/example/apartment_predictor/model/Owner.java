@@ -1,15 +1,9 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
-@Entity
 public class Owner {
-    @Id
+
     private  String id;
     private String name;
     private String email;
@@ -20,13 +14,7 @@ public class Owner {
     private LocalDate registrationDate;
     private int qtyDaysAsOwner;
 
-    @OneToMany(
-            mappedBy = "apartment",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
-    private List<Apartment> apartments = new ArrayList<>();
-
-    public Owner(){this.id = UUID.randomUUID().toString();}
+    public Owner(){}
 
     public Owner(String name, String email, int age, boolean isActive, boolean isBusiness, String idLegalOwner, LocalDate registrationDate, int qtyDaysAsOwner) {
         this.name = name;

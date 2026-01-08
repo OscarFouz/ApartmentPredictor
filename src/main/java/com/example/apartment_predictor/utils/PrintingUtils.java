@@ -59,7 +59,7 @@ public class PrintingUtils {
         }
     }
 
-   public void printApartmentsByRepoInstance() {
+    public void printApartmentsByRepoInstance() {
         // Display all apartments in the database
         int index = 0;
         System.out.println("\n=== Apartments in the Database ===");

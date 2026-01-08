@@ -19,17 +19,17 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
     @Autowired
     private ReviewRepository reviewRepository;
 
-	public static void main(String[] args) {
-		SpringApplication.run(ApartmentPredictorApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ApartmentPredictorApplication.class, args);
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
+    @Override
+    public void run(String... args) throws Exception {
 
         //testApartmentsInsert();
         //testReviewsInsert();
 
-	}
+    }
 
     public void testApartmentsInsert() {
         System.out.println("Creating apartment objects and saving to db...");
@@ -182,5 +182,3 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
     }*/
 
 }
-
-
