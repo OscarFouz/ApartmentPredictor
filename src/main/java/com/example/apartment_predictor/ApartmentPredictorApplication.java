@@ -20,16 +20,41 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
     private ReviewRepository reviewRepository;
 
     public static void main(String[] args) {
+
         SpringApplication.run(ApartmentPredictorApplication.class, args);
     }
 
     @Override
     public void run(String... args) throws Exception {
 
-        //testApartmentsInsert();
-        //testReviewsInsert();
+//        testApartmentsInsert();
+//        testReviewsInsert();
+
+   // Solo insertar si la tabla está vacía
+    if (apartmentRepository.count() == 0) {
+        System.out.println("Base de datos vacía. Insertando apartamentos iniciales...");
+        testApartmentsInsert();
+    }
+    else {
+        System.out.println("La base de datos ya tiene datos. No se insertan apartamentos.");
+    }
+
+    if (reviewRepository.count() == 0) {
+        System.out.println("Base de datos vacía. Insertando reviews iniciales...");
+        testReviewsInsert();
+    }
+    else {
+        System.out.println("La base de datos ya tiene datos. No se insertan reviews.");
+    }
+
+    // Mantener la aplicación abierta
+    System.out.println("Aplicación iniciada. Servidor activo.");
+    Thread.currentThread().join();
 
     }
+
+
+
 
     public void testApartmentsInsert() {
         System.out.println("Creating apartment objects and saving to db...");

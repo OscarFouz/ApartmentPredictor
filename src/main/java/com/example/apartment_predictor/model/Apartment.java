@@ -25,11 +25,11 @@ public class Apartment extends Property  {
     private String prefarea;
     private String furnishingstatus;
 
-    /*@OneToMany(
+    @OneToMany(
             mappedBy = "apartment",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    private List<Review> reviews = new ArrayList<>();*/
+    private List<Review> reviews = new ArrayList<>();
 
     // Default constructor
     public Apartment() {
@@ -64,8 +64,7 @@ public class Apartment extends Property  {
     }
 
     // helpers
-
-    /*public void addReview(Review review) {
+    public void addReview(Review review) {
         reviews.add(review);
         review.setApartment(this);
     }
@@ -73,7 +72,7 @@ public class Apartment extends Property  {
     public void removeReview(Review review) {
         reviews.remove(review);
         review.setApartment(null);
-    }*/
+    }
 
 
     // Getters and Setters
@@ -189,14 +188,14 @@ public class Apartment extends Property  {
         this.id = id;
     }*/
 
-    /*public List<Review> getReviews() {
+    public List<Review> getReviews() {
          return reviews;
      }
 
      public void setReviews(List<Review> reviews) {
          this.reviews = reviews;
      }
- */
+
     @Override
     public String toString() {
         return "Apartment{" +
