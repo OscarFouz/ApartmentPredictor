@@ -1,17 +1,17 @@
 # Before annotations: one to many .xml
 
-> Before <mark>annotations</mark> were common, the `Apartment–Review` relationship was defined in `ORM XM`L (Hibernate `*.hbm.xml` or JPA `orm.xml`), and Spring only wired the `ORM laye`r (`SessionFactory`/`EntityManagerFactory`, **transactions**) via its own XML. 
+> Antes de que las <mark>anotaciones</mark> fueran comunes, la relación `Apartment–Review` se definía en `ORM XML` (Hibernate `*.hbm.xml` o JPA `orm.xml`), y Spring solo conectaba la `ORM layer` (`SessionFactory`/`EntityManagerFactory`, **transacciones**) mediante su propio XML.  
 > 
-> The <mark>mapping</mark> itself did not live in Spring XML.
+> El <mark>mapeo</mark> en sí no vivía dentro del XML de Spring.
 
 ## Hibernate mapping XML example
 
-For classic Hibernate (pre‑JPA style), you would have something like this:
+En el Hibernate clásico (estilo pre‑JPA), se usaba algo como lo siguiente:
 
-- `Apartment.hbm.xml` would map the table and the one‑to‑many collection.
-- `Review.hbm.xml` would map the table and the many‑to‑one back to `Apartment`.
+- `Apartment.hbm.xml` definía la tabla y la colección one‑to‑many.  
+- `Review.hbm.xml` definía la tabla y la relación many‑to‑one hacia `Apartment`.
 
-Conceptually (simplified):
+Conceptualmente (simplificado):
 
 **Apartment.hbm.xml**
 
@@ -47,33 +47,33 @@ Conceptually (simplified):
 </class>
 ```
 
-> This yields exactly the same schema as your annotated example: a `review.apartment_fk` foreign key pointing to `apartment.id`.
+> Esto produce exactamente el mismo schema que tu ejemplo con anotaciones: una foreign key `review.apartment_fk` apuntando a `apartment.id`.
 
 ## JPA orm.xml variant
 
-If instead of pure Hibernate XML you used JPA with XML mappings, the idea was similar: define the entities in Java as plain <mark>POJOs</mark>, then describe table/relationship mapping in `META-INF/orm.xml`. 
+Si en lugar de usar Hibernate XML puro utilizabas JPA con XML mappings, la idea era similar: definir las entities en Java como simples <mark>POJOs</mark>, y luego describir el table/relationship mapping en `META-INF/orm.xml`.
 
-There you would configure:
+Allí se configuraba:
 
-- An `<entity class="...Apartment">`:
-  - with an `<one-to-many>` referencing `Review`.
-- An `<entity class="...Review">`:
-  - with a `<many-to-one>` and `<join-column name="apartment_fk"/>`.
+- Una `<entity class="...Apartment">`:
+  - con un `<one-to-many>` que referencia a `Review`.
+- Una `<entity class="...Review">`:
+  - con un `<many-to-one>` y `<join-column name="apartment_fk"/>`.
 
-Again, same relational model, just expressed in JPA XML instead of annotations.
+De nuevo, el mismo modelo relacional, solo que expresado en JPA XML en lugar de annotations.
 
-## How Spring saw it
+## Como lo vió Spring
 
-Spring before `Boot`:
+Spring antes de `Boot`:
 
-- Defined `DataSource`, `LocalSessionFactoryBean` (for Hibernate) or `LocalContainerEntityManagerFactoryBean` (for JPA) in Spring XML, pointing to `Apartment.hbm.xml` / `Review.hbm.xml` or `persistence.xml`/`orm.xml`.
-- Defined a **transaction manager bean and DAOs/services** that injected `SessionFactory` or `EntityManager`.
+- Definía `DataSource`, `LocalSessionFactoryBean` (para Hibernate) o `LocalContainerEntityManagerFactoryBean` (para JPA) en Spring XML, apuntando a `Apartment.hbm.xml` / `Review.hbm.xml` o `persistence.xml` / `orm.xml`.
+- Definía un **transaction manager bean y DAOs/services** que inyectaban `SessionFactory` o `EntityManager`.
 
-So to “create the relationship without annotations” for `Apartment`–`Review`:
+Así que para “crear la relación sin anotaciones” entre `Apartment`–`Review`:
 
-- <mark>Entities</mark>: plain Java classes with fields and getters/setters, no `@Entity`, `@OneToMany`, etc.
-- <mark>Relationship</mark>: defined in Hibernate `*.hbm.xml` or JPA `orm.xml`.
-- Spring: only responsible for wiring the ORM configuration and transactions, not for modeling the association itself.
+- <mark>Entities</mark>: clases Java simples con fields y getters/setters, sin `@Entity`, `@OneToMany`, etc.
+- <mark>Relationship</mark>: definida en Hibernate `*.hbm.xml` o JPA `orm.xml`.
+- Spring: solo responsable de conectar la configuración del ORM y las transactions, no de modelar la asociación en sí.
 
 ## References:
 
