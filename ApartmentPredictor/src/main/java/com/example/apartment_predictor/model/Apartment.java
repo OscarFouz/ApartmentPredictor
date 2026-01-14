@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class Apartment {
+public class Apartment extends Property  {
 
     @Id
     protected String id;
     private Long price;
-    private Integer area;
-    private Integer bedrooms;
+    //protected Integer area;
+    protected Integer bedrooms;
     private Integer bathrooms;
     private Integer stories;
     private String mainroad;
@@ -25,11 +25,11 @@ public class Apartment {
     private String prefarea;
     private String furnishingstatus;
 
-    @OneToMany(
+    /*@OneToMany(
             mappedBy = "apartment",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    private List<Review> reviews = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();*/
 
     // Default constructor
     public Apartment() {
@@ -37,10 +37,10 @@ public class Apartment {
     }
 
     // Constructor with all fields
-    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms, 
-                    Integer stories, String mainroad, String guestroom, String basement,
-                    String hotwaterheating, String airconditioning,
-                    Integer parking, String prefarea, String furnishingstatus) {
+    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
+                     Integer stories, String mainroad, String guestroom, String basement,
+                     String hotwaterheating, String airconditioning,
+                     Integer parking, String prefarea, String furnishingstatus) {
         this.id = UUID.randomUUID().toString();
         this.price = price;
         this.area = area;
@@ -57,9 +57,15 @@ public class Apartment {
         this.furnishingstatus = furnishingstatus;
     }
 
+
+    public double calculatePrice() {
+        double basePrice = area * 120 + (bedrooms * 8000);
+        return basePrice * (1 + (area * 0.04));
+    }
+
     // helpers
 
-    public void addReview(Review review) {
+    /*public void addReview(Review review) {
         reviews.add(review);
         review.setApartment(this);
     }
@@ -67,7 +73,7 @@ public class Apartment {
     public void removeReview(Review review) {
         reviews.remove(review);
         review.setApartment(null);
-    }
+    }*/
 
 
     // Getters and Setters
@@ -79,7 +85,7 @@ public class Apartment {
         this.price = price;
     }
 
-    public Integer getArea() {
+    public int getArea() {
         return area;
     }
 
@@ -183,14 +189,14 @@ public class Apartment {
         this.id = id;
     }*/
 
-   public List<Review> getReviews() {
-        return reviews;
-    }
+    /*public List<Review> getReviews() {
+         return reviews;
+     }
 
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
+     public void setReviews(List<Review> reviews) {
+         this.reviews = reviews;
+     }
+ */
     @Override
     public String toString() {
         return "Apartment{" +
@@ -208,7 +214,7 @@ public class Apartment {
                 ", parking=" + parking +
                 ", prefarea='" + prefarea + '\'' +
                 ", furnishingstatus='" + furnishingstatus + '\'' +
-                ", reviews='" + reviews.size() + '\'' +
+                //", reviews='" + reviews.size() + '\'' +
                 '}';
     }
 }

@@ -1,28 +1,39 @@
 package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.Apartment;
+import com.example.apartment_predictor.repository.ApartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ApartmentService {
 
-    // implement CRUD operations: read
-    public List<Apartment> findAll() {
+    @Autowired
+    ApartmentRepository apartmentRepository;
 
-
-        return null;
+    public Iterable<Apartment> findAll() {
+        return apartmentRepository.findAll();
     }
 
-
-    public void createApartment(){}
+    public Apartment createApartment(Apartment apartment){
+        return apartmentRepository.save(apartment);
+    }
 
     public void updateApartment (){}
 
-    public void deleteApartment (){}
+    public void deleteApartment (String id){
+        apartmentRepository.deleteById(id);
+    }
 
-    public void findApartmentById (){}
+    public Apartment findApartmentById (String id){
+        Optional<Apartment> found = apartmentRepository.findById(id);
+        if ( found.isPresent()) return found.get() ;
+        else return null;
+
+    }
 
     public void findApartmentByPrice (){}
 
