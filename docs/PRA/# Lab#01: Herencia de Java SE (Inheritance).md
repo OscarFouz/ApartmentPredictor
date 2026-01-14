@@ -126,10 +126,10 @@ Para reforzar aún más los conceptos de herencia, sobreescritura de métodos y 
 
 **Propósito:** Estima el impuesto a la propiedad anual en función del precio calculado y la ubicación.
 **Colocación:** Declarar en `Property` on una implementación predeterminada (por ejemplo, precio × tasa impositiva base × factor de ubicación).
-**Sobrescritura:**  
+**Sobreescritura:**  
 
 - `ResidentialProperty` o subclases específicas: ajustar la tasa impositiva (por ejemplo, las casas adosadas pagan más debido a la asociación de propietarios, los apartamentos pagan menos debido al mantenimiento compartido).
-  **Beneficio:** Muestra cómo las subclases pueden refinar una fórmula común.
+**Beneficio:** Muestra cómo las subclases pueden refinar una fórmula común.
 
 #### 3. `boolean isSuitableForFamily(int familySize)`
 
@@ -139,8 +139,8 @@ Para reforzar aún más los conceptos de herencia, sobreescritura de métodos y 
 
 - `Apartment`: más estricto (por ejemplo, necesita al menos 1 baño por cada 3 personas).
 - `House` / `Townhouse`: más indulgente + bonificación si hasGarden o hasPool.
-- `Duplex`: adecuado sólo para familias más grandes/extensas. 
-  **Beneficio:** Utiliza múltiples campos, incluidos los específicos de subclases.
+- `Duplex`: adecuado sólo para familias más grandes/extensas.
+**Beneficio:** Utiliza múltiples campos, incluidos los específicos de subclases.
 
 #### 4. `double calculateRenovationCost()`
 
@@ -151,7 +151,7 @@ Para reforzar aún más los conceptos de herencia, sobreescritura de métodos y 
 - `Apartment`: menor costo (enfoque en el interior + balcón si está presente).
 - `House`: superior (incluye garaje, piscina, sótano). 
 - `Townhouse`: medio + extra si HOA restringe los cambios.
-  **Beneficio:** Demuestra el uso significativo de campos tanto heredados como específicos.
+**Beneficio:** Demuestra el uso significativo de campos tanto heredados como específicos.
 
 #### 5. `String listKeyFeatures()`
 
@@ -159,8 +159,8 @@ Para reforzar aún más los conceptos de herencia, sobreescritura de métodos y 
 **Colocación:** Declarar en `Property` con implementación básica  (area, location, address).  
 **Sobrescritura:**  
 
-- Cada clase de hormigón añade sus propias características (p.e., House añade "Garage: Yes", "Pool: Yes", "Basement: Yes").  
-  **Beneficio:** Muestra sobreescritura progresiva — cada nivel agrega más detalles.
+- Cada clase de hormigón añade sus propias características (p.e., House añade "Garage: Yes", "Pool: Yes", "Basement: Yes").
+**Beneficio:** Muestra sobreescritura progresiva — cada nivel agrega más detalles.
 
 #### 6. `double estimateRentalIncomePerMonth()`
 
@@ -171,16 +171,16 @@ Para reforzar aún más los conceptos de herencia, sobreescritura de métodos y 
 - `Apartment`: cantidad moderada en función de los dormitorios y el nivel del piso.
 - `Duplex`: alto (el doble de la tarifa unitaria única + bonificación si se separan las utilidades).
 - `Townhouse`: similar al apartamento pero un poco más alto.
-- `House`:  sobreescritura opcional si se comercializa como alquiler. 
-  **Beneficio:** Fuerte ejemplo de anulación selectiva — no todas las propiedades generan ingresos por alquiler fácilmente.
+- `House`:  sobreescritura opcional si se comercializa como alquiler.
+**Beneficio:** Fuerte ejemplo de anulación selectiva — no todas las propiedades generan ingresos por alquiler fácilmente.
 
 #### 7. `boolean requiresHomeownersAssociation()`
 
 **Colocación:** Declarar en`SingleFamilyHome` devolviendo false.  
 **Sobrescritura:**  
 
-- `Townhouse`: devuelve true.  
-  **Beneficio:** Muestra un método relevante sólo para una rama de la jerarquía.
+- `Townhouse`: devuelve true.
+**Beneficio:** Muestra un método relevante sólo para una rama de la jerarquía.
 
 **Estrategia de implementación recomendada:**
 
