@@ -1,5 +1,8 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -32,7 +35,10 @@ public class Apartment extends Property {
             mappedBy = "apartment",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
+
+
 
     // Default constructor
     public Apartment() {

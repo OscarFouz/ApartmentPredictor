@@ -49,12 +49,13 @@ public class TownHouse extends Apartment {
                 "hasHomeownersAssociation=" + hasHomeownersAssociation +
                 ", hoaMonthlyFee=" + hoaMonthlyFee +
                 ", id='" + id + '\'' +
+                ", bedrooms=" + bedrooms +
+                ", id='" + id + '\'' +
                 ", area=" + area +
-                ", numberOfRooms=" + bedrooms +
-                ", area=" + area +
-                ", locationRating=" + bedrooms +
+                ", locationRating=" + locationRating +
                 '}';
     }
+
 
     @Override
     public double calculatePrice() {

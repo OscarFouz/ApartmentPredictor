@@ -1,5 +1,8 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import com.example.apartment_predictor.model.Apartment;
@@ -18,9 +21,13 @@ public class Review {
     private String content;
     private int rating;
     private LocalDate reviewDate;
-    @JoinColumn(name = "apartment_fk")
     @ManyToOne
+    @JoinColumn(name = "apartment_fk")
+    @JsonBackReference
     private Apartment apartment;
+
+
+
 
 
     public Review() {

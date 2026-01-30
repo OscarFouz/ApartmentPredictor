@@ -16,12 +16,13 @@ public class Duplex extends Apartment {
         this.id = UUID.randomUUID().toString();
     }
 
-    public Duplex(String balcony, boolean elevator, String airconditioning, String garden, int garageQty, String roofType) {
+    public Duplex(String balcony, boolean elevator, boolean hasSeparateUtilities) {
         this.id = UUID.randomUUID().toString();
         this.balcony = balcony;
         this.elevator = elevator;
         this.hasSeparateUtilities = hasSeparateUtilities;
     }
+
 
     @Override
     public double calculatePrice() {
@@ -58,8 +59,9 @@ public class Duplex extends Apartment {
     }
 
     public void setHasSeparateUtilities(boolean hasSeparateUtilities) {
-        this.elevator = hasSeparateUtilities;
+        this.hasSeparateUtilities = hasSeparateUtilities;
     }
+
 
 
 

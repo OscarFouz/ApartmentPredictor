@@ -2,9 +2,14 @@ package com.example.apartment_predictor.controller;
 
 import com.example.apartment_predictor.model.Apartment;
 import com.example.apartment_predictor.service.ApartmentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.nd4j.shade.protobuf.compiler.PluginProtos;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.net.URI;
 
 @RestController
@@ -65,4 +70,26 @@ public class ApartmentController {
         apartmentService.deleteApartment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/export")
+    public ResponseEntity<String> exportToJson() {
+        Iterable<Apartment> apartments = apartmentService.findAll();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // opcional: fecha legible
+
+        try {
+            mapper.writerWithDefaultPrettyPrinter()
+                    .writeValue(new File("apartments.json"), apartments);
+
+            return ResponseEntity.ok("Archivo apartments.json generado correctamente.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Error generando archivo: " + e.getMessage());
+        }
+    }
+
+
+
 }

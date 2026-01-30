@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("OWNER")
 public class Owner {
 
     @Id
