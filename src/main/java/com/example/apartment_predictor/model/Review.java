@@ -1,13 +1,7 @@
 package com.example.apartment_predictor.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import com.example.apartment_predictor.model.Apartment;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -21,14 +15,11 @@ public class Review {
     private String content;
     private int rating;
     private LocalDate reviewDate;
+
     @ManyToOne
     @JoinColumn(name = "apartment_fk")
     @JsonBackReference
     private Apartment apartment;
-
-
-
-
 
     public Review() {
         this.id = UUID.randomUUID().toString();
@@ -53,10 +44,6 @@ public class Review {
         return id;
     }
 
-    /*public void setId(String id) {
-        this.id = id;
-    }*/
-
     public String getTitle() {
         return title;
     }
@@ -78,10 +65,6 @@ public class Review {
     }
 
     public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
-    public void setRating(int rating) {
         this.rating = rating;
     }
 

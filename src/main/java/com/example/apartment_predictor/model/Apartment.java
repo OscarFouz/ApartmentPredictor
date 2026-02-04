@@ -1,24 +1,16 @@
 package com.example.apartment_predictor.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "property_type")
 @DiscriminatorValue("APARTMENT")
-
 public class Apartment extends Property {
-    @Id
-    protected String id;
+
     private Long price;
-    //protected Integer area;
     protected Integer bedrooms;
     private Integer bathrooms;
     private Integer stories;
@@ -34,23 +26,19 @@ public class Apartment extends Property {
     @OneToMany(
             mappedBy = "apartment",
             cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER
+    )
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
-
-
-    // Default constructor
     public Apartment() {
-        this.id = UUID.randomUUID().toString();
     }
 
-    // Constructor with all fields
     public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
                      Integer stories, String mainroad, String guestroom, String basement,
                      String hotwaterheating, String airconditioning,
                      Integer parking, String prefarea, String furnishingstatus) {
-        this.id = UUID.randomUUID().toString();
+
         this.price = price;
         this.area = area;
         this.bedrooms = bedrooms;
@@ -66,10 +54,10 @@ public class Apartment extends Property {
         this.furnishingstatus = furnishingstatus;
     }
 
-
+    @Override
     public double calculatePrice() {
         double basePrice = area * 120 + (bedrooms * 8000);
-        return basePrice * (1 + (area * 0.04));
+        return basePrice * (1 + (locationRating * 0.04));
     }
 
     // helpers
@@ -83,8 +71,8 @@ public class Apartment extends Property {
         review.setApartment(null);
     }
 
+    // Getters y setters
 
-    // Getters and Setters
     public Long getPrice() {
         return price;
     }
@@ -93,6 +81,7 @@ public class Apartment extends Property {
         this.price = price;
     }
 
+    @Override
     public int getArea() {
         return area;
     }
@@ -189,21 +178,13 @@ public class Apartment extends Property {
         this.furnishingstatus = furnishingstatus;
     }
 
-    public String getId() {
-        return id;
+    public List<Review> getReviews() {
+        return reviews;
     }
 
-   /* public void setId(String id) {
-        this.id = id;
-    }*/
-
-    public List<Review> getReviews() {
-         return reviews;
-     }
-
-     public void setReviews(List<Review> reviews) {
-         this.reviews = reviews;
-     }
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
 
     @Override
     public String toString() {
@@ -222,7 +203,6 @@ public class Apartment extends Property {
                 ", parking=" + parking +
                 ", prefarea='" + prefarea + '\'' +
                 ", furnishingstatus='" + furnishingstatus + '\'' +
-                //", reviews='" + reviews.size() + '\'' +
                 '}';
     }
 }

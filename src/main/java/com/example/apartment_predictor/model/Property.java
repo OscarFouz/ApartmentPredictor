@@ -1,20 +1,23 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "property_type")
 public abstract class Property {
+
     @Id
     protected String id = UUID.randomUUID().toString();
+
     protected int area;
     protected int locationRating;
 
-    //Getters
+    public String getId() {
+        return id;
+    }
+
     public int getArea() {
         return area;
     }
@@ -23,7 +26,9 @@ public abstract class Property {
         return locationRating;
     }
 
-    //Setters
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setArea(int area) {
         this.area = area;
@@ -34,6 +39,4 @@ public abstract class Property {
     }
 
     public abstract double calculatePrice();
-
-
 }
