@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 @Service
@@ -27,9 +27,14 @@ public class LoadInitialDataService {
             return;
         }
 
-        Path path = Path.of(csvPath);
+        // Leer desde el classpath (válido para JAR e IntelliJ)
+        InputStream is = getClass().getClassLoader().getResourceAsStream(csvPath);
 
-        try (BufferedReader br = Files.newBufferedReader(path)) {
+        if (is == null) {
+            throw new IOException("No se encontró el archivo CSV en el classpath: " + csvPath);
+        }
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             String line = br.readLine(); // saltar cabecera
 
@@ -68,9 +73,7 @@ public class LoadInitialDataService {
     }
 
     private Apartment createRandomPropertyType() {
-        int type = random.nextInt(4);
-
-        return switch (type) {
+        return switch (random.nextInt(4)) {
             case 0 -> new Apartment();
             case 1 -> new House();
             case 2 -> new Duplex();

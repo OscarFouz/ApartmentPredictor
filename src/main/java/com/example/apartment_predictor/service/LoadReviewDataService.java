@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
@@ -34,8 +34,6 @@ public class LoadReviewDataService {
             return;
         }
 
-        Path path = Path.of(csvPath);
-
         List<Apartment> apartments = (List<Apartment>) apartmentRepository.findAll();
 
         if (apartments.isEmpty()) {
@@ -43,7 +41,14 @@ public class LoadReviewDataService {
             return;
         }
 
-        try (BufferedReader br = Files.newBufferedReader(path)) {
+        // Leer desde el classpath (válido para JAR e IntelliJ)
+        InputStream is = getClass().getClassLoader().getResourceAsStream(csvPath);
+
+        if (is == null) {
+            throw new IOException("No se encontró el archivo CSV en el classpath: " + csvPath);
+        }
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             String line = br.readLine(); // saltar cabecera
 
