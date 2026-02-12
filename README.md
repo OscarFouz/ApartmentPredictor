@@ -1,23 +1,27 @@
 # ApartmentPredictor
-Ejercicio reseñas de apartamentos curso AppWeb
+Sistema de gestión y análisis de apartamentos con soporte para herencia JPA, reviews y carga automática desde CSV.
 
-# Backend (Spring Boot + H2 + JPA + Herencia JOINED)
+---
 
-Este backend implementa un sistema completo de gestión de apartamentos con soporte para:
+# Backend — Spring Boot + H2 + JPA (JOINED)
 
-- Persistencia en **H2 Database** (modo archivo)
-- API REST con **Spring Boot**
-- Herencia JPA con estrategia **JOINED**
-- Entidades polimórficas: `Apartment`, `House`, `Duplex`, `TownHouse`
-- Gestión de **reviews** asociadas a apartamentos
+Este backend implementa un sistema completo para gestionar apartamentos y sus reseñas, con soporte para:
+
+- Persistencia en H2 Database (modo archivo)
+- API REST con Spring Boot
+- Herencia JPA con estrategia JOINED
+- Entidades polimórficas: Apartment, House, Duplex, TownHouse
+- Gestión de reviews asociadas a apartamentos
 - Carga inicial de datos desde CSV
 - Serialización JSON con Jackson
 - Controladores REST desacoplados por dominio
+- Exportación de datos a JSON
 
 ---
 
 # Arquitectura del Proyecto
 
+```
 src/main/java/com/example/apartment_predictor
 │
 ├── controller
@@ -46,20 +50,21 @@ src/main/java/com/example/apartment_predictor
 └── utils
     ├── ApartmentJsonWriter.java
     └── PrintingUtils.java
+```
 
 ---
 
 # Modelo de Datos
 
-## Herencia JPA — `Property` como clase base
+## Herencia JPA — Clase base Property
 
-El backend utiliza herencia con estrategia **JOINED**, lo que genera:
+El proyecto utiliza herencia con estrategia JOINED, lo que genera:
 
-- Una tabla `property`
-- Una columna `property_type` generada automáticamente por Hibernate
+- Una tabla base `property`
+- Una columna discriminadora `property_type`
 - Una tabla por cada subclase (`apartment`, `house`, `duplex`, `townhouse`)
 
-Para exponer el tipo al frontend se añade:
+Para exponer el tipo al frontend se recomienda:
 
 ```java
 @Transient
@@ -68,48 +73,48 @@ public String getPropertyType() {
 }
 ```
 
-Este campo es **solo lectura** y no se persiste.
-
 ---
 
-# 🏠 Entidad Apartment
+# Entidad Apartment
 
-- Es la entidad principal del sistema.
-- Contiene atributos comunes (price, bedrooms, bathrooms…)
-- Tiene relación OneToMany con Review:
+- Entidad principal del sistema.
+- Contiene atributos comunes (price, bedrooms, bathrooms, etc.)
+- Relación OneToMany con Review:
 
 ```java
 @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+@JsonManagedReference
 ```
 
-- Usa `@JsonManagedReference` para evitar recursión infinita.
+- Métodos helper: addReview(), removeReview()
+- Constructor con UUID automático
 
 ---
 
-# Entidades Derivadas
+# Subclases de Apartment
 
 ## House
-Añade:
+Atributos adicionales:
 - garageQty
 - roofType
 - garden
 
 ## Duplex
-Añade:
+Atributos adicionales:
 - balcony
 - elevator
 - hasSeparateUtilities
 
 ## TownHouse
-Añade:
+Atributos adicionales:
 - hasHomeownersAssociation
 - hoaMonthlyFee
 
-Cada subclase redefine `calculatePrice()`.
+Cada subclase redefine calculatePrice().
 
 ---
 
-# 📝 Entidad Review
+# Entidad Review
 
 - Relación ManyToOne con Apartment:
 
@@ -119,18 +124,20 @@ Cada subclase redefine `calculatePrice()`.
 @JsonBackReference
 ```
 
-- Tiene:
-  - title
-  - content
-  - rating
-  - reviewDate
+- Campos:
+    - title
+    - content
+    - rating
+    - reviewDate
+
+- UUID automático
 
 ---
 
-# 🗄 Repositorios
+# Repositorios
 
-- `ApartmentRepository` extiende `CrudRepository<Apartment, String>`
-- `ReviewRepository` extiende `CrudRepository<Review, String>`
+- ApartmentRepository → CrudRepository<Apartment, String>
+- ReviewRepository → CrudRepository<Review, String>
 
 ---
 
@@ -159,7 +166,7 @@ Cada subclase redefine `calculatePrice()`.
 - POST /api/apartments
 - PUT /api/apartments/{id}
 - DELETE /api/apartments/{id}
-- GET /api/apartments/export → genera JSON
+- GET /api/apartments/export → genera apartments.json
 
 ## ReviewController
 - GET /api/apartments/{id}/reviews
@@ -180,17 +187,7 @@ app.csv.path=db/Housing.csv
 app.reviews.csv.path=db/Reviews.csv
 ```
 
----
-
-# Ejecución
-
-El backend se ejecuta con:
-
-```
-mvn spring-boot:run
-```
-
-La consola H2 está disponible en:
+Consola H2:
 
 ```
 http://localhost:8080/h2-console
@@ -198,15 +195,21 @@ http://localhost:8080/h2-console
 
 ---
 
-# Exportación de Datos
+# Ejecución
 
-El endpoint:
+```
+mvn spring-boot:run
+```
+
+---
+
+# Exportación de Datos
 
 ```
 GET /api/apartments/export
 ```
 
-Genera un archivo `apartments.json` con todos los apartamentos.
+Genera un archivo apartments.json con todos los apartamentos.
 
 ---
 
@@ -217,5 +220,4 @@ Genera un archivo `apartments.json` con todos los apartamentos.
 - Relaciones bidireccionales controladas
 - Carga automática desde CSV
 - API lista para integrarse con React
-
 

@@ -1,44 +1,53 @@
-# UML – Modelo de Entidades
+# UML – Modelo de Entidades (Proyecto ApartmentPredictor)
 
-## Diagrama de clases (ASCII UML)
+Este documento representa el modelo de entidades del backend utilizando diagramas ASCII UML.  
+Refleja la estructura real del proyecto, incluyendo herencia JPA, relaciones y atributos.
 
+---
+
+# 1. Diagrama de Herencia (Property → Apartment → Subclases)
+
+```
                           ┌──────────────────────────┐
-                          │       Property (abstract) │
+                          │   Property (abstract)     │
                           ├──────────────────────────┤
-                          │ - id : String            │
-                          │ - area : int             │
-                          │ - locationRating : int   │
+                          │ - id : String             │
+                          │ - area : int              │
+                          │ - locationRating : int    │
                           ├──────────────────────────┤
-                          │ + getArea()              │
-                          │ + getLocationRating()    │
-                          │ + calculatePrice() : dbl │
+                          │ + getArea()               │
+                          │ + getLocationRating()     │
+                          │ + setArea(int)            │
+                          │ + setLocationRating(int)  │
+                          │ + calculatePrice() : dbl  │
                           └───────────┬──────────────┘
                                       │
                 ┌─────────────────────┼───────────────────────────┐
                 │                     │                           │
                 ▼                     ▼                           ▼
 
-      ┌──────────────────────┐   ┌──────────────────────┐   ┌────────────────────────┐
-      │      Apartment        │   │        House          │   │       Duplex           │
-      ├──────────────────────┤   ├──────────────────────┤   ├────────────────────────┤
-      │ - id : String        │   │ - garageQty : int     │   │ - balcony : String     │
-      │ - price : Long       │   │ - roofType : String   │   │ - elevator : boolean   │
-      │ - bedrooms : int     │   │ - garden : String     │   │ - hasSeparateUtilities │
-      │ - bathrooms : int    │   ├──────────────────────┤   ├────────────────────────┤
-      │ - stories : int      │   │ + getters/setters     │   │ + getters/setters      │
-      │ - mainroad : String  │   │ + toString()          │   │ + toString()           │
-      │ - guestroom : String │   └──────────────────────┘   └────────────────────────┘
-      │ - basement : String  │
-      │ - hotwaterheating    │
-      │ - airconditioning    │
-      │ - parking : int      │
-      │ - prefarea : String  │
-      │ - furnishingstatus   │
-      ├──────────────────────┤
-      │ + calculatePrice()   │
-      │ + addReview()        │
-      │ + removeReview()     │
-      └───────────┬──────────┘
+      ┌──────────────────────────────┐
+      │          Apartment           │
+      ├──────────────────────────────┤
+      │ - id : String                │
+      │ - price : Long               │
+      │ - bedrooms : Integer         │
+      │ - bathrooms : Integer        │
+      │ - stories : Integer          │
+      │ - mainroad : String          │
+      │ - guestroom : String         │
+      │ - basement : String          │
+      │ - hotwaterheating : String   │
+      │ - airconditioning : String   │
+      │ - parking : Integer          │
+      │ - prefarea : String          │
+      │ - furnishingstatus : String  │
+      │ - reviews : List<Review>     │
+      ├──────────────────────────────┤
+      │ + addReview(Review)          │
+      │ + removeReview(Review)       │
+      │ + calculatePrice()           │
+      └───────────┬──────────────────┘
                   │
                   ▼
 
@@ -48,18 +57,44 @@
       │ - hasHomeownersAssociation   │
       │ - hoaMonthlyFee : double     │
       ├──────────────────────────────┤
-      │ + getters/setters            │
       │ + calculatePrice()           │
       └──────────────────────────────┘
 
 
-## Relación Apartment ↔ Review
+      ┌──────────────────────────────┐
+      │            House             │
+      ├──────────────────────────────┤
+      │ - garageQty : int            │
+      │ - roofType : String          │
+      │ - garden : String            │
+      ├──────────────────────────────┤
+      │ + calculatePrice()           │
+      └──────────────────────────────┘
 
-Apartment "1" ──────────── "0..*" Review  
-(OneToMany / ManyToOne)
 
-ASCII UML:
+      ┌──────────────────────────────┐
+      │            Duplex            │
+      ├──────────────────────────────┤
+      │ - balcony : String           │
+      │ - elevator : boolean         │
+      │ - hasSeparateUtilities : bool│
+      ├──────────────────────────────┤
+      │ + calculatePrice()           │
+      └──────────────────────────────┘
+```
 
+---
+
+# 2. Relación Apartment ↔ Review
+
+Relación real en el proyecto:
+
+- Apartment 1 → * Review
+- Review pertenece a un Apartment
+- Bidireccional
+- Controlada con JsonManagedReference / JsonBackReference
+
+```
       ┌──────────────┐        1        ┌──────────────┐
       │  Apartment    │----------------│    Review     │
       └──────────────┘     0..*        └──────────────┘
@@ -69,9 +104,33 @@ ASCII UML:
              └───────────────────────────────────────┐
                                                      │
                                                      ▼
+```
 
-## Entidad Owner (independiente)
+## Entidad Review (detalle)
 
+```
+      ┌──────────────────────────────┐
+      │            Review            │
+      ├──────────────────────────────┤
+      │ - id : String                │
+      │ - title : String             │
+      │ - content : String           │
+      │ - rating : int               │
+      │ - reviewDate : LocalDate     │
+      │ - apartment : Apartment      │
+      ├──────────────────────────────┤
+      │ + setApartment(Apartment)    │
+      │ + toString()                 │
+      └──────────────────────────────┘
+```
+
+---
+
+# 3. Entidad Owner (independiente)
+
+Owner no participa en relaciones en este proyecto, pero es una entidad persistente.
+
+```
       ┌──────────────────────────┐
       │          Owner           │
       ├──────────────────────────┤
@@ -88,4 +147,20 @@ ASCII UML:
       │ + getters/setters        │
       │ + toString()             │
       └──────────────────────────┘
+```
 
+---
+
+# 4. Resumen del Modelo
+
+- **Property** es la clase base abstracta.
+- **Apartment** hereda de Property y es la entidad principal.
+- **House**, **Duplex** y **TownHouse** heredan de Apartment.
+- **Review** se relaciona con Apartment (ManyToOne).
+- **Owner** es independiente.
+- Se usa herencia JPA con estrategia JOINED.
+- Identificadores generados con UUID.
+
+---
+
+# Fin del documento UML
