@@ -1,14 +1,18 @@
 package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.*;
-import com.example.apartment_predictor.repository.ApartmentRepository;
+import com.example.apartment_predictor.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.apartment_predictor.repository.OwnerRepository;
+
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -17,34 +21,33 @@ public class LoadInitialDataService {
     @Autowired
     private ApartmentRepository apartmentRepository;
 
+    @Autowired
+    private OwnerRepository ownerRepository;
+
+    @Autowired
+    private PropertyContractService contractService;
+
     private final Random random = new Random();
 
     public void importApartmentsFromCSV(String csvPath) throws IOException {
 
-        // Si ya hay datos, no cargar nada
-        if (apartmentRepository.count() > 0) {
-            System.out.println("BD ya tiene datos. No se carga CSV.");
-            return;
-        }
+        if (apartmentRepository.count() > 0) return;
 
-        // Leer desde el classpath (válido para JAR e IntelliJ)
         InputStream is = getClass().getClassLoader().getResourceAsStream(csvPath);
+        if (is == null) throw new IOException("No se encontró CSV: " + csvPath);
 
-        if (is == null) {
-            throw new IOException("No se encontró el archivo CSV en el classpath: " + csvPath);
-        }
+        List<Owner> owners = (List<Owner>) ownerRepository.findAll();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
-            String line = br.readLine(); // saltar cabecera
+            br.readLine(); // cabecera
 
+            String line;
             while ((line = br.readLine()) != null) {
+
                 String[] v = line.split(",");
 
-                // Elegir tipo de propiedad aleatoriamente
-                Apartment apt = createRandomPropertyType();
-
-                // Campos comunes
+                Apartment apt = new Apartment();
                 apt.setPrice(Long.parseLong(v[0]));
                 apt.setArea(Integer.parseInt(v[1]));
                 apt.setBedrooms(Integer.parseInt(v[2]));
@@ -58,53 +61,48 @@ public class LoadInitialDataService {
                 apt.setParking(Integer.parseInt(v[10]));
                 apt.setPrefarea(v[11]);
                 apt.setFurnishingstatus(v[12]);
-
-                // Campo heredado de Property
-                apt.setLocationRating(random.nextInt(5) + 1); // 1–5
-
-                // Rellenar campos específicos según tipo
-                fillSubtypeRandomFields(apt);
+                apt.setLocationRating(random.nextInt(5) + 1);
 
                 apartmentRepository.save(apt);
+
+                int type = random.nextInt(4) + 1;
+
+                switch (type) {
+                    case 2 -> {
+                        House h = new House();
+                        h.setApartment(apt);
+                        h.setGarageQty(random.nextInt(3));
+                        h.setRoofType(randomRoof());
+                        h.setGarden(randomYesNo());
+                        houseRepository.save(h);
+                    }
+                    case 3 -> {
+                        Duplex d = new Duplex();
+                        d.setApartment(apt);
+                        d.setBalcony(randomYesNo());
+                        d.setElevator(random.nextBoolean());
+                        d.setHasSeparateUtilities(random.nextBoolean());
+                        duplexRepository.save(d);
+                    }
+                    case 4 -> {
+                        TownHouse th = new TownHouse();
+                        th.setApartment(apt);
+                        th.setHasHomeownersAssociation(random.nextBoolean());
+                        th.setHoaMonthlyFee(random.nextInt(200) + 50);
+                        townHouseRepository.save(th);
+                    }
+                }
+
+                if (!owners.isEmpty()) {
+                    Owner randomOwner = owners.get(random.nextInt(owners.size()));
+                    contractService.createContract(randomOwner, apt, apt.getPrice());
+                }
             }
-        }
-
-        System.out.println("CSV importado correctamente.");
-    }
-
-    private Apartment createRandomPropertyType() {
-        return switch (random.nextInt(4)) {
-            case 0 -> new Apartment();
-            case 1 -> new House();
-            case 2 -> new Duplex();
-            case 3 -> new TownHouse();
-            default -> new Apartment();
-        };
-    }
-
-    private void fillSubtypeRandomFields(Apartment apt) {
-
-        if (apt instanceof House house) {
-            house.setGarageQty(random.nextInt(3)); // 0–2
-            house.setRoofType(randomRoof());
-            house.setGarden(randomYesNo());
-        }
-
-        if (apt instanceof Duplex duplex) {
-            duplex.setBalcony(randomYesNo());
-            duplex.setElevator(random.nextBoolean());
-            duplex.setHasSeparateUtilities(random.nextBoolean());
-        }
-
-        if (apt instanceof TownHouse th) {
-            th.setHasHomeownersAssociation(random.nextBoolean());
-            th.setHoaMonthlyFee(random.nextInt(200) + 50); // 50–250€
         }
     }
 
     private String randomRoof() {
-        String[] roofs = {"tile", "flat", "wood", "metal"};
-        return roofs[random.nextInt(roofs.length)];
+        return new String[]{"tile", "flat", "wood", "metal"}[random.nextInt(4)];
     }
 
     private String randomYesNo() {

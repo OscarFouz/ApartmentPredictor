@@ -1,18 +1,14 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-public class Owner {
+@DiscriminatorValue("OWNER")
+public class Owner extends Person {
 
-    @Id
-    private String id = UUID.randomUUID().toString();
-    private String name;
     private String email;
     private int age;
     private boolean isActive;
@@ -21,10 +17,15 @@ public class Owner {
     private LocalDate registrationDate;
     private int qtyDaysAsOwner;
 
-    public Owner(){}
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<PropertyContract> contracts = new ArrayList<>();
 
-    public Owner(String name, String email, int age, boolean isActive, boolean isBusiness, String idLegalOwner, LocalDate registrationDate, int qtyDaysAsOwner) {
-        this.name = name;
+    public Owner() {}
+
+    public Owner(String name, String email, int age, boolean isActive, boolean isBusiness,
+                 String idLegalOwner, LocalDate registrationDate, int qtyDaysAsOwner) {
+
+        this.name = name; // heredado de Person
         this.email = email;
         this.age = age;
         this.isActive = isActive;
@@ -34,76 +35,32 @@ public class Owner {
         this.qtyDaysAsOwner = qtyDaysAsOwner;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
 
-    public String getName() {
-        return name;
-    }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public boolean isBusiness() { return isBusiness; }
+    public void setBusiness(boolean business) { isBusiness = business; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getIdLegalOwner() { return idLegalOwner; }
+    public void setIdLegalOwner(String idLegalOwner) { this.idLegalOwner = idLegalOwner; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public LocalDate getRegistrationDate() { return registrationDate; }
+    public void setRegistrationDate(LocalDate registrationDate) { this.registrationDate = registrationDate; }
 
-    public int getAge() {
-        return age;
-    }
+    public int getQtyDaysAsOwner() { return qtyDaysAsOwner; }
+    public void setQtyDaysAsOwner(int qtyDaysAsOwner) { this.qtyDaysAsOwner = qtyDaysAsOwner; }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
+    public List<PropertyContract> getContracts() { return contracts; }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public boolean isBusiness() {
-        return isBusiness;
-    }
-
-    public void setBusiness(boolean business) {
-        isBusiness = business;
-    }
-
-    public String getIdLegalOwner() {
-        return idLegalOwner;
-    }
-
-    public void setIdLegalOwner(String idLegalOwner) {
-        this.idLegalOwner = idLegalOwner;
-    }
-
-    public LocalDate getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(LocalDate registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
-    public int getQtyDaysAsOwner() {
-        return qtyDaysAsOwner;
-    }
-
-    public void setQtyDaysAsOwner(int qtyDaysAsOwner) {
-        this.qtyDaysAsOwner = qtyDaysAsOwner;
+    public void addContract(PropertyContract contract) {
+        contracts.add(contract);
+        contract.setOwner(this);
     }
 
     @Override

@@ -5,13 +5,17 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("APARTMENT")
-public class Apartment extends Property {
+public class Apartment {
+
+    @Id
+    private String id = UUID.randomUUID().toString();
 
     private Long price;
-    protected Integer bedrooms;
+    private Integer area;
+    private Integer bedrooms;
     private Integer bathrooms;
     private Integer stories;
     private String mainroad;
@@ -23,16 +27,17 @@ public class Apartment extends Property {
     private String prefarea;
     private String furnishingstatus;
 
-    @OneToMany(
-            mappedBy = "apartment",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER
-    )
+    private int locationRating;
+
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
-    public Apartment() {
-    }
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    private List<PropertyContract> contracts = new ArrayList<>();
+
+
+    public Apartment() {}
 
     public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
                      Integer stories, String mainroad, String guestroom, String basement,
@@ -54,7 +59,6 @@ public class Apartment extends Property {
         this.furnishingstatus = furnishingstatus;
     }
 
-    @Override
     public double calculatePrice() {
         double basePrice = area * 120 + (bedrooms * 8000);
         return basePrice * (1 + (locationRating * 0.04));
@@ -71,125 +75,64 @@ public class Apartment extends Property {
         review.setApartment(null);
     }
 
+    public void addContract(PropertyContract contract) {
+        contracts.add(contract);
+        contract.setApartment(this);
+    }
+
     // Getters y setters
 
-    public Long getPrice() {
-        return price;
-    }
+    public String getId() { return id; }
 
-    public void setPrice(Long price) {
-        this.price = price;
-    }
+    public Long getPrice() { return price; }
+    public void setPrice(Long price) { this.price = price; }
 
-    @Override
-    public int getArea() {
-        return area;
-    }
+    public Integer getArea() { return area; }
+    public void setArea(Integer area) { this.area = area; }
 
-    public void setArea(Integer area) {
-        this.area = area;
-    }
+    public Integer getBedrooms() { return bedrooms; }
+    public void setBedrooms(Integer bedrooms) { this.bedrooms = bedrooms; }
 
-    public Integer getBedrooms() {
-        return bedrooms;
-    }
+    public Integer getBathrooms() { return bathrooms; }
+    public void setBathrooms(Integer bathrooms) { this.bathrooms = bathrooms; }
 
-    public void setBedrooms(Integer bedrooms) {
-        this.bedrooms = bedrooms;
-    }
+    public Integer getStories() { return stories; }
+    public void setStories(Integer stories) { this.stories = stories; }
 
-    public Integer getBathrooms() {
-        return bathrooms;
-    }
+    public String getMainroad() { return mainroad; }
+    public void setMainroad(String mainroad) { this.mainroad = mainroad; }
 
-    public void setBathrooms(Integer bathrooms) {
-        this.bathrooms = bathrooms;
-    }
+    public String getGuestroom() { return guestroom; }
+    public void setGuestroom(String guestroom) { this.guestroom = guestroom; }
 
-    public Integer getStories() {
-        return stories;
-    }
+    public String getBasement() { return basement; }
+    public void setBasement(String basement) { this.basement = basement; }
 
-    public void setStories(Integer stories) {
-        this.stories = stories;
-    }
+    public String getHotwaterheating() { return hotwaterheating; }
+    public void setHotwaterheating(String hotwaterheating) { this.hotwaterheating = hotwaterheating; }
 
-    public String getMainroad() {
-        return mainroad;
-    }
+    public String getAirconditioning() { return airconditioning; }
+    public void setAirconditioning(String airconditioning) { this.airconditioning = airconditioning; }
 
-    public void setMainroad(String mainroad) {
-        this.mainroad = mainroad;
-    }
+    public Integer getParking() { return parking; }
+    public void setParking(Integer parking) { this.parking = parking; }
 
-    public String getGuestroom() {
-        return guestroom;
-    }
+    public String getPrefarea() { return prefarea; }
+    public void setPrefarea(String prefarea) { this.prefarea = prefarea; }
 
-    public void setGuestroom(String guestroom) {
-        this.guestroom = guestroom;
-    }
+    public String getFurnishingstatus() { return furnishingstatus; }
+    public void setFurnishingstatus(String furnishingstatus) { this.furnishingstatus = furnishingstatus; }
 
-    public String getBasement() {
-        return basement;
-    }
+    public int getLocationRating() { return locationRating; }
+    public void setLocationRating(int locationRating) { this.locationRating = locationRating; }
 
-    public void setBasement(String basement) {
-        this.basement = basement;
-    }
-
-    public String getHotwaterheating() {
-        return hotwaterheating;
-    }
-
-    public void setHotwaterheating(String hotwaterheating) {
-        this.hotwaterheating = hotwaterheating;
-    }
-
-    public String getAirconditioning() {
-        return airconditioning;
-    }
-
-    public void setAirconditioning(String airconditioning) {
-        this.airconditioning = airconditioning;
-    }
-
-    public Integer getParking() {
-        return parking;
-    }
-
-    public void setParking(Integer parking) {
-        this.parking = parking;
-    }
-
-    public String getPrefarea() {
-        return prefarea;
-    }
-
-    public void setPrefarea(String prefarea) {
-        this.prefarea = prefarea;
-    }
-
-    public String getFurnishingstatus() {
-        return furnishingstatus;
-    }
-
-    public void setFurnishingstatus(String furnishingstatus) {
-        this.furnishingstatus = furnishingstatus;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
+    public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 
     @Override
     public String toString() {
         return "Apartment{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", price=" + price +
                 ", area=" + area +
                 ", bedrooms=" + bedrooms +
@@ -203,6 +146,7 @@ public class Apartment extends Property {
                 ", parking=" + parking +
                 ", prefarea='" + prefarea + '\'' +
                 ", furnishingstatus='" + furnishingstatus + '\'' +
+                ", locationRating=" + locationRating +
                 '}';
     }
 }

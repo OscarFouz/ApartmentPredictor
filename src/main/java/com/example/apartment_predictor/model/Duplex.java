@@ -1,36 +1,23 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("DUPLEX")
-public class Duplex extends Apartment {
+public class Duplex {
+
+    @Id
+    private String id = UUID.randomUUID().toString();
 
     private String balcony;
     private boolean elevator;
     private boolean hasSeparateUtilities;
 
-    public Duplex() {
-    }
+    @OneToOne
+    @JoinColumn(name = "apartment_id")
+    private Apartment apartment;
 
-    public Duplex(String balcony, boolean elevator, boolean hasSeparateUtilities) {
-        this.balcony = balcony;
-        this.elevator = elevator;
-        this.hasSeparateUtilities = hasSeparateUtilities;
-    }
-
-    @Override
-    public double calculatePrice() {
-        double basePrice = area * 120 + (bedrooms * 8000);
-        if (elevator) {
-            basePrice *= 1.15;
-        }
-        if (hasSeparateUtilities) {
-            basePrice *= 1.15;
-        }
-        return basePrice * (1 + (locationRating * 0.04));
-    }
+    public Duplex() {}
 
     public String getBalcony() {
         return balcony;
@@ -56,6 +43,14 @@ public class Duplex extends Apartment {
         this.hasSeparateUtilities = hasSeparateUtilities;
     }
 
+    public Apartment getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(Apartment apartment) {
+        this.apartment = apartment;
+    }
+
     @Override
     public String toString() {
         return "Duplex{" +
@@ -63,6 +58,7 @@ public class Duplex extends Apartment {
                 ", balcony='" + balcony + '\'' +
                 ", elevator=" + elevator +
                 ", hasSeparateUtilities=" + hasSeparateUtilities +
+                ", apartmentId='" + (apartment != null ? apartment.getId() : null) + '\'' +
                 '}';
     }
 }

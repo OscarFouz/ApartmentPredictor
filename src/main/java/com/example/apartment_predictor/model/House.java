@@ -1,30 +1,23 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
-@DiscriminatorValue("HOUSE")
-public class House extends Apartment {
+public class House {
+
+    @Id
+    private String id = UUID.randomUUID().toString();
 
     private int garageQty;
     private String roofType;
     private String garden;
 
-    public House() {
-    }
+    @OneToOne
+    @JoinColumn(name = "apartment_id")
+    private Apartment apartment;
 
-    public House(int garageQty, String roofType, String garden) {
-        this.garageQty = garageQty;
-        this.roofType = roofType;
-        this.garden = garden;
-    }
-
-    @Override
-    public double calculatePrice() {
-        double base = super.calculatePrice();
-        return base + (garageQty * 5000);
-    }
+    public House() {}
 
     public int getGarageQty() {
         return garageQty;
@@ -50,13 +43,22 @@ public class House extends Apartment {
         this.garden = garden;
     }
 
+    public Apartment getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(Apartment apartment) {
+        this.apartment = apartment;
+    }
+
     @Override
     public String toString() {
         return "House{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", garageQty=" + garageQty +
                 ", roofType='" + roofType + '\'' +
                 ", garden='" + garden + '\'' +
+                ", apartmentId='" + (apartment != null ? apartment.getId() : null) + '\'' +
                 '}';
     }
 }
