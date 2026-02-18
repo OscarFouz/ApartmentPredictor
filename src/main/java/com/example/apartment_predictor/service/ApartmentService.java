@@ -52,8 +52,6 @@ public class ApartmentService {
                 r.setApartment(newApartment);
             }
         }
-
-        // Mantener el ID original (tu entidad no tiene setId)
         return apartmentRepository.save(newApartment);
     }
 

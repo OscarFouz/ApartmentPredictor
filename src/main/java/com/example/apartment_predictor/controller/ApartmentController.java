@@ -5,6 +5,7 @@ import com.example.apartment_predictor.service.ApartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,13 @@ public class ApartmentController {
 
     @GetMapping
     public ResponseEntity<Iterable<Apartment>> getAll() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Status", "getAllApartments executed");
+        headers.add("version", "1.0 Api Rest Apartment Object");
+        headers.add("active", "true");
+        headers.add("author", "Oscar");
+
         return ResponseEntity.ok(apartmentService.findAll());
     }
 
