@@ -5,13 +5,11 @@ import com.example.apartment_predictor.service.ApartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.nd4j.shade.protobuf.compiler.PluginProtos;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.net.URI;
-
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -24,13 +22,11 @@ public class ApartmentController {
         this.apartmentService = apartmentService;
     }
 
-    // GET /api/apartments
     @GetMapping
     public ResponseEntity<Iterable<Apartment>> getAll() {
         return ResponseEntity.ok(apartmentService.findAll());
     }
 
-    // GET /api/apartments/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Apartment> getById(@PathVariable String id) {
         Apartment apt = apartmentService.findApartmentById(id);
@@ -40,7 +36,6 @@ public class ApartmentController {
         return ResponseEntity.ok(apt);
     }
 
-    // POST /api/apartments
     @PostMapping
     public ResponseEntity<Apartment> create(@RequestBody Apartment apartment) {
         Apartment created = apartmentService.createApartment(apartment);
@@ -49,7 +44,6 @@ public class ApartmentController {
                 .body(created);
     }
 
-    // PUT /api/apartments/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Apartment> update(
             @PathVariable String id,
@@ -62,7 +56,6 @@ public class ApartmentController {
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE /api/apartments/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         Apartment existing = apartmentService.findApartmentById(id);
@@ -79,7 +72,7 @@ public class ApartmentController {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // opcional: fecha legible
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         try {
             mapper.writerWithDefaultPrettyPrinter()
@@ -91,7 +84,4 @@ public class ApartmentController {
                     .body("Error generando archivo: " + e.getMessage());
         }
     }
-
-
-
 }

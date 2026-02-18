@@ -29,13 +29,17 @@ public class Apartment {
 
     private int locationRating;
 
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(
+            mappedBy = "apartment",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true
+    )
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
     private List<PropertyContract> contracts = new ArrayList<>();
-
 
     public Apartment() {}
 
@@ -64,7 +68,6 @@ public class Apartment {
         return basePrice * (1 + (locationRating * 0.04));
     }
 
-    // helpers
     public void addReview(Review review) {
         reviews.add(review);
         review.setApartment(this);
@@ -79,8 +82,6 @@ public class Apartment {
         contracts.add(contract);
         contract.setApartment(this);
     }
-
-    // Getters y setters
 
     public String getId() { return id; }
 

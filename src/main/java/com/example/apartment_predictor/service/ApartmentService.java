@@ -1,12 +1,11 @@
 package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.Apartment;
+import com.example.apartment_predictor.model.Review;
 import com.example.apartment_predictor.repository.ApartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.apartment_predictor.model.Review;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,19 +19,22 @@ public class ApartmentService {
     }
 
     public Apartment createApartment(Apartment apartment){
-        return apartmentRepository.save(apartment);
-    }
-
-    public Apartment updateApartment (Apartment apartment){
-
-        return apartmentRepository.save(apartment);
-    }
-
-
-    public Apartment updateApartmentById (String id, Apartment apartment){
-        if (id == null || apartment == null) {
-            return null;
+        if (apartment.getReviews() != null) {
+            for (Review r : apartment.getReviews()) {
+                r.setApartment(apartment);
+            }
         }
+        return apartmentRepository.save(apartment);
+    }
+
+    public Apartment updateApartment(Apartment apartment){
+        return apartmentRepository.save(apartment);
+    }
+
+    /**
+     * PUT REAL: Reemplaza completamente el apartamento existente por el nuevo.
+     */
+    public Apartment updateApartmentById(String id, Apartment newApartment) {
 
         Optional<Apartment> existingOpt = apartmentRepository.findById(id);
         if (existingOpt.isEmpty()) {
@@ -40,40 +42,26 @@ public class ApartmentService {
         }
 
         Apartment existing = existingOpt.get();
-        existing.setPrice(apartment.getPrice());
-        existing.setArea(apartment.getArea());
-        existing.setBedrooms(apartment.getBedrooms());
-        existing.setBathrooms(apartment.getBathrooms());
-        existing.setStories(apartment.getStories());
-        existing.setMainroad(apartment.getMainroad());
-        existing.setGuestroom(apartment.getGuestroom());
-        existing.setBasement(apartment.getBasement());
-        existing.setHotwaterheating(apartment.getHotwaterheating());
-        existing.setAirconditioning(apartment.getAirconditioning());
-        existing.setParking(apartment.getParking());
-        existing.setPrefarea(apartment.getPrefarea());
-        existing.setFurnishingstatus(apartment.getFurnishingstatus());
 
-        if (apartment.getReviews() != null) {
-            existing.setReviews(apartment.getReviews());
-            for (Review review : existing.getReviews()) {
-                if (review != null) {
-                    review.setApartment(existing);
-                }
+        // Limpiar reviews antiguas para evitar duplicados o merges raros
+        existing.getReviews().clear();
+
+        // Reasignar reviews al nuevo objeto
+        if (newApartment.getReviews() != null) {
+            for (Review r : newApartment.getReviews()) {
+                r.setApartment(newApartment);
             }
         }
 
-        return apartmentRepository.save(existing);
+        // Mantener el ID original (tu entidad no tiene setId)
+        return apartmentRepository.save(newApartment);
     }
-    public void deleteApartment (String id){
+
+    public void deleteApartment(String id){
         apartmentRepository.deleteById(id);
     }
 
-    public Apartment findApartmentById (String id){
-        Optional<Apartment> found = apartmentRepository.findById(id);
-        if ( found.isPresent()) return found.get() ;
-        else return null;
+    public Apartment findApartmentById(String id){
+        return apartmentRepository.findById(id).orElse(null);
     }
-
-    public void findApartmentByPrice (){}
 }
