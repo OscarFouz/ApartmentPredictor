@@ -2,6 +2,9 @@ package com.example.apartment_predictor.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Duplex {
 
@@ -19,6 +22,24 @@ public class Duplex {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
+
+    @ManyToMany
+    @JoinTable(
+            name = "duplex_school",
+            joinColumns = @JoinColumn(name = "duplex_id"),
+            inverseJoinColumns = @JoinColumn(name = "school_id")
+    )
+    private List<School> nearbySchools = new ArrayList<>();
+
+    public List<School> getNearbySchools() {
+        return nearbySchools;
+    }
+
+    public void setNearbySchools(List<School> nearbySchools) {
+        this.nearbySchools = nearbySchools;
+    }
+
+
 
     public Duplex() {
     }

@@ -6,7 +6,9 @@ import net.datafaker.Faker;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 @Service
 public class PopulateMasterService {
@@ -19,6 +21,9 @@ public class PopulateMasterService {
     private final TownHouseRepository townHouseRepository;
     private final ReviewRepository reviewRepository;
     private final PropertyContractRepository propertyContractRepository;
+    private final SchoolRepository schoolRepository;
+
+    private final Random random = new Random();
 
     public PopulateMasterService(ApartmentRepository apartmentRepository,
                                  OwnerRepository ownerRepository,
@@ -27,7 +32,8 @@ public class PopulateMasterService {
                                  DuplexRepository duplexRepository,
                                  TownHouseRepository townHouseRepository,
                                  ReviewRepository reviewRepository,
-                                 PropertyContractRepository propertyContractRepository) {
+                                 PropertyContractRepository propertyContractRepository,
+                                 SchoolRepository schoolRepository) {
 
         this.apartmentRepository = apartmentRepository;
         this.ownerRepository = ownerRepository;
@@ -37,6 +43,7 @@ public class PopulateMasterService {
         this.townHouseRepository = townHouseRepository;
         this.reviewRepository = reviewRepository;
         this.propertyContractRepository = propertyContractRepository;
+        this.schoolRepository = schoolRepository;
     }
 
     public void populate() {
@@ -44,9 +51,32 @@ public class PopulateMasterService {
         Faker faker = new Faker(new Locale("es"));
 
         // ============================
-        // 1. Crear Owners
+        // 1. Crear Schools
         // ============================
-        for (int i = 0; i < 5; i++) {
+
+        for (int i = 0; i < 15; i++) {
+
+            School school = new School(
+                    faker.university().name(),
+                    faker.address().fullAddress(),
+                    faker.options().option("público", "privado", "concertado"),
+                    faker.options().option("infantil", "primaria", "secundaria", "bachillerato"),
+                    Double.parseDouble(faker.address().latitude().replace(",", ".")),
+                    Double.parseDouble(faker.address().longitude().replace(",", ".")),
+                    faker.number().randomDouble(1, 3, 10),
+                    faker.number().numberBetween(200, 1500)
+            );
+
+            schoolRepository.save(school);
+        }
+
+        List<School> allSchools = schoolRepository.findAll();
+
+        // ============================
+        // 2. Crear Owners
+        // ============================
+
+        for (int i = 0; i < 20; i++) {
 
             Owner owner = new Owner(
                     faker.name().fullName(),
@@ -56,10 +86,14 @@ public class PopulateMasterService {
             ownerRepository.save(owner);
 
             // ============================
-            // 2. Crear Apartments + Contracts + Casas
+            // 3. Crear Apartments + Houses + Duplex + TownHouse
             // ============================
+
             for (int j = 0; j < 3; j++) {
 
+                // ----------------------------
+                // APARTMENT
+                // ----------------------------
                 Apartment apt = new Apartment(
                         faker.number().numberBetween(50000, 300000),
                         faker.number().numberBetween(40, 200),
@@ -77,48 +111,88 @@ public class PopulateMasterService {
                 );
                 apartmentRepository.save(apt);
 
-                // Crear contrato Owner ↔ Apartment
-                PropertyContract contract = new PropertyContract();
-                contract.setOwner(owner);
-                contract.setApartment(apt);
-                contract.setAgreedPrice(apt.getPrice());
-                contract.setStartDate(LocalDate.now().minusDays(faker.number().numberBetween(0, 365)));
-                contract.setActive(true);
-                propertyContractRepository.save(contract);
+                apt.getNearbySchools().addAll(getRandomSchools(allSchools));
+                apartmentRepository.save(apt);
 
-                // Crear House
+                // CONTRATO APARTMENT
+                PropertyContract contractApt = new PropertyContract();
+                contractApt.setOwner(owner);
+                contractApt.setApartment(apt);
+                contractApt.setAgreedPrice(apt.getPrice());
+                contractApt.setStartDate(LocalDate.now().minusDays(faker.number().numberBetween(0, 365)));
+                contractApt.setActive(true);
+                propertyContractRepository.save(contractApt);
+
+                // ----------------------------
+                // HOUSE
+                // ----------------------------
                 House house = new House(
                         "Casa " + faker.address().streetName(),
                         faker.address().fullAddress(),
                         apt,
                         owner
                 );
+                house.getNearbySchools().addAll(getRandomSchools(allSchools));
                 houseRepository.save(house);
 
-                // Crear Duplex
+                // CONTRATO HOUSE
+                PropertyContract contractHouse = new PropertyContract();
+                contractHouse.setOwner(owner);
+                contractHouse.setHouse(house);
+                contractHouse.setAgreedPrice(apt.getPrice() + faker.number().numberBetween(5000, 20000));
+                contractHouse.setStartDate(LocalDate.now().minusDays(faker.number().numberBetween(0, 365)));
+                contractHouse.setActive(true);
+                propertyContractRepository.save(contractHouse);
+
+                // ----------------------------
+                // DUPLEX
+                // ----------------------------
                 Duplex duplex = new Duplex(
                         "Dúplex " + faker.address().streetName(),
                         faker.address().fullAddress(),
                         apt,
                         owner
                 );
+                duplex.getNearbySchools().addAll(getRandomSchools(allSchools));
                 duplexRepository.save(duplex);
 
-                // Crear TownHouse
+                // CONTRATO DUPLEX
+                PropertyContract contractDuplex = new PropertyContract();
+                contractDuplex.setOwner(owner);
+                contractDuplex.setDuplex(duplex);
+                contractDuplex.setAgreedPrice(apt.getPrice() + faker.number().numberBetween(10000, 30000));
+                contractDuplex.setStartDate(LocalDate.now().minusDays(faker.number().numberBetween(0, 365)));
+                contractDuplex.setActive(true);
+                propertyContractRepository.save(contractDuplex);
+
+                // ----------------------------
+                // TOWNHOUSE
+                // ----------------------------
                 TownHouse townHouse = new TownHouse(
                         "Adosado " + faker.address().streetName(),
                         faker.address().fullAddress(),
                         apt,
                         owner
                 );
+                townHouse.getNearbySchools().addAll(getRandomSchools(allSchools));
                 townHouseRepository.save(townHouse);
+
+                // CONTRATO TOWNHOUSE
+                PropertyContract contractTown = new PropertyContract();
+                contractTown.setOwner(owner);
+                contractTown.setTownHouse(townHouse);
+                contractTown.setAgreedPrice(apt.getPrice() + faker.number().numberBetween(8000, 25000));
+                contractTown.setStartDate(LocalDate.now().minusDays(faker.number().numberBetween(0, 365)));
+                contractTown.setActive(true);
+                propertyContractRepository.save(contractTown);
             }
         }
 
         // ============================
-        // 3. Crear Reviewers
+        // 4. Crear Reviewers
         // ============================
-        for (int i = 0; i < 5; i++) {
+
+        for (int i = 0; i < 15; i++) {
             Reviewer reviewer = new Reviewer(
                     faker.name().fullName(),
                     faker.internet().emailAddress(),
@@ -128,8 +202,9 @@ public class PopulateMasterService {
         }
 
         // ============================
-        // 4. Crear Reviews para Apartments
+        // 5. Crear Reviews para Apartments
         // ============================
+
         var apartments = apartmentRepository.findAll();
         var reviewers = reviewerRepository.findAll().iterator();
 
@@ -156,6 +231,17 @@ public class PopulateMasterService {
             }
         }
 
-        System.out.println("=== Base de datos poblada correctamente ===");
+        System.out.println("=== Base de datos poblada correctamente con Schools, Properties y Contracts ===");
+    }
+
+    // ============================
+    // MÉTODO AUXILIAR
+    // ============================
+
+    private List<School> getRandomSchools(List<School> schools) {
+        return schools.stream()
+                .filter(s -> random.nextBoolean())
+                .limit(3)
+                .toList();
     }
 }

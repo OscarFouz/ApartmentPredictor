@@ -27,12 +27,14 @@ public class PropertyContractService {
     }
 
     public PropertyContract createContract(Owner owner, Apartment apartment, double agreedPrice) {
-        PropertyContract contract = new PropertyContract(
-                owner,
-                apartment,
-                LocalDate.now(),
-                agreedPrice
-        );
+
+        PropertyContract contract = new PropertyContract();
+        contract.setOwner(owner);
+        contract.setApartment(apartment);
+        contract.setAgreedPrice(agreedPrice);
+        contract.setStartDate(LocalDate.now());
+        contract.setActive(true);
+
         return contractRepository.save(contract);
     }
 

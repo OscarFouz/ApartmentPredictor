@@ -40,6 +40,27 @@ public class Apartment {
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
     private List<PropertyContract> contracts = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "apartment_school",
+            joinColumns = @JoinColumn(name = "apartment_id"),
+            inverseJoinColumns = @JoinColumn(name = "school_id")
+    )
+    private List<School> nearbySchools = new ArrayList<>();
+
+    public List<School> getNearbySchools() {
+        return nearbySchools;
+    }
+
+    public void setNearbySchools(List<School> nearbySchools) {
+        this.nearbySchools = nearbySchools;
+    }
+
+
+
+
+
+
     // ============================
     // CONSTRUCTORES
     // ============================

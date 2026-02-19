@@ -13,6 +13,7 @@ public class Review {
     private String id;
 
     private String title;
+    @Lob
     private String content;
     private int rating;
     private LocalDate reviewDate;

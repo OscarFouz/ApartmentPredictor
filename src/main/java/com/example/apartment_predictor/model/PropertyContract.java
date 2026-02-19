@@ -2,13 +2,24 @@ package com.example.apartment_predictor.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 public class PropertyContract {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    private double agreedPrice;
+
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    private boolean active;
+
+    // ============================
+    // RELACIONES
+    // ============================
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -18,39 +29,45 @@ public class PropertyContract {
     @JoinColumn(name = "apartment_id")
     private Apartment apartment;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private boolean active;
-    private double agreedPrice;
+    @ManyToOne
+    @JoinColumn(name = "house_id")
+    private House house;
+
+    @ManyToOne
+    @JoinColumn(name = "duplex_id")
+    private Duplex duplex;
+
+    @ManyToOne
+    @JoinColumn(name = "townhouse_id")
+    private TownHouse townHouse;
+
+    // ============================
+    // CONSTRUCTORES
+    // ============================
 
     public PropertyContract() {}
 
-    public PropertyContract(Owner owner, Apartment apartment, LocalDate startDate, double agreedPrice) {
-        this.owner = owner;
-        this.apartment = apartment;
-        this.startDate = startDate;
+    public PropertyContract(double agreedPrice, LocalDate startDate, LocalDate endDate, boolean active) {
         this.agreedPrice = agreedPrice;
-        this.active = true;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.active = active;
     }
+
+    // ============================
+    // GETTERS & SETTERS
+    // ============================
 
     public String getId() {
         return id;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public double getAgreedPrice() {
+        return agreedPrice;
     }
 
-    public void setOwner(Owner owner) {
-        this.owner = owner;
-    }
-
-    public Apartment getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(Apartment apartment) {
-        this.apartment = apartment;
+    public void setAgreedPrice(double agreedPrice) {
+        this.agreedPrice = agreedPrice;
     }
 
     public LocalDate getStartDate() {
@@ -77,24 +94,58 @@ public class PropertyContract {
         this.active = active;
     }
 
-    public double getAgreedPrice() {
-        return agreedPrice;
+    public Owner getOwner() {
+        return owner;
     }
 
-    public void setAgreedPrice(double agreedPrice) {
-        this.agreedPrice = agreedPrice;
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
+
+    public Apartment getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(Apartment apartment) {
+        this.apartment = apartment;
+    }
+
+    public House getHouse() {
+        return house;
+    }
+
+    public void setHouse(House house) {
+        this.house = house;
+    }
+
+    public Duplex getDuplex() {
+        return duplex;
+    }
+
+    public void setDuplex(Duplex duplex) {
+        this.duplex = duplex;
+    }
+
+    public TownHouse getTownHouse() {
+        return townHouse;
+    }
+
+    public void setTownHouse(TownHouse townHouse) {
+        this.townHouse = townHouse;
+    }
+
+    // ============================
+    // TO STRING (SEGURO)
+    // ============================
 
     @Override
     public String toString() {
         return "PropertyContract{" +
                 "id='" + id + '\'' +
-                ", owner=" + (owner != null ? owner.getId() : null) +
-                ", apartment=" + (apartment != null ? apartment.getId() : null) +
+                ", agreedPrice=" + agreedPrice +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", active=" + active +
-                ", agreedPrice=" + agreedPrice +
                 '}';
     }
 }
