@@ -1,19 +1,27 @@
-
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@DiscriminatorValue("REVIEWER")
 public class Reviewer extends Person {
 
     private String email;
     private int reputation;
 
-    public Reviewer() {}
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
 
-    // getters y setters
+    public Reviewer() {
+    }
+
+    public Reviewer(String name, String email, int reputation) {
+        super(name);
+        this.email = email;
+        this.reputation = reputation;
+    }
 
     public String getEmail() {
         return email;
@@ -31,14 +39,22 @@ public class Reviewer extends Person {
         this.reputation = reputation;
     }
 
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void addReview(Review review) {
+        reviews.add(review);
+        review.setReviewer(this);
+    }
+
     @Override
     public String toString() {
         return "Reviewer{" +
-                "email='" + email + '\'' +
+                "id='" + getId() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", email='" + email + '\'' +
                 ", reputation=" + reputation +
-                ", id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
                 '}';
     }
 }

@@ -1,20 +1,35 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.*;
-import java.util.UUID;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "person_type")
+@MappedSuperclass
 public abstract class Person {
 
     @Id
-    protected String id = UUID.randomUUID().toString();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    protected String name;
-    protected String surname;
+    private String name;
 
-    //getters
+    // ============================
+    // CONSTRUCTOR VACÍO (OBLIGATORIO PARA JPA)
+    // ============================
+    public Person() {
+    }
+
+    // ============================
+    // CONSTRUCTOR CON ARGUMENTOS
+    // ============================
+    public Person(String name) {
+        this.name = name;
+    }
+
+    // ============================
+    // GETTERS & SETTERS
+    // ============================
 
     public String getId() {
         return id;
@@ -24,28 +39,9 @@ public abstract class Person {
         return name;
     }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    //setters
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
 
-    //toString
-
-    @Override
-    public String toString() {
-        return "Person{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                '}';
-    }
 }

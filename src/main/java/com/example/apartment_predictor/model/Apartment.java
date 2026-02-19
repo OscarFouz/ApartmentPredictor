@@ -5,48 +5,61 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 public class Apartment {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    private Long price;
+    private Integer price;
     private Integer area;
     private Integer bedrooms;
     private Integer bathrooms;
     private Integer stories;
+
     private String mainroad;
     private String guestroom;
     private String basement;
     private String hotwaterheating;
     private String airconditioning;
+
     private Integer parking;
     private String prefarea;
     private String furnishingstatus;
 
-    private int locationRating;
+    // ============================
+    // RELACIONES
+    // ============================
 
-    @OneToMany(
-            mappedBy = "apartment",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
     private List<PropertyContract> contracts = new ArrayList<>();
 
-    public Apartment() {}
+    // ============================
+    // CONSTRUCTORES
+    // ============================
 
-    public Apartment(Long price, Integer area, Integer bedrooms, Integer bathrooms,
-                     Integer stories, String mainroad, String guestroom, String basement,
-                     String hotwaterheating, String airconditioning,
-                     Integer parking, String prefarea, String furnishingstatus) {
+    public Apartment() {
+    }
+
+    public Apartment(Integer price,
+                     Integer area,
+                     Integer bedrooms,
+                     Integer bathrooms,
+                     Integer stories,
+                     String mainroad,
+                     String guestroom,
+                     String basement,
+                     String hotwaterheating,
+                     String airconditioning,
+                     Integer parking,
+                     String prefarea,
+                     String furnishingstatus) {
 
         this.price = price;
         this.area = area;
@@ -63,72 +76,125 @@ public class Apartment {
         this.furnishingstatus = furnishingstatus;
     }
 
-    public double calculatePrice() {
-        double basePrice = area * 120 + (bedrooms * 8000);
-        return basePrice * (1 + (locationRating * 0.04));
+    // ============================
+    // GETTERS & SETTERS
+    // ============================
+
+    public String getId() {
+        return id;
     }
 
-    public void addReview(Review review) {
-        reviews.add(review);
-        review.setApartment(this);
+    public Integer getPrice() {
+        return price;
     }
 
-    public void removeReview(Review review) {
-        reviews.remove(review);
-        review.setApartment(null);
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 
-    public void addContract(PropertyContract contract) {
-        contracts.add(contract);
-        contract.setApartment(this);
+    public Integer getArea() {
+        return area;
     }
 
-    public String getId() { return id; }
+    public void setArea(Integer area) {
+        this.area = area;
+    }
 
-    public Long getPrice() { return price; }
-    public void setPrice(Long price) { this.price = price; }
+    public Integer getBedrooms() {
+        return bedrooms;
+    }
 
-    public Integer getArea() { return area; }
-    public void setArea(Integer area) { this.area = area; }
+    public void setBedrooms(Integer bedrooms) {
+        this.bedrooms = bedrooms;
+    }
 
-    public Integer getBedrooms() { return bedrooms; }
-    public void setBedrooms(Integer bedrooms) { this.bedrooms = bedrooms; }
+    public Integer getBathrooms() {
+        return bathrooms;
+    }
 
-    public Integer getBathrooms() { return bathrooms; }
-    public void setBathrooms(Integer bathrooms) { this.bathrooms = bathrooms; }
+    public void setBathrooms(Integer bathrooms) {
+        this.bathrooms = bathrooms;
+    }
 
-    public Integer getStories() { return stories; }
-    public void setStories(Integer stories) { this.stories = stories; }
+    public Integer getStories() {
+        return stories;
+    }
 
-    public String getMainroad() { return mainroad; }
-    public void setMainroad(String mainroad) { this.mainroad = mainroad; }
+    public void setStories(Integer stories) {
+        this.stories = stories;
+    }
 
-    public String getGuestroom() { return guestroom; }
-    public void setGuestroom(String guestroom) { this.guestroom = guestroom; }
+    public String getMainroad() {
+        return mainroad;
+    }
 
-    public String getBasement() { return basement; }
-    public void setBasement(String basement) { this.basement = basement; }
+    public void setMainroad(String mainroad) {
+        this.mainroad = mainroad;
+    }
 
-    public String getHotwaterheating() { return hotwaterheating; }
-    public void setHotwaterheating(String hotwaterheating) { this.hotwaterheating = hotwaterheating; }
+    public String getGuestroom() {
+        return guestroom;
+    }
 
-    public String getAirconditioning() { return airconditioning; }
-    public void setAirconditioning(String airconditioning) { this.airconditioning = airconditioning; }
+    public void setGuestroom(String guestroom) {
+        this.guestroom = guestroom;
+    }
 
-    public Integer getParking() { return parking; }
-    public void setParking(Integer parking) { this.parking = parking; }
+    public String getBasement() {
+        return basement;
+    }
 
-    public String getPrefarea() { return prefarea; }
-    public void setPrefarea(String prefarea) { this.prefarea = prefarea; }
+    public void setBasement(String basement) {
+        this.basement = basement;
+    }
 
-    public String getFurnishingstatus() { return furnishingstatus; }
-    public void setFurnishingstatus(String furnishingstatus) { this.furnishingstatus = furnishingstatus; }
+    public String getHotwaterheating() {
+        return hotwaterheating;
+    }
 
-    public int getLocationRating() { return locationRating; }
-    public void setLocationRating(int locationRating) { this.locationRating = locationRating; }
+    public void setHotwaterheating(String hotwaterheating) {
+        this.hotwaterheating = hotwaterheating;
+    }
 
-    public List<Review> getReviews() { return reviews; }
-    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
+    public String getAirconditioning() {
+        return airconditioning;
+    }
+
+    public void setAirconditioning(String airconditioning) {
+        this.airconditioning = airconditioning;
+    }
+
+    public Integer getParking() {
+        return parking;
+    }
+
+    public void setParking(Integer parking) {
+        this.parking = parking;
+    }
+
+    public String getPrefarea() {
+        return prefarea;
+    }
+
+    public void setPrefarea(String prefarea) {
+        this.prefarea = prefarea;
+    }
+
+    public String getFurnishingstatus() {
+        return furnishingstatus;
+    }
+
+    public void setFurnishingstatus(String furnishingstatus) {
+        this.furnishingstatus = furnishingstatus;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public List<PropertyContract> getContracts() {
+        return contracts;
+    }
 
     @Override
     public String toString() {
@@ -139,15 +205,6 @@ public class Apartment {
                 ", bedrooms=" + bedrooms +
                 ", bathrooms=" + bathrooms +
                 ", stories=" + stories +
-                ", mainroad='" + mainroad + '\'' +
-                ", guestroom='" + guestroom + '\'' +
-                ", basement='" + basement + '\'' +
-                ", hotwater='" + hotwaterheating + '\'' +
-                ", airconditioning='" + airconditioning + '\'' +
-                ", parking=" + parking +
-                ", prefarea='" + prefarea + '\'' +
-                ", furnishingstatus='" + furnishingstatus + '\'' +
-                ", locationRating=" + locationRating +
                 '}';
     }
 }

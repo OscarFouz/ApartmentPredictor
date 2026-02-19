@@ -1,80 +1,91 @@
 package com.example.apartment_predictor.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("OWNER")
 public class Owner extends Person {
 
     private String email;
-    private int age;
-    private boolean isActive;
-    private boolean isBusiness;
-    private String idLegalOwner;
-    private LocalDate registrationDate;
-    private int qtyDaysAsOwner;
+    private String phone;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<PropertyContract> contracts = new ArrayList<>();
 
-    public Owner() {}
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<House> houses = new ArrayList<>();
 
-    public Owner(String name, String email, int age, boolean isActive, boolean isBusiness,
-                 String idLegalOwner, LocalDate registrationDate, int qtyDaysAsOwner) {
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Duplex> duplexes = new ArrayList<>();
 
-        this.name = name; // heredado de Person
-        this.email = email;
-        this.age = age;
-        this.isActive = isActive;
-        this.isBusiness = isBusiness;
-        this.idLegalOwner = idLegalOwner;
-        this.registrationDate = registrationDate;
-        this.qtyDaysAsOwner = qtyDaysAsOwner;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<TownHouse> townHouses = new ArrayList<>();
+
+    public Owner() {
     }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public Owner(String name, String email, String phone) {
+        super(name);
+        this.email = email;
+        this.phone = phone;
+    }
 
-    public int getAge() { return age; }
-    public void setAge(int age) { this.age = age; }
+    public String getEmail() {
+        return email;
+    }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public boolean isBusiness() { return isBusiness; }
-    public void setBusiness(boolean business) { isBusiness = business; }
+    public String getPhone() {
+        return phone;
+    }
 
-    public String getIdLegalOwner() { return idLegalOwner; }
-    public void setIdLegalOwner(String idLegalOwner) { this.idLegalOwner = idLegalOwner; }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-    public LocalDate getRegistrationDate() { return registrationDate; }
-    public void setRegistrationDate(LocalDate registrationDate) { this.registrationDate = registrationDate; }
+    public List<PropertyContract> getContracts() {
+        return contracts;
+    }
 
-    public int getQtyDaysAsOwner() { return qtyDaysAsOwner; }
-    public void setQtyDaysAsOwner(int qtyDaysAsOwner) { this.qtyDaysAsOwner = qtyDaysAsOwner; }
+    public List<House> getHouses() {
+        return houses;
+    }
 
-    public List<PropertyContract> getContracts() { return contracts; }
+    public List<Duplex> getDuplexes() {
+        return duplexes;
+    }
 
-    public void addContract(PropertyContract contract) {
-        contracts.add(contract);
-        contract.setOwner(this);
+    public List<TownHouse> getTownHouses() {
+        return townHouses;
+    }
+
+    public void addHouse(House house) {
+        houses.add(house);
+        house.setOwner(this);
+    }
+
+    public void addDuplex(Duplex duplex) {
+        duplexes.add(duplex);
+        duplex.setOwner(this);
+    }
+
+    public void addTownHouse(TownHouse townHouse) {
+        townHouses.add(townHouse);
+        townHouse.setOwner(this);
     }
 
     @Override
     public String toString() {
         return "Owner{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
+                "id='" + getId() + '\'' +
+                ", name='" + getName() + '\'' +
                 ", email='" + email + '\'' +
-                ", age=" + age +
-                ", isActive=" + isActive +
-                ", isBusiness=" + isBusiness +
-                ", idLegalOwner='" + idLegalOwner + '\'' +
-                ", registrationDate=" + registrationDate +
-                ", qtyDaysAsOwner=" + qtyDaysAsOwner +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 }

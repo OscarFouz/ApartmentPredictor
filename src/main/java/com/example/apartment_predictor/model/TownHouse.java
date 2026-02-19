@@ -1,37 +1,53 @@
 package com.example.apartment_predictor.model;
 
 import jakarta.persistence.*;
-import java.util.UUID;
 
 @Entity
 public class TownHouse {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    private boolean hasHomeownersAssociation;
-    private double hoaMonthlyFee;
+    private String name;
+    private String address;
 
     @OneToOne
     @JoinColumn(name = "apartment_id")
     private Apartment apartment;
 
-    public TownHouse() {}
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
 
-    public boolean isHasHomeownersAssociation() {
-        return hasHomeownersAssociation;
+    public TownHouse() {
     }
 
-    public void setHasHomeownersAssociation(boolean hasHomeownersAssociation) {
-        this.hasHomeownersAssociation = hasHomeownersAssociation;
+    public TownHouse(String name, String address, Apartment apartment, Owner owner) {
+        this.name = name;
+        this.address = address;
+        this.apartment = apartment;
+        this.owner = owner;
     }
 
-    public double getHoaMonthlyFee() {
-        return hoaMonthlyFee;
+    public String getId() {
+        return id;
     }
 
-    public void setHoaMonthlyFee(double hoaMonthlyFee) {
-        this.hoaMonthlyFee = hoaMonthlyFee;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Apartment getApartment() {
@@ -42,13 +58,20 @@ public class TownHouse {
         this.apartment = apartment;
     }
 
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "TownHouse{" +
                 "id='" + id + '\'' +
-                ", hasHomeownersAssociation=" + hasHomeownersAssociation +
-                ", hoaMonthlyFee=" + hoaMonthlyFee +
-                ", apartmentId='" + (apartment != null ? apartment.getId() : null) + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
                 '}';
     }
 }
