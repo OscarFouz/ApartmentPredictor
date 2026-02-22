@@ -1,11 +1,7 @@
 package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.TownHouse;
- /* POR AHORA NO
-import com.example.apartment_predictor.model.Review;
-*/
 import com.example.apartment_predictor.repository.TownHouseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,65 +9,49 @@ import java.util.Optional;
 @Service
 public class TownHouseService {
 
-    @Autowired
-    TownHouseRepository townTownHouseRepository;
+    private final TownHouseRepository townHouseRepository;
 
+    // ============================
+    // CONSTRUCTOR
+    // ============================
+    public TownHouseService(TownHouseRepository townHouseRepository) {
+        this.townHouseRepository = townHouseRepository;
+    }
+
+    // ============================
+    // FIND ALL
+    // ============================
     public Iterable<TownHouse> findAll() {
-        return townTownHouseRepository.findAll();
+        return townHouseRepository.findAll();
     }
 
-
-    /* POR AHORA NO
-    public TownHouse createTownHouse(TownHouse townTownHouse){
-        if (townTownHouse.getReviews() != null) {
-            for (Review r : townTownHouse.getReviews()) {
-                r.setTownHouse(townTownHouse);
-            }
-        }
-        return townTownHouseRepository.save(townTownHouse);
-    }
-    */
-
-    public TownHouse updateTownHouse(TownHouse townTownHouse){
-        return townTownHouseRepository.save(townTownHouse);
+    // ============================
+    // UPDATE DIRECTO
+    // ============================
+    public TownHouse updateTownHouse(TownHouse townHouse){
+        return townHouseRepository.save(townHouse);
     }
 
-    /**
-     * PUT REAL: Reemplaza completamente el townTownHouse existente por el nuevo.
-     */
+    // ============================
+    // UPDATE POR ID
+    // ============================
     public TownHouse updateTownHouseById(String id, TownHouse newTownHouse) {
-
-        Optional<TownHouse> existingOpt = townTownHouseRepository.findById(id);
-        if (existingOpt.isEmpty()) {
-            return null;
-        }
-
-        TownHouse existing = existingOpt.get();
-
-         /* POR AHORA NO
-        // Limpiar reviews antiguas para evitar duplicados o merges raros
-        existing.getReviews().clear();
-
-        // Reasignar reviews al nuevo objeto
-        if (newTownHouse.getReviews() != null) {
-            for (Review r : newTownHouse.getReviews()) {
-                r.setTownHouse(newTownHouse);
-            }
-        }
-        */
-
-        // Mantener el ID original (tu entidad no tiene setId)
-        return townTownHouseRepository.save(newTownHouse);
+        Optional<TownHouse> existingOpt = townHouseRepository.findById(id);
+        if (existingOpt.isEmpty()) return null;
+        return townHouseRepository.save(newTownHouse);
     }
 
+    // ============================
+    // DELETE
+    // ============================
     public void deleteTownHouse(String id){
-        townTownHouseRepository.deleteById(id);
+        townHouseRepository.deleteById(id);
     }
 
+    // ============================
+    // FIND BY ID
+    // ============================
     public TownHouse findTownHouseById(String id){
-        return townTownHouseRepository.findById(id).orElse(null);
+        return townHouseRepository.findById(id).orElse(null);
     }
-
-
-
 }

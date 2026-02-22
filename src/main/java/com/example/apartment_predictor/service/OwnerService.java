@@ -2,7 +2,6 @@ package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.Owner;
 import com.example.apartment_predictor.repository.OwnerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,41 +9,49 @@ import java.util.Optional;
 @Service
 public class OwnerService {
 
-    @Autowired
-    OwnerRepository townOwnerRepository;
+    private final OwnerRepository ownerRepository;
 
+    // ============================
+    // CONSTRUCTOR
+    // ============================
+    public OwnerService(OwnerRepository ownerRepository) {
+        this.ownerRepository = ownerRepository;
+    }
+
+    // ============================
+    // FIND ALL
+    // ============================
     public Iterable<Owner> findAll() {
-        return townOwnerRepository.findAll();
+        return ownerRepository.findAll();
     }
 
-    public Owner updateOwner(Owner townOwner){
-        return townOwnerRepository.save(townOwner);
+    // ============================
+    // UPDATE DIRECTO
+    // ============================
+    public Owner updateOwner(Owner owner){
+        return ownerRepository.save(owner);
     }
 
-    /**
-     * PUT REAL: Reemplaza completamente el townOwner existente por el nuevo.
-     */
+    // ============================
+    // UPDATE POR ID
+    // ============================
     public Owner updateOwnerById(String id, Owner newOwner) {
-
-        Optional<Owner> existingOpt = townOwnerRepository.findById(id);
-        if (existingOpt.isEmpty()) {
-            return null;
-        }
-
-        Owner existing = existingOpt.get();
-
-        // Mantener el ID original (tu entidad no tiene setId)
-        return townOwnerRepository.save(newOwner);
+        Optional<Owner> existingOpt = ownerRepository.findById(id);
+        if (existingOpt.isEmpty()) return null;
+        return ownerRepository.save(newOwner);
     }
 
+    // ============================
+    // DELETE
+    // ============================
     public void deleteOwner(String id){
-        townOwnerRepository.deleteById(id);
+        ownerRepository.deleteById(id);
     }
 
+    // ============================
+    // FIND BY ID
+    // ============================
     public Owner findOwnerById(String id){
-        return townOwnerRepository.findById(id).orElse(null);
+        return ownerRepository.findById(id).orElse(null);
     }
-
-
-
 }

@@ -1,11 +1,7 @@
 package com.example.apartment_predictor.service;
 
 import com.example.apartment_predictor.model.House;
- /* POR AHORA NO
-import com.example.apartment_predictor.model.Review;
-*/
 import com.example.apartment_predictor.repository.HouseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,65 +9,57 @@ import java.util.Optional;
 @Service
 public class HouseService {
 
-    @Autowired
-    HouseRepository houseRepository;
+    private final HouseRepository houseRepository;
 
+    // ============================
+    // CONSTRUCTOR
+    // ============================
+    public HouseService(HouseRepository houseRepository) {
+        this.houseRepository = houseRepository;
+    }
+
+    // ============================
+    // FIND ALL
+    // ============================
     public Iterable<House> findAll() {
         return houseRepository.findAll();
     }
 
-
-    /* POR AHORA NO
-    public House createHouse(House house){
-        if (house.getReviews() != null) {
-            for (Review r : house.getReviews()) {
-                r.setHouse(house);
-            }
-        }
-        return houseRepository.save(house);
-    }
-    */
-
+    // ============================
+    // UPDATE DIRECTO
+    // ============================
     public House updateHouse(House house){
         return houseRepository.save(house);
     }
 
-    /**
-     * PUT REAL: Reemplaza completamente el house existente por el nuevo.
-     */
+    // ============================
+    // UPDATE POR ID
+    // ============================
     public House updateHouseById(String id, House newHouse) {
+        return houseRepository.findById(id).map(existing -> {
 
-        Optional<House> existingOpt = houseRepository.findById(id);
-        if (existingOpt.isEmpty()) {
-            return null;
-        }
+            existing.setName(newHouse.getName());
+            existing.setAddress(newHouse.getAddress());
+            existing.setOwner(newHouse.getOwner());
+            existing.setNearbySchools(newHouse.getNearbySchools());
 
-        House existing = existingOpt.get();
+            return houseRepository.save(existing);
 
-         /* POR AHORA NO
-        // Limpiar reviews antiguas para evitar duplicados o merges raros
-        existing.getReviews().clear();
-
-        // Reasignar reviews al nuevo objeto
-        if (newHouse.getReviews() != null) {
-            for (Review r : newHouse.getReviews()) {
-                r.setHouse(newHouse);
-            }
-        }
-        */
-
-        // Mantener el ID original (tu entidad no tiene setId)
-        return houseRepository.save(newHouse);
+        }).orElse(null);
     }
 
+
+    // ============================
+    // DELETE
+    // ============================
     public void deleteHouse(String id){
         houseRepository.deleteById(id);
     }
 
+    // ============================
+    // FIND BY ID
+    // ============================
     public House findHouseById(String id){
         return houseRepository.findById(id).orElse(null);
     }
-
-
-
 }

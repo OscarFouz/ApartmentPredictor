@@ -8,89 +8,77 @@ import java.time.LocalDate;
 @Entity
 public class Review {
 
+    // ============================
+    // ID
+    // ============================
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    // ============================
+    // CAMPOS
+    // ============================
     private String title;
+
     @Lob
     private String content;
+
     private int rating;
     private LocalDate reviewDate;
 
+    // ============================
+    // RELACIONES
+    // ============================
     @ManyToOne
-    @JoinColumn(name = "apartment_fk")
+    @JoinColumn(name = "property_id")
     @JsonBackReference
-    private Apartment apartment;
+    private Property property;
+
 
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
     private Reviewer reviewer;
 
+    // ============================
+    // CONSTRUCTORES
+    // ============================
     public Review() {
     }
 
-    public Review(String title, String content, int rating, LocalDate reviewDate, Apartment apartment, Reviewer reviewer) {
+    public Review(String title, String content, int rating,
+                  LocalDate reviewDate, Property property, Reviewer reviewer) {
         this.title = title;
         this.content = content;
         this.rating = rating;
         this.reviewDate = reviewDate;
-        this.apartment = apartment;
+        this.property = property;
         this.reviewer = reviewer;
     }
 
-    public String getId() {
-        return id;
-    }
+    // ============================
+    // GETTERS
+    // ============================
+    public String getId() {return id;}
+    public String getTitle() {return title;}
+    public String getContent() {return content;}
+    public int getRating() {return rating;}
+    public LocalDate getReviewDate() {return reviewDate;}
+    public Property getProperty() {return property;}
+    public Reviewer getReviewer() {return reviewer;}
 
-    public String getTitle() {
-        return title;
-    }
+    // ============================
+    // SETTERS
+    // ============================
+    public void setTitle(String title) {this.title = title;}
+    public void setContent(String content) {this.content = content;}
+    public void setRating(int rating) {this.rating = rating;}
+    public void setReviewDate(LocalDate reviewDate) {this.reviewDate = reviewDate;}
+    public void setProperty(Property property) {this.property = property;}
+    public void setReviewer(Reviewer reviewer) {this.reviewer = reviewer;}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
-    public LocalDate getReviewDate() {
-        return reviewDate;
-    }
-
-    public void setReviewDate(LocalDate reviewDate) {
-        this.reviewDate = reviewDate;
-    }
-
-    public Apartment getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(Apartment apartment) {
-        this.apartment = apartment;
-    }
-
-    public Reviewer getReviewer() {
-        return reviewer;
-    }
-
-    public void setReviewer(Reviewer reviewer) {
-        this.reviewer = reviewer;
-    }
-
+    // ============================
+    // TO STRING
+    // ============================
     @Override
     public String toString() {
         return "Review{" +
@@ -98,6 +86,8 @@ public class Review {
                 ", title='" + title + '\'' +
                 ", rating=" + rating +
                 ", reviewDate=" + reviewDate +
+                ", propertyId=" + (property != null ? property.getId() : "null") +
+                ", reviewerId=" + (reviewer != null ? reviewer.getId() : "null") +
                 '}';
     }
 }

@@ -1,97 +1,54 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
-public class House {
+@DiscriminatorValue("HOUSE")
+public class House extends Property {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
+    // ============================
+    // CAMPOS
+    // ============================
     private String name;
-    private String address;
-
-    @OneToOne
-    @JoinColumn(name = "apartment_id")
-    private Apartment apartment;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
-
-    @ManyToMany
-    @JoinTable(
-            name = "house_school",
-            joinColumns = @JoinColumn(name = "house_id"),
-            inverseJoinColumns = @JoinColumn(name = "school_id")
-    )
-    private List<School> nearbySchools = new ArrayList<>();
-
-    public List<School> getNearbySchools() {
-        return nearbySchools;
-    }
-
-    public void setNearbySchools(List<School> nearbySchools) {
-        this.nearbySchools = nearbySchools;
-    }
+    // Usa el address heredado de Property
 
 
+    // ============================
+    // CONSTRUCTORES
+    // ============================
     public House() {
+        this.id = UUID.randomUUID().toString();
     }
 
-    public House(String name, String address, Apartment apartment, Owner owner) {
+    public House(String name, String address, Owner owner) {
+        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.address = address;
-        this.apartment = apartment;
         this.owner = owner;
     }
 
-    public String getId() {
-        return id;
-    }
+    // ============================
+    // GETTERS
+    // ============================
+    public String getName() {return name;}
 
-    public String getName() {
-        return name;
-    }
+    // ============================
+    // SETTERS
+    // ============================
+    public void setName(String name) {this.name = name;}
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Apartment getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(Apartment apartment) {
-        this.apartment = apartment;
-    }
-
-    public Owner getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Owner owner) {
-        this.owner = owner;
-    }
-
+    // ============================
+    // TO STRING
+    // ============================
     @Override
     public String toString() {
         return "House{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
+                ", addressLocal='" + address + '\'' +
                 '}';
     }
 }

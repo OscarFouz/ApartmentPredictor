@@ -1,53 +1,56 @@
 package com.example.apartment_predictor.controller;
 
-import com.example.apartment_predictor.model.Apartment;
+import com.example.apartment_predictor.model.Property;
 import com.example.apartment_predictor.model.Review;
 import com.example.apartment_predictor.repository.ReviewRepository;
-import com.example.apartment_predictor.service.ApartmentService;
+import com.example.apartment_predictor.service.PropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/reviews")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ReviewController {
 
+    @Autowired
+    private ReviewRepository reviewRepository;
 
-    private final ApartmentService apartmentService;
-    private final ReviewRepository reviewRepository;
+    @Autowired
+    private PropertyService propertyService;
 
-    public ReviewController(ApartmentService apartmentService,
-                            ReviewRepository reviewRepository) {
-        this.apartmentService = apartmentService;
-        this.reviewRepository = reviewRepository;
-    }
+    // ============================
+    // GET REVIEWS BY PROPERTY
+    // ============================
+    @GetMapping("/property/{id}")
+    public ResponseEntity<?> getReviewsByProperty(@PathVariable String id) {
 
-    // GET /api/apartments/{id}/reviews
-    @GetMapping("/apartments/{id}/reviews")
-    public ResponseEntity<List<Review>> getReviewsByApartment(@PathVariable String id) {
-        Apartment apt = apartmentService.findApartmentById(id);
-        if (apt == null) {
+        Property property = propertyService.findById(id);
+
+        if (property == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(apt.getReviews());
+
+        return ResponseEntity.ok(property.getReviews());
     }
 
-    // POST /api/apartments/{id}/reviews
-    @PostMapping("/apartments/{id}/reviews")
-    public ResponseEntity<Review> addReviewToApartment(
+    // ============================
+    // CREATE REVIEW
+    // ============================
+    @PostMapping("/property/{id}")
+    public ResponseEntity<Review> addReview(
             @PathVariable String id,
             @RequestBody Review review) {
 
-        Apartment apt = apartmentService.findApartmentById(id);
-        if (apt == null) {
+        Property property = propertyService.findById(id);
+
+        if (property == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Asociar review al apartamento
-        review.setApartment(apt);
+        review.setProperty(property);
         Review saved = reviewRepository.save(review);
 
         return ResponseEntity
@@ -55,12 +58,16 @@ public class ReviewController {
                 .body(saved);
     }
 
-    // DELETE /api/reviews/{reviewId}
-    @DeleteMapping("/reviews/{reviewId}")
+    // ============================
+    // DELETE REVIEW
+    // ============================
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable String reviewId) {
+
         if (!reviewRepository.existsById(reviewId)) {
             return ResponseEntity.notFound().build();
         }
+
         reviewRepository.deleteById(reviewId);
         return ResponseEntity.noContent().build();
     }

@@ -1,18 +1,17 @@
 package com.example.apartment_predictor.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
-public class Apartment {
+@DiscriminatorValue("APARTMENT")
+public class Apartment extends Property {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
+    // ============================
+    // CAMPOS
+    // ============================
     private Integer price;
     private Integer area;
     private Integer bedrooms;
@@ -30,58 +29,16 @@ public class Apartment {
     private String furnishingstatus;
 
     // ============================
-    // RELACIONES
-    // ============================
-
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Review> reviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
-    private List<PropertyContract> contracts = new ArrayList<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "apartment_school",
-            joinColumns = @JoinColumn(name = "apartment_id"),
-            inverseJoinColumns = @JoinColumn(name = "school_id")
-    )
-    private List<School> nearbySchools = new ArrayList<>();
-
-    public List<School> getNearbySchools() {
-        return nearbySchools;
-    }
-
-    public void setNearbySchools(List<School> nearbySchools) {
-        this.nearbySchools = nearbySchools;
-    }
-
-
-
-
-
-
-    // ============================
     // CONSTRUCTORES
     // ============================
-
     public Apartment() {
+        this.id = UUID.randomUUID().toString();
     }
 
-    public Apartment(Integer price,
-                     Integer area,
-                     Integer bedrooms,
-                     Integer bathrooms,
-                     Integer stories,
-                     String mainroad,
-                     String guestroom,
-                     String basement,
-                     String hotwaterheating,
-                     String airconditioning,
-                     Integer parking,
-                     String prefarea,
-                     String furnishingstatus) {
-
+    public Apartment(Integer price, Integer area, Integer bedrooms, Integer bathrooms, Integer stories,
+                     String mainroad, String guestroom, String basement, String hotwaterheating,
+                     String airconditioning, Integer parking, String prefarea, String furnishingstatus) {
+        this.id = UUID.randomUUID().toString();
         this.price = price;
         this.area = area;
         this.bedrooms = bedrooms;
@@ -98,129 +55,47 @@ public class Apartment {
     }
 
     // ============================
-    // GETTERS & SETTERS
+    // GETTERS
     // ============================
+    public Integer getPrice() {return price;}
+    public Integer getArea() {return area;}
+    public Integer getBedrooms() {return bedrooms;}
+    public Integer getBathrooms() {return bathrooms;}
+    public Integer getStories() {return stories;}
+    public String getMainroad() {return mainroad;}
+    public String getGuestroom() {return guestroom;}
+    public String getBasement() {return basement;}
+    public String getHotwaterheating() {return hotwaterheating;}
+    public String getAirconditioning() {return airconditioning;}
+    public Integer getParking() {return parking;}
+    public String getPrefarea() {return prefarea;}
+    public String getFurnishingstatus() {return furnishingstatus;}
 
-    public String getId() {
-        return id;
-    }
+    // ============================
+    // SETTERS
+    // ============================
+    public void setPrice(Integer price) {this.price = price;}
+    public void setArea(Integer area) {this.area = area;}
+    public void setBedrooms(Integer bedrooms) {this.bedrooms = bedrooms;}
+    public void setBathrooms(Integer bathrooms) {this.bathrooms = bathrooms;}
+    public void setStories(Integer stories) {this.stories = stories;}
+    public void setMainroad(String mainroad) {this.mainroad = mainroad;}
+    public void setGuestroom(String guestroom) {this.guestroom = guestroom;}
+    public void setBasement(String basement) {this.basement = basement;}
+    public void setHotwaterheating(String hotwaterheating) {this.hotwaterheating = hotwaterheating;}
+    public void setAirconditioning(String airconditioning) {this.airconditioning = airconditioning;}
+    public void setParking(Integer parking) {this.parking = parking;}
+    public void setPrefarea(String prefarea) {this.prefarea = prefarea;}
+    public void setFurnishingstatus(String furnishingstatus) {this.furnishingstatus = furnishingstatus;}
 
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getArea() {
-        return area;
-    }
-
-    public void setArea(Integer area) {
-        this.area = area;
-    }
-
-    public Integer getBedrooms() {
-        return bedrooms;
-    }
-
-    public void setBedrooms(Integer bedrooms) {
-        this.bedrooms = bedrooms;
-    }
-
-    public Integer getBathrooms() {
-        return bathrooms;
-    }
-
-    public void setBathrooms(Integer bathrooms) {
-        this.bathrooms = bathrooms;
-    }
-
-    public Integer getStories() {
-        return stories;
-    }
-
-    public void setStories(Integer stories) {
-        this.stories = stories;
-    }
-
-    public String getMainroad() {
-        return mainroad;
-    }
-
-    public void setMainroad(String mainroad) {
-        this.mainroad = mainroad;
-    }
-
-    public String getGuestroom() {
-        return guestroom;
-    }
-
-    public void setGuestroom(String guestroom) {
-        this.guestroom = guestroom;
-    }
-
-    public String getBasement() {
-        return basement;
-    }
-
-    public void setBasement(String basement) {
-        this.basement = basement;
-    }
-
-    public String getHotwaterheating() {
-        return hotwaterheating;
-    }
-
-    public void setHotwaterheating(String hotwaterheating) {
-        this.hotwaterheating = hotwaterheating;
-    }
-
-    public String getAirconditioning() {
-        return airconditioning;
-    }
-
-    public void setAirconditioning(String airconditioning) {
-        this.airconditioning = airconditioning;
-    }
-
-    public Integer getParking() {
-        return parking;
-    }
-
-    public void setParking(Integer parking) {
-        this.parking = parking;
-    }
-
-    public String getPrefarea() {
-        return prefarea;
-    }
-
-    public void setPrefarea(String prefarea) {
-        this.prefarea = prefarea;
-    }
-
-    public String getFurnishingstatus() {
-        return furnishingstatus;
-    }
-
-    public void setFurnishingstatus(String furnishingstatus) {
-        this.furnishingstatus = furnishingstatus;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public List<PropertyContract> getContracts() {
-        return contracts;
-    }
-
+    // ============================
+    // TO STRING
+    // ============================
     @Override
     public String toString() {
         return "Apartment{" +
                 "id='" + id + '\'' +
+                ", address='" + address + '\'' +
                 ", price=" + price +
                 ", area=" + area +
                 ", bedrooms=" + bedrooms +

@@ -1,6 +1,7 @@
 package com.example.apartment_predictor;
 
 import com.example.apartment_predictor.service.PopulateMasterService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApartmentPredictorApplication implements CommandLineRunner {
 
     private final PopulateMasterService populateMasterService;
+
+    @Value("${app.populate-on-start:false}")
+    private boolean populateOnStart;
 
     public ApartmentPredictorApplication(PopulateMasterService populateMasterService) {
         this.populateMasterService = populateMasterService;
@@ -20,7 +24,9 @@ public class ApartmentPredictorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        populateMasterService.populate();
-
+        if (populateOnStart) {
+            populateMasterService.populate();
+        }
     }
 }
+

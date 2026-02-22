@@ -1,98 +1,56 @@
 package com.example.apartment_predictor.model;
 
-import jakarta.persistence.*;
-
-import java.util.ArrayList;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-public class Duplex {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+@DiscriminatorValue("DUPLEX")
+public class Duplex extends Property {
 
     private String name;
-    private String address;
+    // Usa el address heredado de Property
 
-    @OneToOne
-    @JoinColumn(name = "apartment_id")
-    private Apartment apartment;
+    // ============================
+    // RELACIONES
+    // ============================
+    // PropertyContract YA VIENE DE Property
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
-
-    @ManyToMany
-    @JoinTable(
-            name = "duplex_school",
-            joinColumns = @JoinColumn(name = "duplex_id"),
-            inverseJoinColumns = @JoinColumn(name = "school_id")
-    )
-    private List<School> nearbySchools = new ArrayList<>();
-
-    public List<School> getNearbySchools() {
-        return nearbySchools;
+    // ============================
+    // CONSTRUCTORES
+    // ============================
+    public Duplex() {
+        this.id = UUID.randomUUID().toString();
     }
 
-    public void setNearbySchools(List<School> nearbySchools) {
+    public Duplex(String id, String name, String address, Owner owner, List<School> nearbySchools) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.owner = owner;
         this.nearbySchools = nearbySchools;
     }
 
+    // ============================
+    // GETTERS
+    // ============================
+    public String getName() { return name; }
 
+    // ============================
+    // SETTERS
+    // ============================
+    public void setName(String name) { this.name = name; }
 
-    public Duplex() {
-    }
-
-    public Duplex(String name, String address, Apartment apartment, Owner owner) {
-        this.name = name;
-        this.address = address;
-        this.apartment = apartment;
-        this.owner = owner;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Apartment getApartment() {
-        return apartment;
-    }
-
-    public void setApartment(Apartment apartment) {
-        this.apartment = apartment;
-    }
-
-    public Owner getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Owner owner) {
-        this.owner = owner;
-    }
-
+    // ============================
+    // TO STRING
+    // ============================
     @Override
     public String toString() {
         return "Duplex{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", address='" + address + '\'' +
+                ", id='" + id + '\'' +
                 '}';
     }
 }
