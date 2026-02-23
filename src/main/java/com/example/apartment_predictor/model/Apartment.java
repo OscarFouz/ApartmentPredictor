@@ -12,6 +12,7 @@ public class Apartment extends Property {
     // ============================
     // CAMPOS
     // ============================
+    private String name;
     private Integer price;
     private Integer area;
     private Integer bedrooms;
@@ -39,6 +40,7 @@ public class Apartment extends Property {
                      String mainroad, String guestroom, String basement, String hotwaterheating,
                      String airconditioning, Integer parking, String prefarea, String furnishingstatus) {
         this.id = UUID.randomUUID().toString();
+        this.name = name;
         this.price = price;
         this.area = area;
         this.bedrooms = bedrooms;
@@ -57,6 +59,8 @@ public class Apartment extends Property {
     // ============================
     // GETTERS
     // ============================
+    public void setName(String name) {this.name = name;}
+    public String getName() {return name;}
     public Integer getPrice() {return price;}
     public Integer getArea() {return area;}
     public Integer getBedrooms() {return bedrooms;}
@@ -96,6 +100,7 @@ public class Apartment extends Property {
         return "Apartment{" +
                 "id='" + id + '\'' +
                 ", address='" + address + '\'' +
+                ", name=" + name +
                 ", price=" + price +
                 ", area=" + area +
                 ", bedrooms=" + bedrooms +

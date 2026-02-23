@@ -1,6 +1,6 @@
 package com.example.apartment_predictor.controller;
 
-import com.example.apartment_predictor.service.PopulateMasterService;
+import com.example.apartment_predictor.utils.PopulateDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class PopulateDBController {
 
     @Autowired
-    private PopulateMasterService populateMasterService;
+    private PopulateDB populateDB;
 
     // ============================
     // POPULATE FULL DATABASE
@@ -30,7 +30,10 @@ public class PopulateDBController {
         headers.add("version", "1.0");
         headers.add("author", "Big");
 
-        int result = populateMasterService.populateAll(owners, properties, reviews, schools);
+        // ============================
+        // ORCHESTRATOR CALL
+        // ============================
+        int result = populateDB.populateAll(owners, properties, reviews, schools);
 
         // ============================
         // CONTROL: BD YA POBLADA
