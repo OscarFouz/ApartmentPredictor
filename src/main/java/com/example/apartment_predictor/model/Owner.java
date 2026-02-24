@@ -24,6 +24,9 @@ public class Owner extends Person {
     private List<PropertyContract> contracts = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Apartment> apartments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<House> houses = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
@@ -62,6 +65,7 @@ public class Owner extends Person {
     public LocalDate getRegistrationDate() {return registrationDate;}
     public int getQtyDaysAsOwner() {return qtyDaysAsOwner;}
     public List<PropertyContract> getContracts() {return contracts;}
+    public List<Apartment> getApartments() {return apartments;}
     public List<House> getHouses() {return houses;}
     public List<Duplex> getDuplexes() {return duplexes;}
     public List<TownHouse> getTownHouses() {return townHouses;}
@@ -74,6 +78,7 @@ public class Owner extends Person {
     public void setRegistrationDate(LocalDate registrationDate) {this.registrationDate = registrationDate;}
     public void setQtyDaysAsOwner(int qtyDaysAsOwner) {this.qtyDaysAsOwner = qtyDaysAsOwner;}
     public void setContracts(List<PropertyContract> contracts) {this.contracts = contracts;}
+    public void setApartments(List<Apartment> houses) {this.apartments = apartments;}
     public void setHouses(List<House> houses) {this.houses = houses;}
     public void setDuplexes(List<Duplex> duplexes) {this.duplexes = duplexes;}
     public void setTownHouses(List<TownHouse> townHouses) {this.townHouses = townHouses;}

@@ -23,11 +23,11 @@ public class House extends Property {
         this.id = UUID.randomUUID().toString();
     }
 
-    public House(String name, String address, Owner owner) {
+    public House(String name, String address) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.address = address;
-        this.owner = owner;
+
     }
 
     // ============================

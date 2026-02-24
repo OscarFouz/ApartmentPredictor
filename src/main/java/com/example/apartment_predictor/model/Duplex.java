@@ -24,11 +24,10 @@ public class Duplex extends Property {
         this.id = UUID.randomUUID().toString();
     }
 
-    public Duplex(String id, String name, String address, Owner owner, List<School> nearbySchools) {
+    public Duplex(String id, String name, String address, List<School> nearbySchools) {
         this.id = id;
         this.name = name;
         this.address = address;
-        this.owner = owner;
         this.nearbySchools = nearbySchools;
     }
 
