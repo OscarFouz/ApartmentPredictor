@@ -1,5 +1,6 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 
@@ -23,6 +24,7 @@ public class Reviewer extends Person {
     // RELACIONES
     // ============================
     @OneToMany(mappedBy = "reviewer")
+    @JsonManagedReference("reviewer-reviews")
     private List<Review> reviews = new ArrayList<>();
 
     // ============================

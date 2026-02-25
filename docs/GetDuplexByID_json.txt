@@ -1,0 +1,58 @@
+http://localhost:8080/api/duplexes/f5ff5ebc-55da-4dd8-a6b7-002e57b8292e
+
+{
+    "id": "f5ff5ebc-55da-4dd8-a6b7-002e57b8292e",
+    "address": "Road 111",
+    "nearbySchools": [
+        {
+            "id": "896932ef-15d6-4137-8e55-c73586b48cd6",
+            "name": "School 591",
+            "address": "Address 150",
+            "type": "public",
+            "educationLevel": "Primary",
+            "location": "Downtown",
+            "rating": 3,
+            "public": true
+        },
+        {
+            "id": "583c57a0-6fcd-403e-a335-e5617d8238ee",
+            "name": "School 43",
+            "address": "Address 122",
+            "type": "private",
+            "educationLevel": "Primary",
+            "location": "Downtown",
+            "rating": 4,
+            "public": true
+        }
+    ],
+    "propertyContracts": [
+        {
+            "id": "3c70bc69-73ab-43a1-af11-b55bc904bdc0",
+            "contractName": "Short Lease",
+            "contractDetails": "Long duration",
+            "agreedPrice": 2202.628925412188,
+            "startDate": "2025-07-09",
+            "endDate": "2025-08-18",
+            "active": true
+        },
+        {
+            "id": "4f92641b-8d48-4495-8e4e-d006dfb9d62a",
+            "contractName": "Long Lease",
+            "contractDetails": "Short duration",
+            "agreedPrice": 3702.3750793816066,
+            "startDate": "2025-12-04",
+            "endDate": "2026-07-29",
+            "active": true
+        }
+    ],
+    "reviews": [
+        {
+            "id": "426edf67-ae2a-42c5-a31f-5fd1289105e6",
+            "title": "Terrible",
+            "content": "Bad experience",
+            "rating": 1,
+            "reviewDate": "2026-01-25"
+        }
+    ],
+    "name": "Duplex 114"
+}

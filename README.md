@@ -1,5 +1,7 @@
+```md
 # ApartmentPredictor — Backend Spring Boot
-Sistema de gestión inmobiliaria con soporte para apartamentos, casas, dúplex, adosados, contratos, reseñas, reviewers, propietarios y escuelas cercanas. Incluye generación automática de datos con DataFaker, relaciones JPA y API REST lista para conectar con un frontend.
+Sistema completo de gestión inmobiliaria basado en un modelo unificado de propiedades (Property), con soporte para apartamentos, casas, dúplex, adosados, contratos, reseñas, reviewers, propietarios y escuelas cercanas.  
+Incluye un sistema avanzado de población automática de datos, API REST completa, relaciones JPA complejas y soporte para expansión modular.
 
 ------------------------------------------------------------
 # Tecnologías
@@ -8,9 +10,10 @@ Sistema de gestión inmobiliaria con soporte para apartamentos, casas, dúplex, 
 - Spring Boot 3.2
 - Spring Data JPA
 - H2 Database (modo archivo)
-- DataFaker
-- Jackson
 - Maven
+- Jackson
+- Faker manual (sin DataFaker)
+- API REST con CORS para frontend en Vite (localhost:5173)
 
 ------------------------------------------------------------
 # Estructura del Proyecto
@@ -26,9 +29,11 @@ src/main/java/com/example/apartment_predictor
 │   ├── OwnerController.java
 │   ├── ReviewerController.java
 │   ├── ReviewController.java
-│   └── PropertyContractController.java
+│   ├── PropertyContractController.java
+│   └── PopulateDBController.java
 │
 ├── model
+│   ├── Property.java
 │   ├── Apartment.java
 │   ├── House.java
 │   ├── Duplex.java
@@ -37,7 +42,6 @@ src/main/java/com/example/apartment_predictor
 │   ├── Reviewer.java
 │   ├── Review.java
 │   ├── School.java
-│   ├── PropertyContract.java
 │   └── Person.java
 │
 ├── repository
@@ -59,8 +63,9 @@ src/main/java/com/example/apartment_predictor
 │   ├── OwnerService.java
 │   ├── ReviewerService.java
 │   ├── ReviewService.java
+│   ├── PropertyService.java
 │   ├── PropertyContractService.java
-│   └── PopulateMasterService.java
+│   └── PopulateDB.java
 │
 └── utils
     ├── ApartmentJsonWriter.java
@@ -68,83 +73,154 @@ src/main/java/com/example/apartment_predictor
 ```
 
 ------------------------------------------------------------
-
 # Modelo de Datos
 
-## Apartment
+El sistema utiliza **herencia JPA con SINGLE_TABLE** para unificar todas las propiedades en una sola tabla.
+
+## Property (clase base)
 Atributos:
+- id
+- address
+- owner
+- nearbySchools (ManyToMany)
+- propertyContracts (OneToMany)
+- reviews (OneToMany)
+
+Subtipos:
+- Apartment
+- House
+- Duplex
+- TownHouse
+
+## Apartment
+Atributos específicos:
+- name
 - price, area, bedrooms, bathrooms, stories
 - mainroad, guestroom, basement, hotwaterheating, airconditioning
 - parking, prefarea, furnishingstatus
 
-Relaciones:
-- OneToMany → Review
-- OneToMany → PropertyContract
-- ManyToMany → School
-
 ## House / Duplex / TownHouse
+Atributos:
+- name
+- address (heredado)
+
 Relaciones:
-- OneToOne → Apartment
 - ManyToOne → Owner
 - ManyToMany → School
+- OneToMany → PropertyContract
+- OneToMany → Review
 
 ## Owner (hereda de Person)
 Atributos:
-- name, email, phone
+- isBusiness
+- idLegalOwner
+- registrationDate
+- qtyDaysAsOwner
 
 Relaciones:
+- OneToMany → PropertyContract
+- OneToMany → Apartment
 - OneToMany → House
 - OneToMany → Duplex
 - OneToMany → TownHouse
-- OneToMany → PropertyContract
 
 ## Reviewer (hereda de Person)
 Atributos:
-- name, email, reputation
+- reputation
+- isBusiness
+- xAccount
+- webURL
+- qtyReviews
 
 Relaciones:
 - OneToMany → Review
 
 ## Review
 Atributos:
-- title, content, rating, reviewDate
+- title
+- content (Lob)
+- rating
+- reviewDate
 
 Relaciones:
-- ManyToOne → Apartment
+- ManyToOne → Property
 - ManyToOne → Reviewer
 
 ## School
 Atributos:
-- name, address, type, educationLevel
-- latitude, longitude, rating, studentCount
+- name, address
+- type, educationLevel
+- location
+- rating
+- isPublic
 
 Relaciones:
-- ManyToMany → Apartment, House, Duplex, TownHouse
+- ManyToMany → Property
 
 ## PropertyContract
 Atributos:
-- agreedPrice, startDate, endDate, active
+- contractName
+- contractDetails
+- agreedPrice
+- startDate
+- endDate
+- active
 
 Relaciones:
 - ManyToOne → Owner
-- ManyToOne → Apartment / House / Duplex / TownHouse
+- ManyToOne → Property
 
 ------------------------------------------------------------
 # Población Automática de Datos
 
-PopulateMasterService genera:
-- 15 Schools
-- 20 Owners
-- Cada Owner tiene:
-    - 3 Apartments
-    - 1 House
-    - 1 Duplex
-    - 1 TownHouse
-    - Contratos asociados
-- 15 Reviewers
-- 3 Reviews por Apartment
+La clase PopulateDB genera datos completamente sintéticos sin DataFaker:
 
-Todo generado con DataFaker al arrancar la aplicación.
+### Owners
+- Genera N owners con:
+  - nombre aleatorio
+  - email
+  - teléfono
+  - datos legales
+  - fechas y métricas
+
+### Properties
+Genera propiedades en proporción:
+- 40% Apartments
+- 20% Houses
+- 20% Duplex
+- 20% TownHouse
+
+Cada propiedad:
+- se asigna a un Owner
+- recibe atributos aleatorios
+- se guarda en su repositorio correspondiente
+
+### Schools
+- Genera N escuelas
+- Se asignan aleatoriamente a cada propiedad (1–3 por propiedad)
+
+### Reviewers
+- Genera reviewers con:
+  - reputación
+  - redes sociales
+  - actividad
+
+### Reviews
+- Se generan reviews sin asignar
+- Luego se asignan:
+  - a propiedades
+  - a reviewers
+
+### Contracts
+- Se generan contratos sin asignar
+- Luego se asignan:
+  - a un Owner aleatorio
+  - a una Property aleatoria
+
+### Resultado final
+- Base de datos completamente poblada
+- Relaciones consistentes
+- Datos variados y realistas
 
 ------------------------------------------------------------
 # API REST
@@ -155,7 +231,7 @@ GET /api/apartments/{id}
 POST /api/apartments  
 PUT /api/apartments/{id}  
 DELETE /api/apartments/{id}  
-GET /api/apartments/export
+PUT /api/apartments/{id}/assign-schools
 
 ## Houses
 GET /api/houses  
@@ -197,8 +273,8 @@ DELETE /api/reviewers/{id}
 GET /api/reviewers/{id}/reviews
 
 ## Reviews
-GET /api/apartments/{id}/reviews  
-POST /api/apartments/{id}/reviews  
+GET /api/reviews/property/{id}  
+POST /api/reviews/property/{id}  
 DELETE /api/reviews/{reviewId}
 
 ## Property Contracts
@@ -207,3 +283,38 @@ GET /api/contracts/{id}
 POST /api/contracts  
 PUT /api/contracts/{id}/close  
 DELETE /api/contracts/{id}
+
+## Populate Database
+GET /api/populate  
+Parámetros opcionales:
+- owners
+- properties
+- reviews
+- schools
+
+------------------------------------------------------------
+# Configuración
+
+Archivo application.properties:
+
+- H2 en modo archivo
+- populate-on-start configurable
+- rutas CSV configurables
+- Hibernate ddl-auto=update
+
+------------------------------------------------------------
+# Ejecución
+
+1. Clonar el repositorio
+2. Ejecutar con Maven o desde el IDE
+3. Acceder a la consola H2:  
+   http://localhost:8080/h2-console
+4. API disponible en:  
+   http://localhost:8080/api/*
+
+------------------------------------------------------------
+# Autor
+
+Proyecto desarrollado por Oscar 
+Backend modular, escalable y preparado para integrarse con frontend en Vite/React.
+```

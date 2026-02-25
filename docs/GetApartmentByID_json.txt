@@ -1,0 +1,52 @@
+http://localhost:8080/api/apartments/40e0a08e-c18e-417e-92ab-3cb44271b146
+
+
+ "id": "40e0a08e-c18e-417e-92ab-3cb44271b146",
+    "address": "Street 47",
+    "nearbySchools": [
+        {
+            "id": "ec1a577c-dd20-4d0a-a6a3-ae150156f1de",
+            "name": "School 819",
+            "address": "Address 181",
+            "type": "public",
+            "educationLevel": "Primary",
+            "location": "Uptown",
+            "rating": 1,
+            "public": true
+        }
+    ],
+    "propertyContracts": [
+        {
+            "id": "1f2549ce-57b5-4b29-9a81-60f9b2bd3fd6",
+            "contractName": "Standard Contract",
+            "contractDetails": "Short duration",
+            "agreedPrice": 1670.1923165034264,
+            "startDate": "2025-05-10",
+            "endDate": "2025-09-25",
+            "active": true
+        }
+    ],
+    "reviews": [
+        {
+            "id": "78f87014-0fe6-4b69-8bfc-216318cda476",
+            "title": "Not bad",
+            "content": "Average",
+            "rating": 2,
+            "reviewDate": "2025-09-18"
+        }
+    ],
+    "name": "Apartment 122",
+    "price": 409335,
+    "area": 2475,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "stories": 2,
+    "mainroad": "no",
+    "guestroom": "no",
+    "basement": "no",
+    "hotwaterheating": "yes",
+    "airconditioning": "yes",
+    "parking": 2,
+    "prefarea": "yes",
+    "furnishingstatus": "furnished"
+}

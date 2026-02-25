@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "ApartmentPredictor API",
+    "name": "ApartmentPredictor API (Actualizado)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890"
   },
@@ -14,11 +14,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/v1/populate?owners=10&properties=50&reviews=100&schools=20",
+              "raw": "http://localhost:8080/api/populate?owners=10&properties=50&reviews=100&schools=20",
               "protocol": "http",
               "host": ["localhost"],
               "port": "8080",
-              "path": ["api", "v1", "populate"],
+              "path": ["api", "populate"],
               "query": [
                 { "key": "owners", "value": "10" },
                 { "key": "properties", "value": "50" },
@@ -30,22 +30,17 @@
         }
       ]
     },
+
     {
       "name": "Apartments",
       "item": [
         {
           "name": "Get All Apartments",
-          "request": {
-            "method": "GET",
-            "url": "http://localhost:8080/api/apartments"
-          }
+          "request": { "method": "GET", "url": "http://localhost:8080/api/apartments" }
         },
         {
           "name": "Get Apartment by ID",
-          "request": {
-            "method": "GET",
-            "url": "http://localhost:8080/api/apartments/{{apartmentId}}"
-          }
+          "request": { "method": "GET", "url": "http://localhost:8080/api/apartments/{{apartmentId}}" }
         },
         {
           "name": "Create Apartment",
@@ -53,7 +48,7 @@
             "method": "POST",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": 120000,\n  \"area\": 80,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"stories\": 1,\n  \"mainroad\": \"yes\",\n  \"guestroom\": \"no\",\n  \"basement\": \"no\",\n  \"hotwaterheating\": \"yes\",\n  \"airconditioning\": \"yes\",\n  \"parking\": 1,\n  \"prefarea\": \"yes\",\n  \"furnishingstatus\": \"furnished\",\n  \"address\": \"New Street 123\"\n}"
+              "raw": "{\n  \"name\": \"Apartment Test\",\n  \"price\": 120000,\n  \"area\": 80,\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"stories\": 1,\n  \"mainroad\": \"yes\",\n  \"guestroom\": \"no\",\n  \"basement\": \"no\",\n  \"hotwaterheating\": \"yes\",\n  \"airconditioning\": \"yes\",\n  \"parking\": 1,\n  \"prefarea\": \"yes\",\n  \"furnishingstatus\": \"furnished\",\n  \"address\": \"New Street 123\"\n}"
             },
             "url": "http://localhost:8080/api/apartments"
           }
@@ -62,33 +57,25 @@
           "name": "Update Apartment",
           "request": {
             "method": "PUT",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 150000,\n  \"area\": 90\n}"
-            },
+            "body": { "mode": "raw", "raw": "{ \"price\": 150000, \"area\": 90 }" },
             "url": "http://localhost:8080/api/apartments/{{apartmentId}}"
           }
         },
         {
           "name": "Delete Apartment",
-          "request": {
-            "method": "DELETE",
-            "url": "http://localhost:8080/api/apartments/{{apartmentId}}"
-          }
+          "request": { "method": "DELETE", "url": "http://localhost:8080/api/apartments/{{apartmentId}}" }
         },
         {
           "name": "Assign Schools to Apartment",
           "request": {
             "method": "PUT",
-            "body": {
-              "mode": "raw",
-              "raw": "[\"{{schoolId1}}\", \"{{schoolId2}}\"]"
-            },
+            "body": { "mode": "raw", "raw": "[\"{{schoolId1}}\", \"{{schoolId2}}\"]" },
             "url": "http://localhost:8080/api/apartments/{{apartmentId}}/assign-schools"
           }
         }
       ]
     },
+
     {
       "name": "Houses",
       "item": [
@@ -122,6 +109,7 @@
         }
       ]
     },
+
     {
       "name": "Duplexes",
       "item": [
@@ -155,6 +143,7 @@
         }
       ]
     },
+
     {
       "name": "TownHouses",
       "item": [
@@ -188,6 +177,7 @@
         }
       ]
     },
+
     {
       "name": "Owners",
       "item": [
@@ -213,6 +203,7 @@
         }
       ]
     },
+
     {
       "name": "Reviewers",
       "item": [
@@ -241,6 +232,7 @@
         }
       ]
     },
+
     {
       "name": "Reviews",
       "item": [
@@ -265,6 +257,7 @@
         }
       ]
     },
+
     {
       "name": "Contracts",
       "item": [
@@ -282,7 +275,7 @@
             "method": "POST",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"owner\": { \"id\": \"{{ownerId}}\" },\n  \"property\": { \"id\": \"{{propertyId}}\" },\n  \"agreedPrice\": 1200.0\n}"
+              "raw": "{\n  \"contractName\": \"Standard Contract\",\n  \"contractDetails\": \"Basic terms\",\n  \"agreedPrice\": 1200.0,\n  \"startDate\": \"2024-01-01\",\n  \"owner\": { \"id\": \"{{ownerId}}\" },\n  \"property\": { \"id\": \"{{propertyId}}\" }\n}"
             },
             "url": "http://localhost:8080/api/contracts"
           }

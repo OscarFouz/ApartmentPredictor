@@ -1,0 +1,47 @@
+http://localhost:8080/api/houses/6f81a4fd-3477-4983-b4ed-cbbdb0816f04
+{
+    "id": "6f81a4fd-3477-4983-b4ed-cbbdb0816f04",
+    "address": "Avenue 1",
+    "nearbySchools": [
+        {
+            "id": "85d56dd3-fc4c-4279-b754-1dc79daf80e3",
+            "name": "School 109",
+            "address": "Address 53",
+            "type": "public",
+            "educationLevel": "Primary",
+            "location": "Downtown",
+            "rating": 3,
+            "public": true
+        }
+    ],
+    "propertyContracts": [
+        {
+            "id": "8d676cd1-11c4-45ce-bc37-87ee7df95ed4",
+            "contractName": "Long Lease",
+            "contractDetails": "Long duration",
+            "agreedPrice": 1727.868559168317,
+            "startDate": "2025-12-02",
+            "endDate": "2026-05-10",
+            "active": true
+        },
+        {
+            "id": "3d43a333-666f-42ce-8131-10b9cf5ff4ca",
+            "contractName": "Long Lease",
+            "contractDetails": "Basic terms",
+            "agreedPrice": 2219.074920467843,
+            "startDate": "2026-02-08",
+            "endDate": "2026-12-05",
+            "active": true
+        }
+    ],
+    "reviews": [
+        {
+            "id": "43bf4fc4-7678-4208-90d1-eede642297bf",
+            "title": "Great place",
+            "content": "Not recommended",
+            "rating": 2,
+            "reviewDate": "2025-10-29"
+        }
+    ],
+    "name": "House 890"
+}

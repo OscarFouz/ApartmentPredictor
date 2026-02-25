@@ -4,43 +4,48 @@ Tecnologías: Spring Boot 3, Java 21, JPA/Hibernate, H2 Database
 
 ---
 
+# 1. ANOTACIONES JPA (ENTIDADES)
+
 ## @Entity
 Indica que la clase es una entidad JPA y se mapeará a una tabla en la base de datos.
 
 ---
 
 ## @Id
-Define el campo que actuará como clave primaria de la entidad.
+Define el campo que actuará como clave primaria.
 
 ---
 
-## @GeneratedValue / UUID manual
-En este proyecto no se usa `@GeneratedValue`, sino UUID manual:
+## UUID manual (sin @GeneratedValue)
+En este proyecto, la mayoría de entidades usan UUID manual:
 
 ```java
 this.id = UUID.randomUUID().toString();
 ```
 
-Esto genera un identificador único sin depender del motor de BD.
+Ventajas:
+- No depende del motor de BD
+- Evita colisiones
+- Ideal para microservicios o datos generados fuera de la BD
 
 ---
 
-## @Inheritance(strategy = InheritanceType.JOINED)
-Define la estrategia de herencia en JPA.  
-`JOINED` crea:
+## @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+El proyecto actual usa SINGLE_TABLE, no JOINED.
 
-- Una tabla padre con atributos comunes.
-- Una tabla hija por cada subclase.
-- Relaciones 1:1 entre tablas mediante la clave primaria.
-
-Es la estrategia más normalizada y flexible.
+Esto significa:
+- Una sola tabla para todas las propiedades
+- Una columna discriminadora indica el subtipo
+- Mejor rendimiento
+- Menos joins
+- Más simple de mantener
 
 ---
 
 ## @DiscriminatorColumn(name = "property_type")
-Crea una columna en la tabla padre (`property`) que indica el tipo real de la entidad hija.
+Crea una columna que indica el tipo real de la entidad hija.
 
-Ejemplo de valores:
+Ejemplos:
 - APARTMENT
 - HOUSE
 - DUPLEX
@@ -49,56 +54,117 @@ Ejemplo de valores:
 ---
 
 ## @DiscriminatorValue("APARTMENT")
-Define el valor que se almacenará en `property_type` cuando la entidad sea de ese tipo.
-
-Cada subclase tiene su propio valor.
-
----
-
-## @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-Define una relación uno-a-muchos entre Apartment y Review.
-
-- **mappedBy**: indica que la FK está en la entidad Review.
-- **cascade = ALL**: si se borra un Apartment, se borran sus Reviews.
-- **fetch = EAGER**: las reviews se cargan automáticamente al obtener un Apartment.
+Define el valor que se guardará en `property_type` para esa subclase.
 
 ---
 
 ## @ManyToOne
-Define la relación inversa: muchas reviews pertenecen a un solo apartamento.
+Relación muchos-a-uno.
+
+Ejemplos en el proyecto:
+- Review → Property
+- Review → Reviewer
+- PropertyContract → Owner
+- PropertyContract → Property
 
 ---
 
-## @JoinColumn(name = "apartment_fk")
-Indica el nombre de la columna que actuará como clave foránea en la tabla `review`.
+## @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+Relación uno-a-muchos.
+
+Ejemplos:
+- Property → Reviews
+- Property → PropertyContracts
+- Owner → Properties
+
+---
+
+## @ManyToMany
+Relación muchos-a-muchos.
+
+Ejemplo:
+- Property ↔ School
+
+---
+
+## @JoinTable
+Define la tabla intermedia en relaciones ManyToMany.
+
+Ejemplo:
+
+```java
+@JoinTable(
+    name = "property_school",
+    joinColumns = @JoinColumn(name = "property_id"),
+    inverseJoinColumns = @JoinColumn(name = "school_id")
+)
+```
+
+---
+
+## @JoinColumn(name = "owner_id")
+Define la clave foránea en relaciones ManyToOne.
+
+---
+
+## @Lob
+Indica que un campo es un texto largo.
+
+Ejemplo:
+- Review.content
 
 ---
 
 ## @JsonManagedReference
-Evita recursión infinita en relaciones bidireccionales al serializar a JSON.  
-Se coloca en el lado "padre" (Apartment).
+Evita recursión infinita en relaciones bidireccionales.  
+Se coloca en el lado "padre".
+
+Ejemplo:
+- Property.reviews
 
 ---
 
 ## @JsonBackReference
 Complemento de `@JsonManagedReference`.  
-Se coloca en el lado "hijo" (Review) para evitar ciclos.
+Se coloca en el lado "hijo".
+
+Ejemplo:
+- Review.property
 
 ---
 
+## @JsonIgnore
+Evita que un campo se serialice a JSON.  
+Útil para romper ciclos o evitar datos sensibles.
+
+---
+
+## @Transient
+Indica que un campo NO debe persistirse en la BD.
+
+Ejemplo recomendado:
+
+```java
+@Transient
+public String getType() {
+    return this.getClass().getSimpleName();
+}
+```
+
+---
+
+# 2. ANOTACIONES SPRING (SERVICIOS, CONTROLADORES, INYECCIÓN)
+
 ## @SpringBootApplication
 Anotación principal de Spring Boot. Combina:
-
 - @Configuration
 - @EnableAutoConfiguration
 - @ComponentScan
 
-Permite que Spring detecte automáticamente controladores, servicios y repositorios.
-
 ---
 
 ## @Autowired
-Inyección automática de dependencias gestionadas por Spring.
+Inyección automática de dependencias.
 
 Ejemplo:
 
@@ -110,8 +176,12 @@ private ApartmentRepository apartmentRepository;
 ---
 
 ## @Service
-Indica que la clase contiene lógica de negocio.  
-Spring la registra como un componente del contenedor.
+Indica que la clase contiene lógica de negocio.
+
+Ejemplos:
+- ApartmentService
+- OwnerService
+- PropertyContractService
 
 ---
 
@@ -121,25 +191,29 @@ Spring Data JPA genera automáticamente las implementaciones CRUD.
 
 ---
 
+## @Component
+Componente genérico gestionado por Spring.
+
+Ejemplo:
+- PopulateDB
+- PrintingUtils
+
+---
+
 ## @RestController
-Combina:
-
-- @Controller
-- @ResponseBody
-
-Indica que la clase expone endpoints REST y devuelve JSON.
+Controlador REST que devuelve JSON.
 
 ---
 
 ## @RequestMapping("/api")
-Define la ruta base para un controlador.
+Define la ruta base del controlador.
 
 ---
 
 ## @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
-Definen endpoints HTTP específicos:
+Definen endpoints HTTP.
 
-- GET → obtener datos
+- GET → obtener
 - POST → crear
 - PUT → actualizar
 - DELETE → eliminar
@@ -152,106 +226,175 @@ Extrae valores de la URL.
 Ejemplo:
 
 ```java
-@GetMapping("/apartments/{id}")
-public Apartment getById(@PathVariable String id)
+@GetMapping("/owners/{id}")
+public Owner getOwner(@PathVariable String id)
 ```
 
 ---
 
 ## @RequestBody
-Indica que el cuerpo del request debe convertirse automáticamente desde JSON a un objeto Java.
+Convierte automáticamente JSON → objeto Java.
 
 ---
 
 ## @CrossOrigin(origins = "http://localhost:5173")
-Permite peticiones desde el frontend (React).  
+Permite peticiones desde el frontend (React/Vite).  
 Evita errores CORS.
 
 ---
 
-## @Value("${app.csv.path}")
-Inyecta valores desde `application.properties`.
+## @Value("${app.populate-on-start}")
+Inyecta valores desde application.properties.
 
-Ejemplo:
+---
 
-```
-app.csv.path=db/Housing.csv
-```
+# 3. CONCEPTOS JPA / HIBERNATE
 
-Uso:
+## Herencia SINGLE_TABLE
+Ventajas:
+- Más rápida
+- Menos joins
+- Más simple
+
+Desventajas:
+- Muchos campos nulos en la tabla
+- Menos normalizada
+
+---
+
+## Relaciones bidireccionales
+El proyecto usa varias relaciones bidireccionales:
+
+- Property ↔ Review
+- Property ↔ School
+- Owner ↔ Property
+- Owner ↔ PropertyContract
+
+Se controlan con:
+- @JsonManagedReference
+- @JsonBackReference
+
+---
+
+## Cascading (CascadeType.ALL)
+Propaga operaciones:
+- save
+- delete
+- update
+
+Ejemplo:  
+Si se borra un Property → se borran sus Reviews.
+
+---
+
+## FetchType
+El proyecto usa principalmente:
+- LAZY (por defecto en ManyToMany y ManyToOne)
+- EAGER (solo cuando es necesario)
+
+---
+
+## Sesión de Hibernate (Persistence Context)
+Hibernate mantiene un "contexto de persistencia" donde almacena temporalmente todas las entidades cargadas durante una transacción.
+
+Conceptos clave:
+
+- La sesión contiene **instancias vivas** de entidades.
+- Si se intenta guardar otra instancia con el **mismo ID**, Hibernate lanza:  
+  `DuplicateKeyException` o `NonUniqueObjectException`.
+- Esto puede ocurrir incluso si la BD está vacía, porque el conflicto sucede **en memoria**, no en la BD.
+- Para evitar conflictos, se puede limpiar la sesión con:
 
 ```java
-@Value("${app.csv.path}")
-private String csvPath;
+entityManager.clear();
 ```
 
----
+Esto elimina todas las entidades cargadas en memoria y evita comparaciones entre objetos antiguos y nuevos.
 
-## @Component
-Indica que la clase es un componente genérico gestionado por Spring.  
-Se usa en utilidades como `PrintingUtils`.
+En este proyecto se usa para evitar errores al generar PropertyContracts durante el populate.
 
 ---
 
-## @Transient
-Indica que un campo no debe persistirse en la base de datos.
+# 4. CONCEPTOS SPRING BOOT
 
-Ejemplo recomendado:
+## CommandLineRunner / @PostConstruct
+En la versión actual se usa @PostConstruct para:
 
-```java
-@Transient
-public String getPropertyType() {
-    return this.getClass().getSimpleName();
-}
-```
+- Verificar si la BD está vacía
+- Ejecutar PopulateDB.populateAll()
 
 ---
 
-## @DiscriminatorValue en subclases
-Cada subclase define su tipo:
-
-```java
-@DiscriminatorValue("HOUSE")
-public class House extends Apartment { ... }
-```
-
-Esto permite a Hibernate reconstruir el tipo real al leer desde la BD.
-
----
-
-## @JoinColumn(name = "apartment_fk")
-Define la clave foránea en Review que apunta a Apartment.
-
----
-
-## @CommandLineRunner
-Permite ejecutar código automáticamente al iniciar la aplicación.
-
-En este proyecto se usa para:
-
-- Cargar apartamentos desde CSV
-- Cargar reviews desde CSV
-
----
-
-## @JsonIgnore (no usado, pero útil)
-Evita que un campo se serialice a JSON.  
-Alternativa a `@JsonBackReference`.
-
----
-
-## @Entity + Herencia JOINED
-En este proyecto, todas las entidades hijas (`House`, `Duplex`, `TownHouse`) heredan de `Apartment`, que a su vez hereda de `Property`.
-
-Esto crea una jerarquía de tablas:
+## H2 Database (modo archivo)
+Configuración:
 
 ```
-property
-apartment
-house
-duplex
-townhouse
+spring.datasource.url=jdbc:h2:file:./db/apartmentpredictordb
 ```
+
+Ventajas:
+- Persistente
+- Ligera
+- Ideal para desarrollo
+
+---
+
+## application.properties
+Controla:
+- BD
+- Hibernate
+- CORS
+- Rutas CSV
+- populate-on-start
+
+---
+
+# 5. CONCEPTOS DEL DOMINIO (PROYECTO)
+
+## Property
+Entidad base de todas las propiedades inmobiliarias.
+
+---
+
+## Apartment / House / Duplex / TownHouse
+Subclases de Property.
+
+---
+
+## Owner
+Persona propietaria de propiedades y contratos.
+
+---
+
+## Reviewer
+Persona que escribe reviews.
+
+---
+
+## Review
+Opinión sobre una propiedad.
+
+---
+
+## School
+Escuela cercana a una propiedad.
+
+---
+
+## PropertyContract
+Contrato entre Owner y Property.
+
+---
+
+## PopulateDB
+Generador de datos sintéticos:
+
+- Owners
+- Properties
+- Schools
+- Reviewers
+- Reviews
+- Contracts
 
 ---
 

@@ -1,0 +1,68 @@
+http://localhost:8080/api/townhouses/31f81167-7378-4a07-90f9-269bd243b349
+
+{
+    "id": "31f81167-7378-4a07-90f9-269bd243b349",
+    "address": "Lane 40",
+    "nearbySchools": [
+        {
+            "id": "8ea7911a-0c5b-40ab-896b-9195120ca945",
+            "name": "School 84",
+            "address": "Address 63",
+            "type": "religious",
+            "educationLevel": "Primary",
+            "location": "Uptown",
+            "rating": 4,
+            "public": true
+        },
+        {
+            "id": "316dab6e-b685-4c15-80b0-f0cc6851486f",
+            "name": "School 461",
+            "address": "Address 54",
+            "type": "private",
+            "educationLevel": "Primary",
+            "location": "Downtown",
+            "rating": 1,
+            "public": true
+        },
+        {
+            "id": "66ade12a-d4b0-477e-83eb-2bddfdaea1c5",
+            "name": "School 711",
+            "address": "Address 44",
+            "type": "religious",
+            "educationLevel": "Primary",
+            "location": "Downtown",
+            "rating": 4,
+            "public": true
+        }
+    ],
+    "propertyContracts": [
+        {
+            "id": "c1a93a55-1e64-44ad-a749-767db9cf55e2",
+            "contractName": "Short Lease",
+            "contractDetails": "Short duration",
+            "agreedPrice": 3753.911704459063,
+            "startDate": "2025-08-25",
+            "endDate": "2026-05-22",
+            "active": true
+        },
+        {
+            "id": "b2a94fbd-de65-4b1d-99c6-2479dd561f31",
+            "contractName": "Premium Contract",
+            "contractDetails": "Long duration",
+            "agreedPrice": 1757.2560512624377,
+            "startDate": "2025-09-28",
+            "endDate": "2026-07-26",
+            "active": true
+        }
+    ],
+    "reviews": [
+        {
+            "id": "5cfd085c-d748-4583-8cf3-bf363b880e72",
+            "title": "Great place",
+            "content": "Average",
+            "rating": 1,
+            "reviewDate": "2025-06-23"
+        }
+    ],
+    "name": "TownHouse 227"
+}

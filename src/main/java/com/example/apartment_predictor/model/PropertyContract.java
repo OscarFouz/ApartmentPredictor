@@ -1,5 +1,6 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -29,10 +30,12 @@ public class PropertyContract {
     // ============================
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @JsonBackReference("owner-contracts")
     private Owner owner;
 
     @ManyToOne
     @JoinColumn(name = "property_id")
+    @JsonBackReference("property-contracts")
     private Property property;
 
     // ============================

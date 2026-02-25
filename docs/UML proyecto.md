@@ -1,166 +1,216 @@
-# UML – Modelo de Entidades (Proyecto ApartmentPredictor)
+```md
+# UML – Modelo de Entidades (Proyecto ApartmentPredictor – versión actualizada)
 
 Este documento representa el modelo de entidades del backend utilizando diagramas ASCII UML.  
-Refleja la estructura real del proyecto, incluyendo herencia JPA, relaciones y atributos.
+Refleja la estructura REAL del proyecto actual, incluyendo:
+
+- Herencia JPA con SINGLE_TABLE  
+- Relaciones entre entidades  
+- Atributos principales  
+- Estructura de Property y sus subclases  
+- Reviewer, Review, Owner, School, PropertyContract  
 
 ---
 
-# 1. Diagrama de Herencia (Property → Apartment → Subclases)
+# 1. Diagrama de Herencia (Property → Apartment / House / Duplex / TownHouse)
 
 ```
-                          ┌──────────────────────────┐
-                          │   Property (abstract)     │
-                          ├──────────────────────────┤
-                          │ - id : String             │
-                          │ - area : int              │
-                          │ - locationRating : int    │
-                          ├──────────────────────────┤
-                          │ + getArea()               │
-                          │ + getLocationRating()     │
-                          │ + setArea(int)            │
-                          │ + setLocationRating(int)  │
-                          │ + calculatePrice() : dbl  │
-                          └───────────┬──────────────┘
-                                      │
-                ┌─────────────────────┼───────────────────────────┐
-                │                     │                           │
-                ▼                     ▼                           ▼
+                           ┌──────────────────────────────────────┐
+                           │        Property (abstract)           │
+                           ├──────────────────────────────────────┤
+                           │ - id : String                        │
+                           │ - address : String                   │
+                           │ - owner : Owner                      │
+                           │ - nearbySchools : List<School>       │
+                           │ - propertyContracts : List<PC>       │
+                           │ - reviews : List<Review>             │
+                           ├──────────────────────────────────────┤
+                           │ + getters/setters                    │
+                           └───────────────────┬──────────────────┘
+                                               │
+         ┌─────────────────────────────────────┼─────────────────────────────────────┐
+         │                                     │                                     │
+         ▼                                     ▼                                     ▼
 
-      ┌──────────────────────────────┐
-      │          Apartment           │
-      ├──────────────────────────────┤
-      │ - id : String                │
-      │ - price : Long               │
-      │ - bedrooms : Integer         │
-      │ - bathrooms : Integer        │
-      │ - stories : Integer          │
-      │ - mainroad : String          │
-      │ - guestroom : String         │
-      │ - basement : String          │
-      │ - hotwaterheating : String   │
-      │ - airconditioning : String   │
-      │ - parking : Integer          │
-      │ - prefarea : String          │
-      │ - furnishingstatus : String  │
-      │ - reviews : List<Review>     │
-      ├──────────────────────────────┤
-      │ + addReview(Review)          │
-      │ + removeReview(Review)       │
-      │ + calculatePrice()           │
-      └───────────┬──────────────────┘
-                  │
-                  ▼
+┌──────────────────────────────────────┐   ┌──────────────────────────────────────┐
+│              Apartment               │   │                House                 │
+├──────────────────────────────────────┤   ├──────────────────────────────────────┤
+│ - name : String                      │   │ - name : String                      │
+│ - price : Integer                    │   │                                      │
+│ - area : Integer                     │   │                                      │
+│ - bedrooms : Integer                 │   │                                      │
+│ - bathrooms : Integer                │   │                                      │
+│ - stories : Integer                  │   │                                      │
+│ - mainroad : String                  │   │                                      │
+│ - guestroom : String                 │   │                                      │
+│ - basement : String                  │   │                                      │
+│ - hotwaterheating : String           │   │                                      │
+│ - airconditioning : String           │   │                                      │
+│ - parking : Integer                  │   │                                      │
+│ - prefarea : String                  │   │                                      │
+│ - furnishingstatus : String          │   │                                      │
+├──────────────────────────────────────┤   ├──────────────────────────────────────┤
+│ + getters/setters                    │   │ + getters/setters                    │
+└───────────────────┬──────────────────┘   └───────────────────┬──────────────────┘
+│                                          │
+▼                                          ▼
 
-      ┌──────────────────────────────┐
-      │          TownHouse           │
-      ├──────────────────────────────┤
-      │ - hasHomeownersAssociation   │
-      │ - hoaMonthlyFee : double     │
-      ├──────────────────────────────┤
-      │ + calculatePrice()           │
-      └──────────────────────────────┘
-
-
-      ┌──────────────────────────────┐
-      │            House             │
-      ├──────────────────────────────┤
-      │ - garageQty : int            │
-      │ - roofType : String          │
-      │ - garden : String            │
-      ├──────────────────────────────┤
-      │ + calculatePrice()           │
-      └──────────────────────────────┘
-
-
-      ┌──────────────────────────────┐
-      │            Duplex            │
-      ├──────────────────────────────┤
-      │ - balcony : String           │
-      │ - elevator : boolean         │
-      │ - hasSeparateUtilities : bool│
-      ├──────────────────────────────┤
-      │ + calculatePrice()           │
-      └──────────────────────────────┘
+┌──────────────────────────────────────┐   ┌──────────────────────────────────────┐
+│                Duplex                │   │              TownHouse               │
+├──────────────────────────────────────┤   ├──────────────────────────────────────┤
+│ - name : String                      │   │ - name : String                      │
+├──────────────────────────────────────┤   ├──────────────────────────────────────┤
+│ + getters/setters                    │   │ + getters/setters                    │
+└──────────────────────────────────────┘   └──────────────────────────────────────┘
 ```
 
 ---
 
-# 2. Relación Apartment ↔ Review
-
-Relación real en el proyecto:
-
-- Apartment 1 → * Review
-- Review pertenece a un Apartment
-- Bidireccional
-- Controlada con JsonManagedReference / JsonBackReference
+# 2. Relación Property ↔ Review
 
 ```
-      ┌──────────────┐        1        ┌──────────────┐
-      │  Apartment    │----------------│    Review     │
-      └──────────────┘     0..*        └──────────────┘
-             ▲                                  
-             │ has many                         
-             │                                    
-             └───────────────────────────────────────┐
-                                                     │
-                                                     ▼
+┌──────────────┐        1        ┌──────────────┐
+│   Property    │----------------│    Review     │
+└──────────────┘      0..*       └──────────────┘
 ```
 
-## Entidad Review (detalle)
+### Review (detalle)
 
 ```
-      ┌──────────────────────────────┐
-      │            Review            │
-      ├──────────────────────────────┤
-      │ - id : String                │
-      │ - title : String             │
-      │ - content : String           │
-      │ - rating : int               │
-      │ - reviewDate : LocalDate     │
-      │ - apartment : Apartment      │
-      ├──────────────────────────────┤
-      │ + setApartment(Apartment)    │
-      │ + toString()                 │
-      └──────────────────────────────┘
+┌──────────────────────────────────────┐
+│                Review                │
+├──────────────────────────────────────┤
+│ - id : String                        │
+│ - title : String                     │
+│ - content : String                   │
+│ - rating : int                       │
+│ - reviewDate : LocalDate             │
+│ - property : Property                │
+│ - reviewer : Reviewer                │
+├──────────────────────────────────────┤
+│ + getters/setters                    │
+└──────────────────────────────────────┘
 ```
 
 ---
 
-# 3. Entidad Owner (independiente)
-
-Owner no participa en relaciones en este proyecto, pero es una entidad persistente.
+# 3. Reviewer (hereda de Person)
 
 ```
-      ┌──────────────────────────┐
-      │          Owner           │
-      ├──────────────────────────┤
-      │ - id : String            │
-      │ - name : String          │
-      │ - email : String         │
-      │ - age : int              │
-      │ - isActive : boolean     │
-      │ - isBusiness : boolean   │
-      │ - idLegalOwner : String  │
-      │ - registrationDate       │
-      │ - qtyDaysAsOwner : int   │
-      ├──────────────────────────┤
-      │ + getters/setters        │
-      │ + toString()             │
-      └──────────────────────────┘
+┌──────────────────────────────────────┐
+│               Person                 │
+├──────────────────────────────────────┤
+│ - id : String                        │
+│ - fullName : String                  │
+│ - birthDate : LocalDate              │
+│ - phone : String                     │
+│ - email : String                     │
+│ - password : String                  │
+│ - isActive : boolean                 │
+└───────────────────┬──────────────────┘
+│
+▼
+┌──────────────────────────────────────┐
+│               Reviewer               │
+├──────────────────────────────────────┤
+│ - reputation : int                   │
+│ - isBusiness : boolean               │
+│ - xAccount : String                  │
+│ - webURL : String                    │
+│ - qtyReviews : int                   │
+├──────────────────────────────────────┤
+│ + getters/setters                    │
+└──────────────────────────────────────┘
 ```
 
 ---
 
-# 4. Resumen del Modelo
+# 4. Owner (hereda de Person)
 
-- **Property** es la clase base abstracta.
-- **Apartment** hereda de Property y es la entidad principal.
-- **House**, **Duplex** y **TownHouse** heredan de Apartment.
-- **Review** se relaciona con Apartment (ManyToOne).
-- **Owner** es independiente.
-- Se usa herencia JPA con estrategia JOINED.
-- Identificadores generados con UUID.
+```
+┌──────────────────────────────────────┐
+│                Owner                 │
+├──────────────────────────────────────┤
+│ - isBusiness : boolean               │
+│ - idLegalOwner : String              │
+│ - registrationDate : LocalDate       │
+│ - qtyDaysAsOwner : int               │
+│ - contracts : List<PropertyContract> │
+│ - apartments : List<Apartment>       │
+│ - houses : List<House>               │
+│ - duplexes : List<Duplex>            │
+│ - townHouses : List<TownHouse>       │
+├──────────────────────────────────────┤
+│ + getters/setters                    │
+└──────────────────────────────────────┘
+```
+
+---
+
+# 5. PropertyContract
+
+```
+┌──────────────────────────────────────┐
+│          PropertyContract            │
+├──────────────────────────────────────┤
+│ - id : String                        │
+│ - contractName : String              │
+│ - contractDetails : String           │
+│ - agreedPrice : double               │
+│ - startDate : LocalDate              │
+│ - endDate : LocalDate                │
+│ - active : boolean                   │
+│ - owner : Owner                      │
+│ - property : Property                │
+├──────────────────────────────────────┤
+│ + getters/setters                    │
+└──────────────────────────────────────┘
+```
+
+---
+
+# 6. School (ManyToMany con Property)
+
+```
+┌──────────────┐      *      ┌──────────────┐
+│   Property    │-------------│    School     │
+└──────────────┘      *      └──────────────┘
+```
+
+### School (detalle)
+
+```
+┌──────────────────────────────────────┐
+│                School                │
+├──────────────────────────────────────┤
+│ - id : String                        │
+│ - name : String                      │
+│ - address : String                   │
+│ - type : String                      │
+│ - educationLevel : String            │
+│ - location : String                  │
+│ - rating : int                       │
+│ - isPublic : boolean                 │
+├──────────────────────────────────────┤
+│ + getters/setters                    │
+└──────────────────────────────────────┘
+```
+
+---
+
+# 7. Resumen del Modelo
+
+- **Property** es la clase base abstracta.  
+- **Apartment, House, Duplex, TownHouse** heredan de Property.  
+- **Owner** administra propiedades y contratos.  
+- **Reviewer** escribe reviews.  
+- **Review** pertenece a Property y Reviewer.  
+- **School** se relaciona con Property (ManyToMany).  
+- **PropertyContract** une Owner ↔ Property.  
+- Herencia JPA: **SINGLE_TABLE**.  
+- IDs generados con UUID.  
 
 ---
 
 # Fin del documento UML
+```

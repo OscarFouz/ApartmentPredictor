@@ -1,0 +1,247 @@
+http://localhost:8080/api/owners/c168924d-9f2c-4d58-9f1a-11d42839f994
+
+{
+    "id": "c168924d-9f2c-4d58-9f1a-11d42839f994",
+    "fullName": "Ana López",
+    "birthDate": "1963-02-25",
+    "phone": "+34 600111222",
+    "email": "ana.lópez@outlook.com",
+    "password": "password123",
+    "idLegalOwner": "ID-181374",
+    "registrationDate": "2025-04-18",
+    "qtyDaysAsOwner": 160,
+    "contracts": [
+        {
+            "id": "f72bdebb-40f4-4ca1-b8cd-5c0c0af60e14",
+            "contractName": "Short Lease",
+            "contractDetails": "Basic terms",
+            "agreedPrice": 634.039357611446,
+            "startDate": "2025-08-25",
+            "endDate": "2026-03-19",
+            "active": true
+        },
+        {
+            "id": "0df3f1f2-e3ce-46b2-a723-e210f1ef174e",
+            "contractName": "Premium Contract",
+            "contractDetails": "Long duration",
+            "agreedPrice": 1158.3639020428923,
+            "startDate": "2025-03-10",
+            "endDate": "2026-02-10",
+            "active": true
+        }
+    ],
+    "apartments": [
+        {
+            "id": "f29e0452-9e03-4a0c-ab94-08a01346d716",
+            "address": "Street 173",
+            "nearbySchools": [
+                {
+                    "id": "4d850354-0be3-4878-bb5c-7a21ae15b3f1",
+                    "name": "School 64",
+                    "address": "Address 192",
+                    "type": "private",
+                    "educationLevel": "Primary",
+                    "location": "Downtown",
+                    "rating": 3,
+                    "public": true
+                },
+                {
+                    "id": "b4f57b9c-ae00-4ed5-b3fa-9ee70909b9d9",
+                    "name": "School 410",
+                    "address": "Address 175",
+                    "type": "public",
+                    "educationLevel": "Primary",
+                    "location": "East Side",
+                    "rating": 4,
+                    "public": true
+                }
+            ],
+            "propertyContracts": [
+                {
+                    "id": "4e36f7e2-bff7-4019-9a42-64947d4c3d7f",
+                    "contractName": "Standard Contract",
+                    "contractDetails": "Short duration",
+                    "agreedPrice": 3232.4090505776194,
+                    "startDate": "2025-11-14",
+                    "endDate": "2026-08-18",
+                    "active": true
+                },
+                {
+                    "id": "bb928fd7-f55d-4ede-b2b9-a6164f1ba358",
+                    "contractName": "Premium Contract",
+                    "contractDetails": "Extended terms",
+                    "agreedPrice": 3076.4342189233926,
+                    "startDate": "2025-05-24",
+                    "endDate": "2026-01-15",
+                    "active": true
+                },
+                {
+                    "id": "e73bf5ab-03eb-43ec-86d2-738a22574d3a",
+                    "contractName": "Premium Contract",
+                    "contractDetails": "Extended terms",
+                    "agreedPrice": 4145.912958659842,
+                    "startDate": "2025-05-29",
+                    "endDate": "2026-02-16",
+                    "active": true
+                },
+                {
+                    "id": "7ec01dae-aa9e-4db2-b444-5af6ec2aeaf1",
+                    "contractName": "Long Lease",
+                    "contractDetails": "Long duration",
+                    "agreedPrice": 2010.1768055925038,
+                    "startDate": "2025-09-06",
+                    "endDate": "2025-10-29",
+                    "active": true
+                }
+            ],
+            "reviews": [
+                {
+                    "id": "9ca54d2a-b72b-47c7-8395-f475efdfa133",
+                    "title": "Terrible",
+                    "content": "Not recommended",
+                    "rating": 2,
+                    "reviewDate": "2025-05-12"
+                }
+            ],
+            "name": "Apartment 207",
+            "price": 569631,
+            "area": 2749,
+            "bedrooms": 3,
+            "bathrooms": 2,
+            "stories": 3,
+            "mainroad": "no",
+            "guestroom": "yes",
+            "basement": "no",
+            "hotwaterheating": "yes",
+            "airconditioning": "no",
+            "parking": 1,
+            "prefarea": "yes",
+            "furnishingstatus": "furnished"
+        },
+        {
+            "id": "625cce3e-f61b-4b0c-ab56-e4aa5470931c",
+            "address": "Street 53",
+            "nearbySchools": [
+                {
+                    "id": "1740b2a2-1a33-4df3-bd7e-200212958e26",
+                    "name": "School 387",
+                    "address": "Address 111",
+                    "type": "private",
+                    "educationLevel": "Primary",
+                    "location": "East Side",
+                    "rating": 1,
+                    "public": true
+                }
+            ],
+            "propertyContracts": [
+                {
+                    "id": "0252514d-738c-4a92-8648-18af423460b8",
+                    "contractName": "Premium Contract",
+                    "contractDetails": "Basic terms",
+                    "agreedPrice": 3938.273316757787,
+                    "startDate": "2025-09-05",
+                    "endDate": "2025-11-29",
+                    "active": true
+                },
+                {
+                    "id": "927b3666-c7aa-4e12-9cce-ce83c1fcc3b9",
+                    "contractName": "Short Lease",
+                    "contractDetails": "Long duration",
+                    "agreedPrice": 4972.354036010423,
+                    "startDate": "2025-06-28",
+                    "endDate": "2026-02-25",
+                    "active": true
+                }
+            ],
+            "reviews": [
+                {
+                    "id": "436f6786-f0fe-4f09-b88d-d2c7dc613b3e",
+                    "title": "Not bad",
+                    "content": "Good experience",
+                    "rating": 4,
+                    "reviewDate": "2026-02-15"
+                }
+            ],
+            "name": "Apartment 976",
+            "price": 429361,
+            "area": 4322,
+            "bedrooms": 2,
+            "bathrooms": 2,
+            "stories": 2,
+            "mainroad": "yes",
+            "guestroom": "yes",
+            "basement": "yes",
+            "hotwaterheating": "no",
+            "airconditioning": "no",
+            "parking": 1,
+            "prefarea": "no",
+            "furnishingstatus": "furnished"
+        }
+    ],
+    "houses": [
+        {
+            "id": "11f92c06-e804-44fc-8baf-72deec754efc",
+            "address": "Avenue 20",
+            "nearbySchools": [
+                {
+                    "id": "85d56dd3-fc4c-4279-b754-1dc79daf80e3",
+                    "name": "School 109",
+                    "address": "Address 53",
+                    "type": "public",
+                    "educationLevel": "Primary",
+                    "location": "Downtown",
+                    "rating": 3,
+                    "public": true
+                }
+            ],
+            "propertyContracts": [],
+            "reviews": [],
+            "name": "House 213"
+        }
+    ],
+    "duplexes": [
+        {
+            "id": "1fcc05bc-2293-404e-860c-2bf53cbddb23",
+            "address": "Road 67",
+            "nearbySchools": [
+                {
+                    "id": "85d56dd3-fc4c-4279-b754-1dc79daf80e3",
+                    "name": "School 109",
+                    "address": "Address 53",
+                    "type": "public",
+                    "educationLevel": "Primary",
+                    "location": "Downtown",
+                    "rating": 3,
+                    "public": true
+                },
+                {
+                    "id": "ce6d4ebc-530c-499c-943f-615dabdaacc8",
+                    "name": "School 605",
+                    "address": "Address 153",
+                    "type": "religious",
+                    "educationLevel": "Primary",
+                    "location": "Suburbs",
+                    "rating": 1,
+                    "public": true
+                },
+                {
+                    "id": "b4f57b9c-ae00-4ed5-b3fa-9ee70909b9d9",
+                    "name": "School 410",
+                    "address": "Address 175",
+                    "type": "public",
+                    "educationLevel": "Primary",
+                    "location": "East Side",
+                    "rating": 4,
+                    "public": true
+                }
+            ],
+            "propertyContracts": [],
+            "reviews": [],
+            "name": "Duplex 102"
+        }
+    ],
+    "townHouses": [],
+    "business": false,
+    "active": true
+}
+

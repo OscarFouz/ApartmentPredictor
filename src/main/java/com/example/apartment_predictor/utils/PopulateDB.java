@@ -2,6 +2,8 @@ package com.example.apartment_predictor.utils;
 
 import com.example.apartment_predictor.model.*;
 import com.example.apartment_predictor.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +16,11 @@ import java.util.concurrent.ThreadLocalRandom;
 @Component
 public class PopulateDB {
 
-    // ============================
-    // REPOSITORIES
-    // ============================
+    // EntityManager necesario para limpiar la sesión de Hibernate
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    // Repositorios
     @Autowired private ApartmentRepository apartmentRepository;
     @Autowired private HouseRepository houseRepository;
     @Autowired private DuplexRepository duplexRepository;
@@ -28,9 +32,7 @@ public class PopulateDB {
     @Autowired private OwnerRepository ownerRepository;
     @Autowired private PropertyContractRepository propertyContractRepository;
 
-    // ============================
-    // ORCHESTRATOR
-    // ============================
+    // Orquestador principal
     public int populateAll(int ownersQty, int propertiesQty, int reviewsQty, int schoolsQty) {
 
         List<Owner> owners = populateOwners(ownersQty);
@@ -39,20 +41,28 @@ public class PopulateDB {
         assignSchoolsToProperties(properties, schools);
 
         List<Reviewer> reviewers = populateReviewers(ownersQty);
-        //List<Review> reviews = populateReviews(reviewsQty, reviewers, properties);
+
+
+        // List<Review> reviews = populateReviews(reviewsQty, reviewers, properties);
+
         List<Review> reviews = populateReviews(reviewsQty);
-        assignReviewsToProperty(reviews,properties);
+        assignReviewsToProperty(reviews, properties);
         assignReviewersToReviews(reviews, reviewers);
 
-        //List<PropertyContract> contracts = populateContracts(propertiesQty, owners, properties);
+
+        // List<PropertyContract> contracts = populateContracts(propertiesQty, owners, properties);
+
         List<PropertyContract> contracts = populateContracts(propertiesQty);
-        assignOwnerAndPropertyToContract(owners,properties,contracts);
+
+        // Limpieza de la sesión de Hibernate para evitar DuplicateKeyException
+        entityManager.clear();
+
+        assignOwnerAndPropertyToContract(owners, properties, contracts);
+
         return properties.size();
     }
 
-    // ============================
-    // OWNERS
-    // ============================
+    // Owners
     private List<Owner> populateOwners(int qty) {
 
         List<Owner> owners = new ArrayList<>();
@@ -91,9 +101,7 @@ public class PopulateDB {
         return owners;
     }
 
-    // ============================
-    // PROPERTIES
-    // ============================
+    // Properties
     private List<Property> populateProperties(int qty, List<Owner> owners) {
 
         List<Property> properties = new ArrayList<>();
@@ -186,9 +194,7 @@ public class PopulateDB {
         return t;
     }
 
-    // ============================
-    // SCHOOLS
-    // ============================
+    // Schools
     private List<School> populateSchools(int qty) {
 
         List<School> schools = new ArrayList<>();
@@ -235,9 +241,7 @@ public class PopulateDB {
         }
     }
 
-    // ============================
-    // REVIEWERS
-    // ============================
+    // Reviewers
     private List<Reviewer> populateReviewers(int qty) {
 
         List<Reviewer> reviewers = new ArrayList<>();
@@ -277,40 +281,41 @@ public class PopulateDB {
         return reviewers;
     }
 
-    // ============================
-    // REVIEWS
-    // ============================
-    //    private List<Review> populateReviews(int qty, List<Reviewer> reviewers, List<Property> properties) {
-    //
-    //        List<Review> reviews = new ArrayList<>();
-    //        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-    //
-    //        String[] titles = {"Great place", "Not bad", "Could be better", "Excellent", "Terrible"};
-    //        String[] contents = {"Good experience", "Average", "Bad experience", "Loved it", "Not recommended"};
-    //
-    //        for (int i = 0; i < qty; i++) {
-    //
-    //            Review r = new Review(
-    //                    titles[rnd.nextInt(titles.length)],
-    //                    contents[rnd.nextInt(contents.length)],
-    //                    rnd.nextInt(1, 5),
-    //                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
-    //                    null,
-    //                    null
-    //            );
-    //
-    //            Reviewer reviewer = reviewers.get(rnd.nextInt(reviewers.size()));
-    //            Property property = properties.get(rnd.nextInt(properties.size()));
-    //
-    //            r.setReviewer(reviewer);
-    //            r.setProperty(property);
-    //
-    //            reviewRepository.save(r);
-    //            reviews.add(r);
-    //        }
-    //
-    //        return reviews;
-    //    }
+    // Reviews 
+    /*
+    private List<Review> populateReviews(int qty, List<Reviewer> reviewers, List<Property> properties) {
+
+        List<Review> reviews = new ArrayList<>();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+        String[] titles = {"Great place", "Not bad", "Could be better", "Excellent", "Terrible"};
+        String[] contents = {"Good experience", "Average", "Bad experience", "Loved it", "Not recommended"};
+
+        for (int i = 0; i < qty; i++) {
+
+            Review r = new Review(
+                    titles[rnd.nextInt(titles.length)],
+                    contents[rnd.nextInt(contents.length)],
+                    rnd.nextInt(1, 5),
+                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
+                    null,
+                    null
+            );
+
+            Reviewer reviewer = reviewers.get(rnd.nextInt(reviewers.size()));
+            Property property = properties.get(rnd.nextInt(properties.size()));
+
+            r.setReviewer(reviewer);
+            r.setProperty(property);
+
+            reviewRepository.save(r);
+            reviews.add(r);
+        }
+
+        return reviews;
+    }
+    */
+
     private List<Review> populateReviews(int qty) {
         List<Review> reviews = new ArrayList<>();
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
@@ -341,9 +346,10 @@ public class PopulateDB {
             Review randomReview = reviews.get(rnd.nextInt(reviews.size()));
             randomReview.setProperty(property);
             property.getReviews().add(randomReview);
+
+            reviewRepository.save(randomReview);
         }
     }
-
 
     private void assignReviewersToReviews(List<Review> reviews, List<Reviewer> reviewers) {
         Random rnd = new Random();
@@ -352,44 +358,45 @@ public class PopulateDB {
             Reviewer randomReviewer = reviewers.get(rnd.nextInt(reviewers.size()));
             review.setReviewer(randomReviewer);
             randomReviewer.getReviews().add(review);
+
+            reviewRepository.save(review);
         }
     }
 
+    // Contracts 
+    /*
+    private List<PropertyContract> populateContracts(int qty, List<Owner> owners, List<Property> properties) {
 
-    // ============================
-    // CONTRACTS
-    // ============================
-    //    private List<PropertyContract> populateContracts(int qty, List<Owner> owners, List<Property> properties) {
-    //
-    //        List<PropertyContract> contracts = new ArrayList<>();
-    //        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-    //
-    //        String[] names = {"Standard Contract", "Premium Contract", "Short Lease", "Long Lease"};
-    //        String[] details = {"Basic terms", "Extended terms", "Short duration", "Long duration"};
-    //
-    //        for (int i = 0; i < qty; i++) {
-    //
-    //            Owner owner = owners.get(rnd.nextInt(owners.size()));
-    //            Property property = properties.get(rnd.nextInt(properties.size()));
-    //
-    //            PropertyContract c = new PropertyContract(
-    //                    names[rnd.nextInt(names.length)],
-    //                    details[rnd.nextInt(details.length)],
-    //                    rnd.nextDouble(500, 5000),
-    //                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
-    //                    owner,
-    //                    property
-    //            );
-    //
-    //            c.setEndDate(c.getStartDate().plusDays(rnd.nextInt(30, 365)));
-    //
-    //            propertyContractRepository.save(c);
-    //            contracts.add(c);
-    //        }
-    //
-    //        return contracts;
-    //    }
-    //}
+        List<PropertyContract> contracts = new ArrayList<>();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+        String[] names = {"Standard Contract", "Premium Contract", "Short Lease", "Long Lease"};
+        String[] details = {"Basic terms", "Extended terms", "Short duration", "Long duration"};
+
+        for (int i = 0; i < qty; i++) {
+
+            Owner owner = owners.get(rnd.nextInt(owners.size()));
+            Property property = properties.get(rnd.nextInt(properties.size()));
+
+            PropertyContract c = new PropertyContract(
+                    names[rnd.nextInt(names.length)],
+                    details[rnd.nextInt(details.length)],
+                    rnd.nextDouble(500, 5000),
+                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
+                    owner,
+                    property
+            );
+
+            c.setEndDate(c.getStartDate().plusDays(rnd.nextInt(30, 365)));
+
+            propertyContractRepository.save(c);
+            contracts.add(c);
+        }
+
+        return contracts;
+    }
+    */
+
     private List<PropertyContract> populateContracts(int qty) {
 
         List<PropertyContract> contracts = new ArrayList<>();
@@ -411,23 +418,27 @@ public class PopulateDB {
 
             propertyContract.setEndDate(propertyContract.getStartDate().plusDays(rnd.nextInt(30, 365)));
 
-            propertyContractRepository.save(propertyContract);
+            // No se guarda aquí el contrato para evitar duplicados en la sesión
             contracts.add(propertyContract);
         }
 
         return contracts;
     }
 
-    private void assignOwnerAndPropertyToContract(List<Owner> owners, List<Property> properties, List<PropertyContract> propertyContracts){
+    private void assignOwnerAndPropertyToContract(List<Owner> owners, List<Property> properties, List<PropertyContract> propertyContracts) {
         Random rnd = new Random();
 
-    //        for (PropertyContract propertyContract : propertyContracts) {
-    //            Owner randomOwner = owners.get(rnd.nextInt(owners.size()));
-    //            Property randomProperty = properties.get(rnd.nextInt(properties.size()));
-    //
-    //            propertyContract.se.setContracts(randomOwner);
-    //            randomProperty.setOwner(randomOwner);
-    //            property.getReviews().add(randomReview);
-    //        }
+        for (PropertyContract contract : propertyContracts) {
+            Owner randomOwner = owners.get(rnd.nextInt(owners.size()));
+            Property randomProperty = properties.get(rnd.nextInt(properties.size()));
+
+            contract.setOwner(randomOwner);
+            contract.setProperty(randomProperty);
+
+            randomOwner.getContracts().add(contract);
+            randomProperty.getPropertyContracts().add(contract);
+            
+            propertyContractRepository.save(contract);
+        }
     }
 }

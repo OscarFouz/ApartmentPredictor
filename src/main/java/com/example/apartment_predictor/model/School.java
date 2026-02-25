@@ -1,10 +1,10 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 public class School {
@@ -31,6 +31,7 @@ public class School {
     // RELACIONES
     // ============================
     @ManyToMany(mappedBy = "nearbySchools")
+    @JsonBackReference("property-schools")
     private List<Property> properties = new ArrayList<>();
 
     // ============================

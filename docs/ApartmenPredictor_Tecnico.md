@@ -1,28 +1,57 @@
-# MANUAL TÉCNICO
+```md
+# MANUAL TÉCNICO  
 Proyecto: ApartmentPredictor  
 Tecnologías: Spring Boot 3, Java 21, JPA/Hibernate, H2 Database, Maven
 
 ---
 
-## 1. Introducción
+# 1. Introducción
 
-ApartmentPredictor es un backend desarrollado con Spring Boot que permite gestionar apartamentos, sus características y las reseñas asociadas.  
-El sistema implementa un modelo de herencia JPA, carga automática de datos desde archivos CSV, persistencia en H2 Database y una API REST completa para interactuar con un frontend (por ejemplo, React).
+ApartmentPredictor es un backend modular diseñado para gestionar un ecosistema inmobiliario completo basado en un modelo unificado de propiedades (Property).  
+El sistema soporta:
 
-Este manual técnico describe la arquitectura interna, el modelo de datos, la estructura del código, la configuración del entorno y el funcionamiento de los servicios principales.
+- Apartamentos  
+- Casas  
+- Dúplex  
+- TownHouses  
+- Propietarios  
+- Contratos  
+- Reseñas  
+- Reviewers  
+- Escuelas cercanas  
+
+Incluye un sistema avanzado de **población automática de datos**, API REST completa, relaciones JPA complejas, herencia con SINGLE_TABLE y una arquitectura orientada a servicios.
+
+Este manual describe la arquitectura interna, el modelo de datos, los servicios, los controladores, la configuración y el flujo interno del sistema.
 
 ---
 
-## 2. Arquitectura General del Proyecto
+# 2. Arquitectura General del Proyecto
 
-El proyecto sigue una arquitectura modular basada en controladores, servicios, repositorios y entidades JPA.
+El proyecto sigue una arquitectura en capas:
 
-```
+- **Controller** → expone la API REST  
+- **Service** → lógica de negocio  
+- **Repository** → acceso a datos con Spring Data JPA  
+- **Model** → entidades JPA  
+- **Utils** → utilidades auxiliares  
+- **PopulateDB** → generador de datos sintéticos
+
+Estructura:
+
+```txt
 src/main/java/com/example/apartment_predictor
 │
 ├── controller
 │   ├── ApartmentController.java
-│   └── ReviewController.java
+│   ├── HouseController.java
+│   ├── DuplexController.java
+│   ├── TownHouseController.java
+│   ├── OwnerController.java
+│   ├── ReviewerController.java
+│   ├── ReviewController.java
+│   ├── PropertyContractController.java
+│   └── PopulateDBController.java
 │
 ├── model
 │   ├── Property.java
@@ -30,18 +59,34 @@ src/main/java/com/example/apartment_predictor
 │   ├── House.java
 │   ├── Duplex.java
 │   ├── TownHouse.java
+│   ├── Owner.java
+│   ├── Reviewer.java
 │   ├── Review.java
-│   └── Owner.java
+│   ├── School.java
+│   └── Person.java
 │
 ├── repository
 │   ├── ApartmentRepository.java
-│   └── ReviewRepository.java
+│   ├── HouseRepository.java
+│   ├── DuplexRepository.java
+│   ├── TownHouseRepository.java
+│   ├── OwnerRepository.java
+│   ├── ReviewerRepository.java
+│   ├── ReviewRepository.java
+│   ├── SchoolRepository.java
+│   └── PropertyContractRepository.java
 │
 ├── service
 │   ├── ApartmentService.java
-│   ├── LoadInitialDataService.java
-│   ├── LoadReviewDataService.java
-│   └── ReviewService.java
+│   ├── HouseService.java
+│   ├── DuplexService.java
+│   ├── TownHouseService.java
+│   ├── OwnerService.java
+│   ├── ReviewerService.java
+│   ├── ReviewService.java
+│   ├── PropertyService.java
+│   ├── PropertyContractService.java
+│   └── PopulateDB.java
 │
 └── utils
     ├── ApartmentJsonWriter.java
@@ -50,40 +95,32 @@ src/main/java/com/example/apartment_predictor
 
 ---
 
-## 3. Modelo de Datos
+# 3. Modelo de Datos
 
-### 3.1 Herencia JPA
+El sistema utiliza **herencia JPA con SINGLE_TABLE**, lo que permite almacenar todas las propiedades en una única tabla con una columna discriminadora.
 
-El sistema utiliza herencia con estrategia JOINED:
+## 3.1 Property (clase base)
 
-- Una tabla base `property`
-- Una columna discriminadora `property_type`
-- Una tabla por cada subclase:
-    - apartment
-    - house
-    - duplex
-    - townhouse
+Atributos principales:
+- id
+- address
+- owner
+- nearbySchools (ManyToMany)
+- propertyContracts (OneToMany)
+- reviews (OneToMany)
 
-Ejemplo de discriminador:
+Es la base para:
+- Apartment
+- House
+- Duplex
+- TownHouse
 
-```java
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "property_type")
-```
+## 3.2 Apartment
 
-### 3.2 Entidad Property (clase base)
-
-Contiene atributos comunes:
-
-- id (UUID)
-- area
-- locationRating
-
-### 3.3 Entidad Apartment
-
-Extiende Property y añade:
-
+Atributos específicos:
+- name
 - price
+- area
 - bedrooms
 - bathrooms
 - stories
@@ -96,125 +133,210 @@ Extiende Property y añade:
 - prefarea
 - furnishingstatus
 
-Relación con Review:
+## 3.3 House / Duplex / TownHouse
 
-```java
-@OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-@JsonManagedReference
-```
+Atributos:
+- name
+- address heredado
 
-### 3.4 Subclases de Apartment
+Relaciones:
+- ManyToOne → Owner
+- ManyToMany → School
+- OneToMany → PropertyContract
+- OneToMany → Review
 
-#### House
-- garageQty
-- roofType
-- garden
+## 3.4 Owner (hereda de Person)
 
-#### Duplex
-- balcony
-- elevator
-- hasSeparateUtilities
+Atributos:
+- isBusiness
+- idLegalOwner
+- registrationDate
+- qtyDaysAsOwner
 
-#### TownHouse
-- hasHomeownersAssociation
-- hoaMonthlyFee
+Relaciones:
+- OneToMany → PropertyContract
+- OneToMany → Apartment
+- OneToMany → House
+- OneToMany → Duplex
+- OneToMany → TownHouse
 
-Cada subclase redefine `calculatePrice()`.
+## 3.5 Reviewer (hereda de Person)
 
-### 3.5 Entidad Review
+Atributos:
+- reputation
+- isBusiness
+- xAccount
+- webURL
+- qtyReviews
 
-Relación ManyToOne:
+Relaciones:
+- OneToMany → Review
 
-```java
-@ManyToOne
-@JoinColumn(name = "apartment_fk")
-@JsonBackReference
-```
+## 3.6 Review
 
-Campos:
-
+Atributos:
 - title
 - content
 - rating
 - reviewDate
 
+Relaciones:
+- ManyToOne → Property
+- ManyToOne → Reviewer
+
+## 3.7 School
+
+Atributos:
+- name
+- address
+- type
+- educationLevel
+- location
+- rating
+- isPublic
+
+Relaciones:
+- ManyToMany → Property
+
+## 3.8 PropertyContract
+
+Atributos:
+- contractName
+- contractDetails
+- agreedPrice
+- startDate
+- endDate
+- active
+
+Relaciones:
+- ManyToOne → Owner
+- ManyToOne → Property
+
 ---
 
-## 4. Repositorios
+# 4. Repositorios
 
-El proyecto utiliza Spring Data JPA.
+Todos los repositorios extienden CrudRepository o JpaRepository.
 
-### ApartmentRepository
+Ejemplos:
 
 ```java
 public interface ApartmentRepository extends CrudRepository<Apartment, String> {}
+public interface SchoolRepository extends JpaRepository<School, String> {}
+public interface PropertyContractRepository extends CrudRepository<PropertyContract, String> {}
 ```
 
-### ReviewRepository
+---
+
+# 5. Servicios
+
+## 5.1 ApartmentService / HouseService / DuplexService / TownHouseService
+
+Funciones:
+- findAll
+- findById
+- update
+- updateById
+- delete
+
+## 5.2 PropertyService
+
+Servicio unificado para buscar cualquier tipo de propiedad por ID.
 
 ```java
-public interface ReviewRepository extends CrudRepository<Review, String> {}
+public Property findById(String id)
 ```
 
+Busca en:
+- ApartmentRepository
+- HouseRepository
+- DuplexRepository
+- TownHouseRepository
+
+## 5.3 ReviewerService
+
+Gestión de reviewers:
+- CRUD
+- obtener reviews asociadas
+
+## 5.4 ReviewService
+
+Gestión de reviews:
+- guardar
+- eliminar
+
+## 5.5 PropertyContractService
+
+Gestión de contratos:
+- crear contrato
+- cerrar contrato
+- eliminar contrato
+- buscar por ID
+
+## 5.6 PopulateDB
+
+Generador completo de datos sintéticos:
+- Owners
+- Properties
+- Schools
+- Reviewers
+- Reviews
+- Contracts
+
+Incluye asignación de relaciones:
+- Schools → Properties
+- Reviews → Properties
+- Reviews → Reviewers
+- Contracts → Owners + Properties
+
 ---
 
-## 5. Servicios
+# 6. Controladores REST
 
-### 5.1 ApartmentService
-
-Funciones principales:
-
-- Crear apartamentos
-- Actualizar apartamentos
-- Eliminar apartamentos
-- Buscar por ID
-- Gestionar reviews asociadas
-
-### 5.2 LoadInitialDataService
-
-Carga apartamentos desde un archivo CSV:
-
-- Genera un tipo aleatorio (Apartment, House, Duplex, TownHouse)
-- Asigna valores comunes
-- Asigna valores específicos según el tipo
-
-### 5.3 LoadReviewDataService
-
-Carga reviews desde CSV:
-
-- Asigna cada review a un apartamento aleatorio
-- Guarda en la base de datos
-
-### 5.4 ReviewService
-
-Servicio auxiliar para gestionar reviews.
-
----
-
-## 6. Controladores REST
-
-### 6.1 ApartmentController
-
-Endpoints:
-
+## 6.1 ApartmentController
 - GET /api/apartments
 - GET /api/apartments/{id}
 - POST /api/apartments
 - PUT /api/apartments/{id}
 - DELETE /api/apartments/{id}
-- GET /api/apartments/export
+- PUT /api/apartments/{id}/assign-schools
 
-### 6.2 ReviewController
+## 6.2 HouseController / DuplexController / TownHouseController
+CRUD completo para cada tipo.
 
-Endpoints:
+## 6.3 OwnerController
+- CRUD
+- GET /api/owners/{id}/houses
+- GET /api/owners/{id}/duplexes
+- GET /api/owners/{id}/townhouses
 
-- GET /api/apartments/{id}/reviews
-- POST /api/apartments/{id}/reviews
+## 6.4 ReviewerController
+- CRUD
+- GET /api/reviewers/{id}/reviews
+
+## 6.5 ReviewController
+- GET /api/reviews/property/{id}
+- POST /api/reviews/property/{id}
 - DELETE /api/reviews/{reviewId}
+
+## 6.6 PropertyContractController
+- GET /api/contracts
+- GET /api/contracts/{id}
+- POST /api/contracts
+- PUT /api/contracts/{id}/close
+- DELETE /api/contracts/{id}
+
+## 6.7 PopulateDBController
+- GET /api/populate  
+  Parámetros:
+- owners
+- properties
+- reviews
+- schools
 
 ---
 
-## 7. Configuración del Sistema
+# 7. Configuración del Sistema
 
 Archivo `application.properties`:
 
@@ -224,80 +346,50 @@ spring.datasource.username=oscar
 spring.datasource.password=1234
 spring.jpa.hibernate.ddl-auto=update
 spring.h2.console.enabled=true
-app.csv.path=db/Housing.csv
-app.reviews.csv.path=db/Reviews.csv
+app.populate-on-start=true
 ```
 
 Consola H2:
-
 ```
 http://localhost:8080/h2-console
 ```
 
 ---
 
-## 8. Ejecución del Proyecto
+# 8. Flujo Interno de la Aplicación
 
-### 8.1 Compilar
-
-```
-mvn clean package
-```
-
-### 8.2 Ejecutar
-
-```
-mvn spring-boot:run
-```
-
-### 8.3 Exportar datos a JSON
-
-```
-GET /api/apartments/export
-```
-
-Genera el archivo:
-
-```
-apartments.json
-```
+1. Spring Boot arranca la aplicación.
+2. `ApartmentPredictorApplication` ejecuta `@PostConstruct`.
+3. Si la base de datos está vacía y `app.populate-on-start=true`:
+    - Se ejecuta PopulateDB.populateAll()
+4. Se generan Owners, Properties, Schools, Reviewers, Reviews y Contracts.
+5. Se asignan relaciones entre entidades.
+6. La API REST queda disponible.
+7. Los controladores gestionan las peticiones.
+8. Los servicios aplican la lógica de negocio.
+9. Los repositorios realizan operaciones CRUD.
 
 ---
 
-## 9. Flujo Interno de la Aplicación
+# 9. Utilidades
 
-1. Al iniciar, Spring Boot ejecuta `CommandLineRunner`.
-2. Se verifica si la base de datos está vacía.
-3. Si no hay apartamentos:
-    - Se cargan desde CSV.
-4. Si no hay reviews:
-    - Se cargan desde CSV.
-5. El servidor queda disponible en el puerto 8080.
-6. Los controladores exponen la API REST.
-7. Los servicios gestionan la lógica de negocio.
-8. Los repositorios realizan operaciones CRUD.
-9. Jackson serializa las entidades para enviarlas al frontend.
+## 9.1 ApartmentJsonWriter
+Permite exportar apartamentos a JSON.
+
+## 9.2 PrintingUtils
+Funciones para imprimir listas de entidades en consola.
 
 ---
 
-## 10. Exportación de Datos
-
-La clase `ApartmentJsonWriter` permite exportar todos los apartamentos a un archivo JSON:
-
-```java
-mapper.writerWithDefaultPrettyPrinter()
-      .writeValue(new File("apartments.json"), apartments);
-```
-
----
-
-## 11. Estado del Proyecto
+# 10. Estado del Proyecto
 
 - Backend completamente funcional
-- Herencia JPA estable
-- Relaciones bidireccionales controladas con Jackson
-- Carga automática desde CSV
-- API REST lista para integrarse con frontend
-- Exportación de datos operativa
+- Modelo unificado Property
+- Herencia JPA con SINGLE_TABLE
+- Relaciones complejas entre entidades
+- Población automática avanzada
+- API REST lista para frontend
+- Arquitectura modular y escalable
 
 ---
+```

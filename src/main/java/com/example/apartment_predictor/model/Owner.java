@@ -1,5 +1,6 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -21,18 +22,23 @@ public class Owner extends Person {
     // RELACIONES
     // ============================
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference("owner-contracts")
     private List<PropertyContract> contracts = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference("owner-properties")
     private List<Apartment> apartments = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference("owner-properties")
     private List<House> houses = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference("owner-properties")
     private List<Duplex> duplexes = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference("owner-properties")
     private List<TownHouse> townHouses = new ArrayList<>();
 
     // ============================
@@ -78,7 +84,7 @@ public class Owner extends Person {
     public void setRegistrationDate(LocalDate registrationDate) {this.registrationDate = registrationDate;}
     public void setQtyDaysAsOwner(int qtyDaysAsOwner) {this.qtyDaysAsOwner = qtyDaysAsOwner;}
     public void setContracts(List<PropertyContract> contracts) {this.contracts = contracts;}
-    public void setApartments(List<Apartment> houses) {this.apartments = apartments;}
+    public void setApartments(List<Apartment> apartments) {this.apartments = apartments;}
     public void setHouses(List<House> houses) {this.houses = houses;}
     public void setDuplexes(List<Duplex> duplexes) {this.duplexes = duplexes;}
     public void setTownHouses(List<TownHouse> townHouses) {this.townHouses = townHouses;}

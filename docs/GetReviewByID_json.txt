@@ -1,0 +1,11 @@
+http://localhost:8080/api/reviews/property/40e0a08e-c18e-417e-92ab-3cb44271b146
+
+[
+    {
+        "id": "78f87014-0fe6-4b69-8bfc-216318cda476",
+        "title": "Not bad",
+        "content": "Average",
+        "rating": 2,
+        "reviewDate": "2025-09-18"
+    }
+]

@@ -1,5 +1,6 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -27,6 +28,7 @@ public abstract class Property {
     // ============================
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @JsonBackReference("owner-properties")
     protected Owner owner;
 
     @ManyToMany
@@ -35,13 +37,15 @@ public abstract class Property {
             joinColumns = @JoinColumn(name = "property_id"),
             inverseJoinColumns = @JoinColumn(name = "school_id")
     )
+    @JsonManagedReference("property-schools")
     protected List<School> nearbySchools = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @JsonManagedReference("property-contracts")
     protected List<PropertyContract> propertyContracts = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("property-reviews")
     private List<Review> reviews = new ArrayList<>();
 
 

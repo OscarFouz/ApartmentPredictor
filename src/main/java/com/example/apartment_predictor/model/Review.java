@@ -31,12 +31,12 @@ public class Review {
     // ============================
     @ManyToOne
     @JoinColumn(name = "property_id")
-    @JsonBackReference
+    @JsonBackReference("property-reviews")
     private Property property;
-
 
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
+    @JsonBackReference("reviewer-reviews")
     private Reviewer reviewer;
 
     // ============================

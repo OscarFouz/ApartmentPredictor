@@ -1,0 +1,11 @@
+http://localhost:8080/api/contracts/98b2ecf6-518d-4e29-8764-4c3c56324ab9
+
+{
+    "id": "98b2ecf6-518d-4e29-8764-4c3c56324ab9",
+    "contractName": "Standard Contract",
+    "contractDetails": "Basic terms",
+    "agreedPrice": 3212.031451746771,
+    "startDate": "2025-05-30",
+    "endDate": "2025-11-23",
+    "active": true
+}
