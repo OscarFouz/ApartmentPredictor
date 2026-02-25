@@ -42,6 +42,7 @@ src/main/java/com/example/apartment_predictor
 │   ├── Reviewer.java
 │   ├── Review.java
 │   ├── School.java
+│   ├── PropertyContract
 │   └── Person.java
 │
 ├── repository
@@ -64,10 +65,10 @@ src/main/java/com/example/apartment_predictor
 │   ├── ReviewerService.java
 │   ├── ReviewService.java
 │   ├── PropertyService.java
-│   ├── PropertyContractService.java
-│   └── PopulateDB.java
+│   └── PropertyContractService.java
 │
 └── utils
+    ├── PopulateDB
     ├── ApartmentJsonWriter.java
     └── PrintingUtils.java
 ```
@@ -318,3 +319,4 @@ Archivo application.properties:
 Proyecto desarrollado por Oscar 
 Backend modular, escalable y preparado para integrarse con frontend en Vite/React.
 ```
+
