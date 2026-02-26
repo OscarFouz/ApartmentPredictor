@@ -1,4 +1,3 @@
-```md
 # ApartmentPredictor — Backend Spring Boot
 Sistema completo de gestión inmobiliaria basado en un modelo unificado de propiedades (Property), con soporte para apartamentos, casas, dúplex, adosados, contratos, reseñas, reviewers, propietarios y escuelas cercanas.  
 Incluye un sistema avanzado de población automática de datos, API REST completa, relaciones JPA complejas y soporte para expansión modular.
@@ -319,4 +318,5 @@ Archivo application.properties:
 Proyecto desarrollado por Oscar 
 Backend modular, escalable y preparado para integrarse con frontend en Vite/React.
 ```
+
 
