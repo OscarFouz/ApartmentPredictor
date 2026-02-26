@@ -315,8 +315,10 @@ Archivo application.properties:
 ------------------------------------------------------------
 # Autor
 
-Proyecto desarrollado por Oscar 
+Proyecto desarrollado por Óscar.
+
 Backend modular, escalable y preparado para integrarse con frontend en Vite/React.
 ```
+
 
 
