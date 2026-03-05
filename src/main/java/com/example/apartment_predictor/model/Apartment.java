@@ -13,7 +13,6 @@ public class Apartment extends Property {
     // CAMPOS
     // ============================
     private String name;
-    private Integer price;
     private Integer area;
     private Integer bedrooms;
     private Integer bathrooms;
@@ -38,9 +37,9 @@ public class Apartment extends Property {
 
     public Apartment(Integer price, Integer area, Integer bedrooms, Integer bathrooms, Integer stories,
                      String mainroad, String guestroom, String basement, String hotwaterheating,
-                     String airconditioning, Integer parking, String prefarea, String furnishingstatus) {
+                     String airconditioning, Integer parking, String prefarea, String furnishingstatus,
+                     String name, String address) {
         this.id = UUID.randomUUID().toString();
-        this.name = name;
         this.price = price;
         this.area = area;
         this.bedrooms = bedrooms;
@@ -54,6 +53,8 @@ public class Apartment extends Property {
         this.parking = parking;
         this.prefarea = prefarea;
         this.furnishingstatus = furnishingstatus;
+        this.name = name;
+        this.address = address;
     }
 
     // ============================
@@ -61,7 +62,6 @@ public class Apartment extends Property {
     // ============================
     public void setName(String name) {this.name = name;}
     public String getName() {return name;}
-    public Integer getPrice() {return price;}
     public Integer getArea() {return area;}
     public Integer getBedrooms() {return bedrooms;}
     public Integer getBathrooms() {return bathrooms;}
@@ -78,7 +78,6 @@ public class Apartment extends Property {
     // ============================
     // SETTERS
     // ============================
-    public void setPrice(Integer price) {this.price = price;}
     public void setArea(Integer area) {this.area = area;}
     public void setBedrooms(Integer bedrooms) {this.bedrooms = bedrooms;}
     public void setBathrooms(Integer bathrooms) {this.bathrooms = bathrooms;}

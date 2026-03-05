@@ -10,12 +10,6 @@ import java.util.UUID;
 public class TownHouse extends Property {
 
     private String name;
-    // Usa el address heredado de Property
-
-    // ============================
-    // RELACIONES
-    // ============================
-    // PropertyContract YA VIENE DE Property
 
     // ============================
     // CONSTRUCTORES
@@ -24,10 +18,11 @@ public class TownHouse extends Property {
         this.id = UUID.randomUUID().toString();
     }
 
-    public TownHouse(String id, String name, String address, List<School> nearbySchools) {
+    public TownHouse(String id, String name, String address, Integer price, List<School> nearbySchools) {
         this.id = id;
         this.name = name;
         this.address = address;
+        this.price = price;
         this.nearbySchools = nearbySchools;
     }
 
@@ -50,6 +45,7 @@ public class TownHouse extends Property {
                 "name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", id='" + id + '\'' +
+                ", price=" + price +
                 '}';
     }
 }

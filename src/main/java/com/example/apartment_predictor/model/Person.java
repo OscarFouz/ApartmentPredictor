@@ -27,6 +27,9 @@ public abstract class Person {
     private String password;
     private boolean isActive;
 
+    // ROLE: "ADMIN" o "USER"
+    private String role;
+
     // ============================
     // CONSTRUCTORES
     // ============================
@@ -53,6 +56,7 @@ public abstract class Person {
     public String getEmail() {return email;}
     public String getPassword() {return password;}
     public boolean isActive() {return isActive;}
+    public String getRole() {return role;}
 
     // ============================
     // SETTERS
@@ -63,4 +67,5 @@ public abstract class Person {
     public void setEmail(String email) {this.email = email;}
     public void setPassword(String password) {this.password = password;}
     public void setActive(boolean active) {isActive = active;}
+    public void setRole(String role) {this.role = role;}
 }

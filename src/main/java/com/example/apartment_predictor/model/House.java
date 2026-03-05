@@ -13,8 +13,6 @@ public class House extends Property {
     // CAMPOS
     // ============================
     private String name;
-    // Usa el address heredado de Property
-
 
     // ============================
     // CONSTRUCTORES
@@ -23,11 +21,11 @@ public class House extends Property {
         this.id = UUID.randomUUID().toString();
     }
 
-    public House(String name, String address) {
+    public House(String name, String address, Integer price) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.address = address;
-
+        this.price = price;
     }
 
     // ============================
@@ -49,6 +47,7 @@ public class House extends Property {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", addressLocal='" + address + '\'' +
+                ", price=" + price +
                 '}';
     }
 }

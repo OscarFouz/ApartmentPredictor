@@ -155,6 +155,7 @@ public class PopulateDB {
         return a;
     }
 
+
     private House createHouse(List<Owner> owners) {
 
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
@@ -162,11 +163,13 @@ public class PopulateDB {
         House h = new House();
         h.setName("House " + rnd.nextInt(1000));
         h.setAddress("Avenue " + rnd.nextInt(1, 200));
+        h.setPrice(rnd.nextInt(50000, 700000));
         h.setOwner(owners.get(rnd.nextInt(owners.size())));
 
         houseRepository.save(h);
         return h;
     }
+
 
     private Duplex createDuplex(List<Owner> owners) {
 
@@ -175,11 +178,14 @@ public class PopulateDB {
         Duplex d = new Duplex();
         d.setName("Duplex " + rnd.nextInt(1000));
         d.setAddress("Road " + rnd.nextInt(1, 200));
+        d.setPrice(rnd.nextInt(60000, 800000));
         d.setOwner(owners.get(rnd.nextInt(owners.size())));
 
         duplexRepository.save(d);
         return d;
     }
+
+
 
     private TownHouse createTownHouse(List<Owner> owners) {
 
@@ -188,11 +194,13 @@ public class PopulateDB {
         TownHouse t = new TownHouse();
         t.setName("TownHouse " + rnd.nextInt(1000));
         t.setAddress("Lane " + rnd.nextInt(1, 200));
+        t.setPrice(rnd.nextInt(70000, 900000));
         t.setOwner(owners.get(rnd.nextInt(owners.size())));
 
         townHouseRepository.save(t);
         return t;
     }
+
 
     // Schools
     private List<School> populateSchools(int qty) {
@@ -339,7 +347,6 @@ public class PopulateDB {
     }
 
     private void assignReviewsToProperty(List<Review> reviews, List<Property> properties) {
-
         Random rnd = new Random();
 
         for (Property property : properties) {
@@ -348,8 +355,14 @@ public class PopulateDB {
             property.getReviews().add(randomReview);
 
             reviewRepository.save(randomReview);
+
+            if (property instanceof Apartment) apartmentRepository.save((Apartment) property);
+            else if (property instanceof House) houseRepository.save((House) property);
+            else if (property instanceof Duplex) duplexRepository.save((Duplex) property);
+            else if (property instanceof TownHouse) townHouseRepository.save((TownHouse) property);
         }
     }
+
 
     private void assignReviewersToReviews(List<Review> reviews, List<Reviewer> reviewers) {
         Random rnd = new Random();

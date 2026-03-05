@@ -1,6 +1,6 @@
 package com.example.apartment_predictor.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -22,13 +22,14 @@ public abstract class Property {
     // CAMPOS
     // ============================
     protected String address;
+    protected Integer price;   // <--- precio común
 
     // ============================
     // RELACIONES
     // ============================
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    @JsonBackReference("owner-properties")
+    @JsonIgnoreProperties({"contracts", "apartments", "houses", "duplexes", "townHouses"})
     protected Owner owner;
 
     @ManyToMany
@@ -48,7 +49,6 @@ public abstract class Property {
     @JsonManagedReference("property-reviews")
     private List<Review> reviews = new ArrayList<>();
 
-
     // ============================
     // CONSTRUCTORES
     // ============================
@@ -59,6 +59,7 @@ public abstract class Property {
     // ============================
     public String getId() {return id;}
     public String getAddress() {return address;}
+    public Integer getPrice() {return price;}
     public Owner getOwner() {return owner;}
     public List<School> getNearbySchools() {return nearbySchools;}
     public List<PropertyContract> getPropertyContracts() {return propertyContracts;}
@@ -68,9 +69,9 @@ public abstract class Property {
     // SETTERS
     // ============================
     public void setAddress(String address) {this.address = address;}
+    public void setPrice(Integer price) {this.price = price;}
     public void setOwner(Owner owner) {this.owner = owner;}
     public void setNearbySchools(List<School> nearbySchools) {this.nearbySchools = nearbySchools;}
     public void setPropertyContracts(List<PropertyContract> propertyContracts) {this.propertyContracts = propertyContracts;}
     public void setReviews(List<Review> reviews) {this.reviews = reviews;}
-
 }

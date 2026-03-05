@@ -1,5 +1,6 @@
 package com.example.apartment_predictor.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -26,19 +27,19 @@ public class Owner extends Person {
     private List<PropertyContract> contracts = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference("owner-properties")
+    @JsonIgnore
     private List<Apartment> apartments = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference("owner-properties")
+    @JsonIgnore
     private List<House> houses = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference("owner-properties")
+    @JsonIgnore
     private List<Duplex> duplexes = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference("owner-properties")
+    @JsonIgnore
     private List<TownHouse> townHouses = new ArrayList<>();
 
     // ============================
