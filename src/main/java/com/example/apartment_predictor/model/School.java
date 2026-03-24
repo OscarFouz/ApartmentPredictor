@@ -9,16 +9,11 @@ import java.util.List;
 @Entity
 public class School {
 
-    // ============================
-    // ID
-    // ============================
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    // ============================
-    // CAMPOS
-    // ============================
+    // Datos básicos
     private String name;
     private String address;
     private String type;
@@ -27,22 +22,30 @@ public class School {
     private int rating;
     private boolean isPublic;
 
-    // ============================
-    // RELACIONES
-    // ============================
+    // Coordenadas reales
+    private double latitude;
+    private double longitude;
+
+    // Nodo más cercano en el grafo Manhattan (1..8)
+    private Integer nearestNodeId;
+
     @ManyToMany(mappedBy = "nearbySchools")
     @JsonBackReference("property-schools")
     private List<Property> properties = new ArrayList<>();
 
-    // ============================
-    // CONSTRUCTORES
-    // ============================
     public School() {
     }
 
-    public School(String name, String address, String type,
-                  String educationLevel, String location,
-                  int rating, boolean isPublic) {
+    public School(String name,
+                  String address,
+                  String type,
+                  String educationLevel,
+                  String location,
+                  int rating,
+                  boolean isPublic,
+                  double latitude,
+                  double longitude,
+                  Integer nearestNodeId) {
         this.name = name;
         this.address = address;
         this.type = type;
@@ -50,11 +53,11 @@ public class School {
         this.location = location;
         this.rating = rating;
         this.isPublic = isPublic;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.nearestNodeId = nearestNodeId;
     }
 
-    // ============================
-    // GETTERS
-    // ============================
     public String getId() {return id;}
     public String getName() {return name;}
     public String getAddress() {return address;}
@@ -63,11 +66,11 @@ public class School {
     public String getLocation() {return location;}
     public int getRating() {return rating;}
     public boolean isPublic() {return isPublic;}
+    public double getLatitude() {return latitude;}
+    public double getLongitude() {return longitude;}
+    public Integer getNearestNodeId() {return nearestNodeId;}
     public List<Property> getProperties() {return properties;}
 
-    // ============================
-    // SETTERS
-    // ============================
     public void setName(String name) {this.name = name;}
     public void setAddress(String address) {this.address = address;}
     public void setType(String type) {this.type = type;}
@@ -75,11 +78,11 @@ public class School {
     public void setLocation(String location) {this.location = location;}
     public void setRating(int rating) {this.rating = rating;}
     public void setPublic(boolean aPublic) {isPublic = aPublic;}
+    public void setLatitude(double latitude) {this.latitude = latitude;}
+    public void setLongitude(double longitude) {this.longitude = longitude;}
+    public void setNearestNodeId(Integer nearestNodeId) {this.nearestNodeId = nearestNodeId;}
     public void setProperties(List<Property> properties) {this.properties = properties;}
 
-    // ============================
-    // TO STRING
-    // ============================
     @Override
     public String toString() {
         return "School{" +
@@ -91,6 +94,9 @@ public class School {
                 ", location='" + location + '\'' +
                 ", rating=" + rating +
                 ", isPublic=" + isPublic +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", nearestNodeId=" + nearestNodeId +
                 '}';
     }
 }

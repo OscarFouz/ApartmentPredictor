@@ -53,7 +53,6 @@
             <artifactId>datafaker</artifactId>
             <version>2.3.1</version>
         </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

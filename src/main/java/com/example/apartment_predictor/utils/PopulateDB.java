@@ -2,59 +2,112 @@ package com.example.apartment_predictor.utils;
 
 import com.example.apartment_predictor.model.*;
 import com.example.apartment_predictor.repository.*;
+import net.datafaker.Faker;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class PopulateDB {
 
-    // EntityManager necesario para limpiar la sesión de Hibernate
     @PersistenceContext
     private EntityManager entityManager;
 
-    // Repositorios
-    @Autowired private ApartmentRepository apartmentRepository;
-    @Autowired private HouseRepository houseRepository;
-    @Autowired private DuplexRepository duplexRepository;
-    @Autowired private TownHouseRepository townHouseRepository;
+    @Autowired
+    private ApartmentRepository apartmentRepository;
+    @Autowired
+    private HouseRepository houseRepository;
+    @Autowired
+    private DuplexRepository duplexRepository;
+    @Autowired
+    private TownHouseRepository townHouseRepository;
 
-    @Autowired private SchoolRepository schoolRepository;
-    @Autowired private ReviewerRepository reviewerRepository;
-    @Autowired private ReviewRepository reviewRepository;
-    @Autowired private OwnerRepository ownerRepository;
-    @Autowired private PropertyContractRepository propertyContractRepository;
+    @Autowired
+    private SchoolRepository schoolRepository;
+    @Autowired
+    private ReviewerRepository reviewerRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+    @Autowired
+    private OwnerRepository ownerRepository;
+    @Autowired
+    private PropertyContractRepository propertyContractRepository;
 
-    // Orquestador principal
-    public int populateAll(int ownersQty, int propertiesQty, int reviewsQty, int schoolsQty) {
+    private final Faker faker = new Faker();
+
+    // ============================
+    // NODOS DEL GRAFO MANHATTAN
+    // ============================
+    private static class NodeCoord {
+        int id;
+        double lat;
+        double lon;
+
+        NodeCoord(int id, double lat, double lon) {
+            this.id = id;
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    private static final NodeCoord[] GRAPH_NODES = new NodeCoord[]{
+            new NodeCoord(1, 40.753182, -73.981533),
+            new NodeCoord(2, 40.754215, -73.980498),
+            new NodeCoord(3, 40.755249, -73.979463),
+            new NodeCoord(4, 40.756283, -73.978428),
+            new NodeCoord(5, 40.752550, -73.979130),
+            new NodeCoord(6, 40.753580, -73.978100),
+            new NodeCoord(7, 40.754610, -73.977070),
+            new NodeCoord(8, 40.755640, -73.976040)
+    };
+
+    private int nearestNodeId(double lat, double lon) {
+        double best = Double.POSITIVE_INFINITY;
+        int bestId = GRAPH_NODES[0].id;
+
+        for (NodeCoord n : GRAPH_NODES) {
+            double d = haversine(lat, lon, n.lat, n.lon);
+            if (d < best) {
+                best = d;
+                bestId = n.id;
+            }
+        }
+        return bestId;
+    }
+
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371e3;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // ============================
+    // ORQUESTADOR PRINCIPAL
+    // ============================
+    public int populateAll(int ownersQty, int propertiesQty, int reviewsQty, int schoolsQtyIgnored) {
 
         List<Owner> owners = populateOwners(ownersQty);
         List<Property> properties = populateProperties(propertiesQty, owners);
-        List<School> schools = populateSchools(schoolsQty);
+        List<School> schools = populateSchoolsManhattan();
         assignSchoolsToProperties(properties, schools);
 
         List<Reviewer> reviewers = populateReviewers(ownersQty);
-
-
-        // List<Review> reviews = populateReviews(reviewsQty, reviewers, properties);
 
         List<Review> reviews = populateReviews(reviewsQty);
         assignReviewsToProperty(reviews, properties);
         assignReviewersToReviews(reviews, reviewers);
 
-
-        // List<PropertyContract> contracts = populateContracts(propertiesQty, owners, properties);
-
         List<PropertyContract> contracts = populateContracts(propertiesQty);
 
-        // Limpieza de la sesión de Hibernate para evitar DuplicateKeyException
         entityManager.clear();
 
         assignOwnerAndPropertyToContract(owners, properties, contracts);
@@ -62,36 +115,26 @@ public class PopulateDB {
         return properties.size();
     }
 
-    // Owners
+    // ============================
+    // OWNERS (FAKER)
+    // ============================
     private List<Owner> populateOwners(int qty) {
 
         List<Owner> owners = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-        String[] firstNames = {"Carlos", "Lucía", "Miguel", "Ana", "Javier", "Marta", "Pablo", "Laura"};
-        String[] lastNames = {"García", "López", "Martínez", "Sánchez", "Fernández", "Gómez", "Díaz", "Ruiz"};
-        String[] phones = {"+34 600111222", "+34 600333444", "+34 600555666", "+34 600777888", "+34 600999000"};
-        String[] domains = {"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "example.com"};
 
         for (int i = 0; i < qty; i++) {
 
-            String fullName = firstNames[rnd.nextInt(firstNames.length)] + " " +
-                    lastNames[rnd.nextInt(lastNames.length)];
-
-            String email = fullName.toLowerCase().replace(" ", ".") + "@" +
-                    domains[rnd.nextInt(domains.length)];
-
             Owner owner = new Owner(
-                    fullName,
-                    LocalDate.now().minusYears(rnd.nextInt(25, 70)),
-                    phones[rnd.nextInt(phones.length)],
-                    email,
+                    faker.name().fullName(),
+                    faker.date().birthday(25, 70).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(),
+                    faker.phoneNumber().cellPhone(),
+                    faker.internet().emailAddress(),
                     "password123",
                     true,
-                    rnd.nextBoolean(),
-                    "ID-" + rnd.nextInt(100000, 999999),
-                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
-                    rnd.nextInt(0, 3650)
+                    faker.bool().bool(),
+                    "ID-" + faker.number().numberBetween(100000, 999999),
+                    LocalDate.now().minusDays(faker.number().numberBetween(0, 365)),
+                    faker.number().numberBetween(0, 3650)
             );
 
             ownerRepository.save(owner);
@@ -101,145 +144,227 @@ public class PopulateDB {
         return owners;
     }
 
-    // Properties
+    // ============================
+    // DIRECCIONES REALES DE MANHATTAN
+    // ============================
+    private static class AddressCoord {
+        String address;
+        double lat;
+        double lon;
+
+        AddressCoord(String address, double lat, double lon) {
+            this.address = address;
+            this.lat = lat;
+            this.lon = lon;
+        }
+    }
+
+    private static final AddressCoord[] MANHATTAN_ADDRESSES = new AddressCoord[]{
+            new AddressCoord("350 5th Ave, New York, NY 10118", 40.748440, -73.985664),
+            new AddressCoord("11 Madison Ave, New York, NY 10010", 40.741040, -73.987600),
+            new AddressCoord("110 W 42nd St, New York, NY 10036", 40.755230, -73.984600),
+            new AddressCoord("15 E 44th St, New York, NY 10017", 40.753700, -73.979600),
+            new AddressCoord("109 E 42nd St, New York, NY 10017", 40.751900, -73.975400),
+            new AddressCoord("200 Madison Ave, New York, NY 10016", 40.749800, -73.983000),
+            new AddressCoord("405 Lexington Ave, New York, NY 10174", 40.751620, -73.975500),
+            new AddressCoord("30 Rockefeller Plaza, New York, NY 10112", 40.758740, -73.978674)
+    };
+
+    private AddressCoord randomManhattanAddress() {
+        return MANHATTAN_ADDRESSES[ThreadLocalRandom.current().nextInt(MANHATTAN_ADDRESSES.length)];
+    }
+
+    // ============================
+    // PROPERTIES (FAKER + COORDENADAS REALES)
+    // ============================
     private List<Property> populateProperties(int qty, List<Owner> owners) {
 
         List<Property> properties = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
         int apartmentsQty = (int) (qty * 0.40);
         int housesQty = (int) (qty * 0.20);
         int duplexQty = (int) (qty * 0.20);
         int townQty = qty - apartmentsQty - housesQty - duplexQty;
 
-        for (int i = 0; i < apartmentsQty; i++) {
-            properties.add(createApartment(owners));
-        }
-        for (int i = 0; i < housesQty; i++) {
-            properties.add(createHouse(owners));
-        }
-        for (int i = 0; i < duplexQty; i++) {
-            properties.add(createDuplex(owners));
-        }
-        for (int i = 0; i < townQty; i++) {
-            properties.add(createTownHouse(owners));
-        }
+        for (int i = 0; i < apartmentsQty; i++) properties.add(createApartment(owners));
+        for (int i = 0; i < housesQty; i++) properties.add(createHouse(owners));
+        for (int i = 0; i < duplexQty; i++) properties.add(createDuplex(owners));
+        for (int i = 0; i < townQty; i++) properties.add(createTownHouse(owners));
 
         return properties;
     }
 
     private Apartment createApartment(List<Owner> owners) {
 
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        AddressCoord ac = randomManhattanAddress();
 
         Apartment a = new Apartment();
-        a.setPrice(rnd.nextInt(30000, 600000));
-        a.setArea(rnd.nextInt(300, 5000));
-        a.setBedrooms(rnd.nextInt(1, 6));
-        a.setBathrooms(rnd.nextInt(1, 4));
-        a.setStories(rnd.nextInt(1, 5));
-        a.setMainroad(rnd.nextBoolean() ? "yes" : "no");
-        a.setGuestroom(rnd.nextBoolean() ? "yes" : "no");
-        a.setBasement(rnd.nextBoolean() ? "yes" : "no");
-        a.setHotwaterheating(rnd.nextBoolean() ? "yes" : "no");
-        a.setAirconditioning(rnd.nextBoolean() ? "yes" : "no");
-        a.setParking(rnd.nextInt(0, 3));
-        a.setPrefarea(rnd.nextBoolean() ? "yes" : "no");
+        a.setName("Apartment " + faker.number().numberBetween(1, 999));
+        a.setAddress(ac.address);
+        a.setLatitude(ac.lat);
+        a.setLongitude(ac.lon);
+        a.setNearestNodeId(nearestNodeId(ac.lat, ac.lon));
+
+        a.setPrice(faker.number().numberBetween(30000, 600000));
+        a.setArea(faker.number().numberBetween(300, 5000));
+        a.setBedrooms(faker.number().numberBetween(1, 6));
+        a.setBathrooms(faker.number().numberBetween(1, 4));
+        a.setStories(faker.number().numberBetween(1, 5));
+        a.setMainroad(faker.bool().bool() ? "yes" : "no");
+        a.setGuestroom(faker.bool().bool() ? "yes" : "no");
+        a.setBasement(faker.bool().bool() ? "yes" : "no");
+        a.setHotwaterheating(faker.bool().bool() ? "yes" : "no");
+        a.setAirconditioning(faker.bool().bool() ? "yes" : "no");
+        a.setParking(faker.number().numberBetween(0, 3));
+        a.setPrefarea(faker.bool().bool() ? "yes" : "no");
         a.setFurnishingstatus("furnished");
 
-        a.setName("Apartment " + rnd.nextInt(1000));
-        a.setAddress("Street " + rnd.nextInt(1, 200));
-        a.setOwner(owners.get(rnd.nextInt(owners.size())));
+        a.setOwner(owners.get(faker.number().numberBetween(0, owners.size())));
 
         apartmentRepository.save(a);
         return a;
     }
 
-
     private House createHouse(List<Owner> owners) {
 
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        AddressCoord ac = randomManhattanAddress();
 
         House h = new House();
-        h.setName("House " + rnd.nextInt(1000));
-        h.setAddress("Avenue " + rnd.nextInt(1, 200));
-        h.setPrice(rnd.nextInt(50000, 700000));
-        h.setOwner(owners.get(rnd.nextInt(owners.size())));
+        h.setName("House " + faker.number().numberBetween(1, 999));
+        h.setAddress(ac.address);
+        h.setLatitude(ac.lat);
+        h.setLongitude(ac.lon);
+        h.setNearestNodeId(nearestNodeId(ac.lat, ac.lon));
+
+        h.setPrice(faker.number().numberBetween(50000, 700000));
+        h.setOwner(owners.get(faker.number().numberBetween(0, owners.size())));
 
         houseRepository.save(h);
         return h;
     }
 
-
     private Duplex createDuplex(List<Owner> owners) {
 
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        AddressCoord ac = randomManhattanAddress();
 
         Duplex d = new Duplex();
-        d.setName("Duplex " + rnd.nextInt(1000));
-        d.setAddress("Road " + rnd.nextInt(1, 200));
-        d.setPrice(rnd.nextInt(60000, 800000));
-        d.setOwner(owners.get(rnd.nextInt(owners.size())));
+        d.setName("Duplex " + faker.number().numberBetween(1, 999));
+        d.setAddress(ac.address);
+        d.setLatitude(ac.lat);
+        d.setLongitude(ac.lon);
+        d.setNearestNodeId(nearestNodeId(ac.lat, ac.lon));
+
+        d.setPrice(faker.number().numberBetween(60000, 800000));
+        d.setOwner(owners.get(faker.number().numberBetween(0, owners.size())));
 
         duplexRepository.save(d);
         return d;
     }
 
-
-
     private TownHouse createTownHouse(List<Owner> owners) {
 
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        AddressCoord ac = randomManhattanAddress();
 
         TownHouse t = new TownHouse();
-        t.setName("TownHouse " + rnd.nextInt(1000));
-        t.setAddress("Lane " + rnd.nextInt(1, 200));
-        t.setPrice(rnd.nextInt(70000, 900000));
-        t.setOwner(owners.get(rnd.nextInt(owners.size())));
+        t.setName("TownHouse " + faker.number().numberBetween(1, 999));
+        t.setAddress(ac.address);
+        t.setLatitude(ac.lat);
+        t.setLongitude(ac.lon);
+        t.setNearestNodeId(nearestNodeId(ac.lat, ac.lon));
+
+        t.setPrice(faker.number().numberBetween(70000, 900000));
+        t.setOwner(owners.get(faker.number().numberBetween(0, owners.size())));
 
         townHouseRepository.save(t);
         return t;
     }
 
-
-    // Schools
-    private List<School> populateSchools(int qty) {
+    // ============================
+    // SCHOOLS REALES DE MANHATTAN
+    // ============================
+    private List<School> populateSchoolsManhattan() {
 
         List<School> schools = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-        String[] types = {"public", "private", "religious"};
-        String[] locations = {"Downtown", "Uptown", "Suburbs", "East Side", "West Side"};
+        schools.add(new School(
+                "PS 59 Beekman Hill International",
+                "233 E 56th St, New York, NY 10022",
+                "public",
+                "Primary",
+                "Midtown East",
+                4,
+                true,
+                40.760800,
+                -73.967700,
+                nearestNodeId(40.760800, -73.967700)
+        ));
 
-        for (int i = 0; i < qty; i++) {
+        schools.add(new School(
+                "PS 51 Elias Howe",
+                "520 W 45th St, New York, NY 10036",
+                "public",
+                "Primary",
+                "Hell's Kitchen",
+                4,
+                true,
+                40.760200,
+                -73.994000,
+                nearestNodeId(40.760200, -73.994000)
+        ));
 
-            School s = new School(
-                    "School " + rnd.nextInt(1000),
-                    "Address " + rnd.nextInt(1, 200),
-                    types[rnd.nextInt(types.length)],
-                    "Primary",
-                    locations[rnd.nextInt(locations.length)],
-                    rnd.nextInt(1, 5),
-                    true
-            );
+        schools.add(new School(
+                "The Browning School",
+                "52 E 62nd St, New York, NY 10065",
+                "private",
+                "Secondary",
+                "Upper East Side",
+                5,
+                false,
+                40.764900,
+                -73.970900,
+                nearestNodeId(40.764900, -73.970900)
+        ));
 
-            schoolRepository.save(s);
-            schools.add(s);
-        }
+        schools.add(new School(
+                "Lycee Francais de New York",
+                "505 E 75th St, New York, NY 10021",
+                "private",
+                "Secondary",
+                "Upper East Side",
+                5,
+                false,
+                40.770400,
+                -73.953600,
+                nearestNodeId(40.770400, -73.953600)
+        ));
+
+        schools.add(new School(
+                "PS 6 Lillie Devereaux Blake",
+                "45 E 81st St, New York, NY 10028",
+                "public",
+                "Primary",
+                "Upper East Side",
+                5,
+                true,
+                40.776200,
+                -73.958000,
+                nearestNodeId(40.776200, -73.958000)
+        ));
+
+        schools.forEach(schoolRepository::save);
 
         return schools;
     }
 
+    // ============================
+    // ASIGNAR SCHOOLS A PROPERTIES
+    // ============================
     private void assignSchoolsToProperties(List<Property> properties, List<School> schools) {
 
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
         for (Property p : properties) {
-
-            int qty = rnd.nextInt(1, 4);
-
+            int qty = faker.number().numberBetween(1, 4);
             for (int i = 0; i < qty; i++) {
-                p.getNearbySchools().add(schools.get(rnd.nextInt(schools.size())));
+                p.getNearbySchools().add(schools.get(faker.number().numberBetween(0, schools.size())));
             }
 
             if (p instanceof Apartment) apartmentRepository.save((Apartment) p);
@@ -249,37 +374,27 @@ public class PopulateDB {
         }
     }
 
-    // Reviewers
+    // ============================
+    // REVIEWERS (FAKER)
+    // ============================
     private List<Reviewer> populateReviewers(int qty) {
 
         List<Reviewer> reviewers = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-        String[] firstNames = {"John", "Jane", "Michael", "Sarah", "David", "Emily"};
-        String[] lastNames = {"Smith", "Johnson", "Williams", "Brown", "Jones"};
-        String[] phones = {"+34 600111222", "+34 600333444"};
-        String[] domains = {"gmail.com", "yahoo.com"};
 
         for (int i = 0; i < qty; i++) {
 
-            String fullName = firstNames[rnd.nextInt(firstNames.length)] + " " +
-                    lastNames[rnd.nextInt(lastNames.length)];
-
-            String email = fullName.toLowerCase().replace(" ", ".") + "@" +
-                    domains[rnd.nextInt(domains.length)];
-
             Reviewer r = new Reviewer(
-                    fullName,
-                    LocalDate.now().minusYears(rnd.nextInt(18, 70)),
-                    phones[rnd.nextInt(phones.length)],
-                    email,
+                    faker.name().fullName(),
+                    faker.date().birthday(18, 70).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(),
+                    faker.phoneNumber().cellPhone(),
+                    faker.internet().emailAddress(),
                     "password123",
                     true,
-                    rnd.nextInt(0, 100),
-                    rnd.nextBoolean(),
-                    "x_" + rnd.nextInt(10000),
-                    "https://site.com/" + fullName.replace(" ", "").toLowerCase(),
-                    rnd.nextInt(0, 50)
+                    faker.number().numberBetween(0, 100),
+                    faker.bool().bool(),
+                    "x_" + faker.number().numberBetween(1000, 9999),
+                    faker.internet().url(),
+                    faker.number().numberBetween(0, 50)
             );
 
             reviewerRepository.save(r);
@@ -289,68 +404,35 @@ public class PopulateDB {
         return reviewers;
     }
 
-    // Reviews 
-    /*
-    private List<Review> populateReviews(int qty, List<Reviewer> reviewers, List<Property> properties) {
-
-        List<Review> reviews = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-        String[] titles = {"Great place", "Not bad", "Could be better", "Excellent", "Terrible"};
-        String[] contents = {"Good experience", "Average", "Bad experience", "Loved it", "Not recommended"};
-
-        for (int i = 0; i < qty; i++) {
-
-            Review r = new Review(
-                    titles[rnd.nextInt(titles.length)],
-                    contents[rnd.nextInt(contents.length)],
-                    rnd.nextInt(1, 5),
-                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
-                    null,
-                    null
-            );
-
-            Reviewer reviewer = reviewers.get(rnd.nextInt(reviewers.size()));
-            Property property = properties.get(rnd.nextInt(properties.size()));
-
-            r.setReviewer(reviewer);
-            r.setProperty(property);
-
-            reviewRepository.save(r);
-            reviews.add(r);
-        }
-
-        return reviews;
-    }
-    */
-
+    // ============================
+    // REVIEWS (FAKER)
+    // ============================
     private List<Review> populateReviews(int qty) {
-        List<Review> reviews = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-        String[] titles = {"Great place", "Not bad", "Could be better", "Excellent", "Terrible"};
-        String[] contents = {"Good experience", "Average", "Bad experience", "Loved it", "Not recommended"};
+        List<Review> reviews = new ArrayList<>();
 
         for (int i = 0; i < qty; i++) {
+
             Review r = new Review(
-                    titles[rnd.nextInt(titles.length)],
-                    contents[rnd.nextInt(contents.length)],
-                    rnd.nextInt(1, 5),
-                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
+                    faker.book().title(),
+                    faker.lorem().sentence(),
+                    faker.number().numberBetween(1, 5),
+                    LocalDate.now().minusDays(faker.number().numberBetween(0, 365)),
                     null,
                     null
             );
+
             reviewRepository.save(r);
             reviews.add(r);
         }
+
         return reviews;
     }
 
     private void assignReviewsToProperty(List<Review> reviews, List<Property> properties) {
-        Random rnd = new Random();
 
         for (Property property : properties) {
-            Review randomReview = reviews.get(rnd.nextInt(reviews.size()));
+            Review randomReview = reviews.get(faker.number().numberBetween(0, reviews.size()));
             randomReview.setProperty(property);
             property.getReviews().add(randomReview);
 
@@ -363,12 +445,10 @@ public class PopulateDB {
         }
     }
 
-
     private void assignReviewersToReviews(List<Review> reviews, List<Reviewer> reviewers) {
-        Random rnd = new Random();
 
         for (Review review : reviews) {
-            Reviewer randomReviewer = reviewers.get(rnd.nextInt(reviewers.size()));
+            Reviewer randomReviewer = reviewers.get(faker.number().numberBetween(0, reviewers.size()));
             review.setReviewer(randomReviewer);
             randomReviewer.getReviews().add(review);
 
@@ -376,81 +456,45 @@ public class PopulateDB {
         }
     }
 
-    // Contracts 
-    /*
-    private List<PropertyContract> populateContracts(int qty, List<Owner> owners, List<Property> properties) {
-
-        List<PropertyContract> contracts = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-        String[] names = {"Standard Contract", "Premium Contract", "Short Lease", "Long Lease"};
-        String[] details = {"Basic terms", "Extended terms", "Short duration", "Long duration"};
-
-        for (int i = 0; i < qty; i++) {
-
-            Owner owner = owners.get(rnd.nextInt(owners.size()));
-            Property property = properties.get(rnd.nextInt(properties.size()));
-
-            PropertyContract c = new PropertyContract(
-                    names[rnd.nextInt(names.length)],
-                    details[rnd.nextInt(details.length)],
-                    rnd.nextDouble(500, 5000),
-                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
-                    owner,
-                    property
-            );
-
-            c.setEndDate(c.getStartDate().plusDays(rnd.nextInt(30, 365)));
-
-            propertyContractRepository.save(c);
-            contracts.add(c);
-        }
-
-        return contracts;
-    }
-    */
-
+    // ============================
+    // CONTRACTS (FAKER)
+    // ============================
     private List<PropertyContract> populateContracts(int qty) {
 
         List<PropertyContract> contracts = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-        String[] names = {"Standard Contract", "Premium Contract", "Short Lease", "Long Lease"};
-        String[] details = {"Basic terms", "Extended terms", "Short duration", "Long duration"};
 
         for (int i = 0; i < qty; i++) {
 
-            PropertyContract propertyContract = new PropertyContract(
-                    names[rnd.nextInt(names.length)],
-                    details[rnd.nextInt(details.length)],
-                    rnd.nextDouble(500, 5000),
-                    LocalDate.now().minusDays(rnd.nextInt(0, 365)),
+            PropertyContract c = new PropertyContract(
+                    faker.commerce().productName(),
+                    faker.lorem().sentence(),
+                    faker.number().randomDouble(2, 500, 5000),
+                    LocalDate.now().minusDays(faker.number().numberBetween(0, 365)),
                     null,
                     null
             );
 
-            propertyContract.setEndDate(propertyContract.getStartDate().plusDays(rnd.nextInt(30, 365)));
+            c.setEndDate(c.getStartDate().plusDays(faker.number().numberBetween(30, 365)));
 
-            // No se guarda aquí el contrato para evitar duplicados en la sesión
-            contracts.add(propertyContract);
+            contracts.add(c);
         }
 
         return contracts;
     }
 
     private void assignOwnerAndPropertyToContract(List<Owner> owners, List<Property> properties, List<PropertyContract> propertyContracts) {
-        Random rnd = new Random();
 
         for (PropertyContract contract : propertyContracts) {
-            Owner randomOwner = owners.get(rnd.nextInt(owners.size()));
-            Property randomProperty = properties.get(rnd.nextInt(properties.size()));
+
+            Owner randomOwner = owners.get(faker.number().numberBetween(0, owners.size()));
+            Property randomProperty = properties.get(faker.number().numberBetween(0, properties.size()));
 
             contract.setOwner(randomOwner);
             contract.setProperty(randomProperty);
 
             randomOwner.getContracts().add(contract);
             randomProperty.getPropertyContracts().add(contract);
-            
+
             propertyContractRepository.save(contract);
         }
     }
