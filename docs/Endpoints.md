@@ -1,13 +1,12 @@
-```md
-# Endpoints REST  
-Proyecto: ApartmentPredictor  
-Arquitectura: Spring Boot 3, Controladores REST, JSON
+# Endpoints REST
+Proyecto: ApartmentPredictor
+Arquitectura: Spring Boot 3.2, Controladores REST, JSON, OpenAPI/Swagger
 
 ---
 
 # Introducción
 
-Este archivo describe todos los endpoints REST expuestos por el backend.  
+Este archivo describe todos los endpoints REST expuestos por el backend.
 Cada sección corresponde a un controlador del proyecto.
 
 ---
@@ -127,7 +126,27 @@ Base: `/api/contracts`
 
 ---
 
-# 9. Endpoint de PopulateDB
+# 9. Endpoints de Schools
+
+Base: `/api/schools`
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/schools | Lista todas las escuelas |
+
+---
+
+# 10. Endpoints de Distancias
+
+Base: `/api/distance`
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/distance/{propertyId}/schools | Obtiene escuelas cercanas con distancias Haversine y Manhattan |
+
+---
+
+# 11. Endpoint de PopulateDB
 
 Base: `/api/populate`
 
@@ -136,10 +155,10 @@ Base: `/api/populate`
 | GET | /api/populate | Población automática de datos |
 
 Parámetros opcionales:
-- owners  
-- properties  
-- reviews  
-- schools  
+- owners
+- properties
+- reviews
+- schools
 
 Ejemplo:
 ```
@@ -148,5 +167,11 @@ Ejemplo:
 
 ---
 
+# 12. Documentación API (Swagger/OpenAPI)
+
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8080/v3/api-docs
+
+---
+
 # Fin del glosario de endpoints
-```

@@ -2,6 +2,8 @@ package com.example.apartment_predictor;
 
 import com.example.apartment_predictor.repository.*;
 import com.example.apartment_predictor.utils.PopulateDB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
 public class ApartmentPredictorApplication {
+
+    private static final Logger log = LoggerFactory.getLogger(ApartmentPredictorApplication.class);
 
     @Value("${app.populate-on-start:false}")
     private boolean populateOnStart;
@@ -35,11 +39,11 @@ public class ApartmentPredictorApplication {
     public void init() {
 
         if (!populateOnStart) {
-            System.out.println("Populate on start disabled.");
+            log.info("Populate on start disabled.");
             return;
         }
 
-        System.out.println("Checking if database is empty...");
+        log.info("Checking if database is empty...");
 
         boolean dbIsEmpty =
                 ownerRepository.count() == 0 &&
@@ -52,11 +56,11 @@ public class ApartmentPredictorApplication {
                         reviewRepository.count() == 0;
 
         if (!dbIsEmpty) {
-            System.out.println("Database already contains data. Populate skipped.");
+            log.info("Database already contains data. Populate skipped.");
             return;
         }
 
-        System.out.println("Database is empty. Running populate...");
+        log.info("Database is empty. Running populate...");
 
         int owners = 10;
         int properties = 50;
@@ -66,9 +70,9 @@ public class ApartmentPredictorApplication {
         int result = populateDB.populateAll(owners, properties, reviews, schools);
 
         if (result > 0) {
-            System.out.println("Populate completed. Properties created: " + result);
+            log.info("Populate completed. Properties created: {}", result);
         } else {
-            System.out.println("Populate failed.");
+            log.error("Populate failed.");
         }
     }
 }

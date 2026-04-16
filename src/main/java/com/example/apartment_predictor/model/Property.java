@@ -3,6 +3,7 @@ package com.example.apartment_predictor.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "property_type")
+@Data
 public abstract class Property {
 
     @Id
@@ -18,11 +20,8 @@ public abstract class Property {
     protected String address;
     protected Integer price;
 
-    // Coordenadas reales
     private double latitude;
     private double longitude;
-
-    // Nodo más cercano en el grafo Manhattan (1..8)
     private Integer nearestNodeId;
 
     @ManyToOne
@@ -48,25 +47,4 @@ public abstract class Property {
     private List<Review> reviews = new ArrayList<>();
 
     public Property() {}
-
-    public String getId() {return id;}
-    public String getAddress() {return address;}
-    public Integer getPrice() {return price;}
-    public Owner getOwner() {return owner;}
-    public List<School> getNearbySchools() {return nearbySchools;}
-    public List<PropertyContract> getPropertyContracts() {return propertyContracts;}
-    public List<Review> getReviews() {return reviews;}
-    public double getLatitude() {return latitude;}
-    public double getLongitude() {return longitude;}
-    public Integer getNearestNodeId() {return nearestNodeId;}
-
-    public void setAddress(String address) {this.address = address;}
-    public void setPrice(Integer price) {this.price = price;}
-    public void setOwner(Owner owner) {this.owner = owner;}
-    public void setNearbySchools(List<School> nearbySchools) {this.nearbySchools = nearbySchools;}
-    public void setPropertyContracts(List<PropertyContract> propertyContracts) {this.propertyContracts = propertyContracts;}
-    public void setReviews(List<Review> reviews) {this.reviews = reviews;}
-    public void setLatitude(double latitude) {this.latitude = latitude;}
-    public void setLongitude(double longitude) {this.longitude = longitude;}
-    public void setNearestNodeId(Integer nearestNodeId) {this.nearestNodeId = nearestNodeId;}
 }

@@ -3,25 +3,23 @@ package com.example.apartment_predictor.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Owner extends Person {
 
-    // ============================
-    // CAMPOS
-    // ============================
     private boolean isBusiness;
     private String idLegalOwner;
     private LocalDate registrationDate;
     private int qtyDaysAsOwner;
 
-    // ============================
-    // RELACIONES
-    // ============================
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonManagedReference("owner-contracts")
     private List<PropertyContract> contracts = new ArrayList<>();
@@ -42,9 +40,6 @@ public class Owner extends Person {
     @JsonIgnore
     private List<TownHouse> townHouses = new ArrayList<>();
 
-    // ============================
-    // CONSTRUCTORES
-    // ============================
     public Owner() {
         super();
     }
@@ -62,46 +57,5 @@ public class Owner extends Person {
         this.idLegalOwner = idLegalOwner;
         this.registrationDate = registrationDate;
         this.qtyDaysAsOwner = qtyDaysAsOwner;
-    }
-
-    // ============================
-    // GETTERS
-    // ============================
-    public boolean isBusiness() {return isBusiness;}
-    public String getIdLegalOwner() {return idLegalOwner;}
-    public LocalDate getRegistrationDate() {return registrationDate;}
-    public int getQtyDaysAsOwner() {return qtyDaysAsOwner;}
-    public List<PropertyContract> getContracts() {return contracts;}
-    public List<Apartment> getApartments() {return apartments;}
-    public List<House> getHouses() {return houses;}
-    public List<Duplex> getDuplexes() {return duplexes;}
-    public List<TownHouse> getTownHouses() {return townHouses;}
-
-    // ============================
-    // SETTERS
-    // ============================
-    public void setBusiness(boolean business) {isBusiness = business;}
-    public void setIdLegalOwner(String idLegalOwner) {this.idLegalOwner = idLegalOwner;}
-    public void setRegistrationDate(LocalDate registrationDate) {this.registrationDate = registrationDate;}
-    public void setQtyDaysAsOwner(int qtyDaysAsOwner) {this.qtyDaysAsOwner = qtyDaysAsOwner;}
-    public void setContracts(List<PropertyContract> contracts) {this.contracts = contracts;}
-    public void setApartments(List<Apartment> apartments) {this.apartments = apartments;}
-    public void setHouses(List<House> houses) {this.houses = houses;}
-    public void setDuplexes(List<Duplex> duplexes) {this.duplexes = duplexes;}
-    public void setTownHouses(List<TownHouse> townHouses) {this.townHouses = townHouses;}
-
-    // ============================
-    // TO STRING
-    // ============================
-    @Override
-    public String toString() {
-        return "Owner{" +
-                "id='" + getId() + '\'' +
-                ", fullName='" + getFullName() + '\'' +
-                ", isBusiness=" + isBusiness +
-                ", idLegalOwner='" + idLegalOwner + '\'' +
-                ", registrationDate=" + registrationDate +
-                ", qtyDaysAsOwner=" + qtyDaysAsOwner +
-                '}';
     }
 }

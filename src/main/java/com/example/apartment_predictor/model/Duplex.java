@@ -2,18 +2,20 @@ package com.example.apartment_predictor.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @DiscriminatorValue("DUPLEX")
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Duplex extends Property {
 
     private String name;
 
-    // ============================
-    // CONSTRUCTORES
-    // ============================
     public Duplex() {
         this.id = UUID.randomUUID().toString();
     }
@@ -24,28 +26,5 @@ public class Duplex extends Property {
         this.address = address;
         this.price = price;
         this.nearbySchools = nearbySchools;
-    }
-
-    // ============================
-    // GETTERS
-    // ============================
-    public String getName() { return name; }
-
-    // ============================
-    // SETTERS
-    // ============================
-    public void setName(String name) { this.name = name; }
-
-    // ============================
-    // TO STRING
-    // ============================
-    @Override
-    public String toString() {
-        return "Duplex{" +
-                "name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", id='" + id + '\'' +
-                ", price=" + price +
-                '}';
     }
 }

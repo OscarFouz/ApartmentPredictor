@@ -1,22 +1,12 @@
 package com.example.apartment_predictor.graph;
 
+import com.example.apartment_predictor.utils.DistanceCalculator;
+
 import java.util.*;
 
 public class AStar {
 
-    private double haversine(Node a, Node b) {
-        double R = 6371e3;
-        double dLat = Math.toRadians(b.lat - a.lat);
-        double dLon = Math.toRadians(b.lon - a.lon);
-
-        double h = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(a.lat)) * Math.cos(Math.toRadians(b.lat))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-    }
-
-    public double shortestPath(Graph g, int start, int goal) {
+    public Optional<Double> shortestPath(Graph g, int start, int goal) {
 
         record State(int nodeId, double fScore) {}
 
@@ -30,7 +20,9 @@ public class AStar {
         }
 
         dist.put(start, 0.0);
-        fScore.put(start, haversine(g.nodes.get(start), g.nodes.get(goal)));
+        fScore.put(start, DistanceCalculator.haversine(
+                g.nodes.get(start).lat, g.nodes.get(start).lon,
+                g.nodes.get(goal).lat, g.nodes.get(goal).lon));
 
         pq.add(new State(start, fScore.get(start)));
 
@@ -39,7 +31,7 @@ public class AStar {
             int current = currentState.nodeId();
 
             if (current == goal) {
-                return dist.get(goal);
+                return Optional.of(dist.get(goal));
             }
 
             for (Edge e : g.adj.getOrDefault(current, List.of())) {
@@ -47,13 +39,15 @@ public class AStar {
 
                 if (tentative < dist.get(e.to)) {
                     dist.put(e.to, tentative);
-                    double newF = tentative + haversine(g.nodes.get(e.to), g.nodes.get(goal));
+                    double newF = tentative + DistanceCalculator.haversine(
+                            g.nodes.get(e.to).lat, g.nodes.get(e.to).lon,
+                            g.nodes.get(goal).lat, g.nodes.get(goal).lon);
                     fScore.put(e.to, newF);
                     pq.add(new State(e.to, newF));
                 }
             }
         }
 
-        return -1;
+        return Optional.empty();
     }
 }

@@ -1,26 +1,29 @@
 # ApartmentPredictor — Backend Spring Boot
-Sistema completo de gestión inmobiliaria basado en un modelo unificado de propiedades (Property), con soporte para apartamentos, casas, dúplex, adosados, contratos, reseñas, reviewers, propietarios y escuelas cercanas.  
+
+Sistema completo de gestión inmobiliaria basado en un modelo unificado de propiedades (Property), con soporte para apartamentos, casas, dúplex, adosados, contratos, reseñas, reviewers, propietarios y escuelas cercanas.
 Incluye un sistema avanzado de población automática de datos, API REST completa, relaciones JPA complejas y soporte para expansión modular.
 
-------------------------------------------------------------
-# Tecnologías
+## Tecnologías
 
 - Java 21
 - Spring Boot 3.2
 - Spring Data JPA
 - H2 Database (modo archivo)
 - Maven
-- Jackson
-- Faker manual (sin DataFaker)
+- Lombok
+- springdoc OpenAPI (Swagger)
+- DataFaker
 - API REST con CORS para frontend en Vite (localhost:5173)
 
-------------------------------------------------------------
-# Estructura del Proyecto
+## Estructura del Proyecto
 
 ```txt
 src/main/java/com/example/apartment_predictor
 │
-├── controller
+├── config/
+│   └── OpenApiConfig.java          # Configuración Swagger/OpenAPI
+│
+├── controller/
 │   ├── ApartmentController.java
 │   ├── HouseController.java
 │   ├── DuplexController.java
@@ -29,33 +32,26 @@ src/main/java/com/example/apartment_predictor
 │   ├── ReviewerController.java
 │   ├── ReviewController.java
 │   ├── PropertyContractController.java
+│   ├── DistanceController.java
+│   ├── SchoolController.java
 │   └── PopulateDBController.java
 │
-├── model
-│   ├── Property.java
+├── model/
+│   ├── Property.java               # Clase base abstracta
 │   ├── Apartment.java
 │   ├── House.java
 │   ├── Duplex.java
 │   ├── TownHouse.java
-│   ├── Owner.java
-│   ├── Reviewer.java
+│   ├── Owner.java                 # Hereda de Person
+│   ├── Reviewer.java              # Hereda de Person
+│   ├── Person.java                # Clase base abstracta
 │   ├── Review.java
 │   ├── School.java
-│   ├── PropertyContract
-│   └── Person.java
+│   └── PropertyContract.java
 │
-├── repository
-│   ├── ApartmentRepository.java
-│   ├── HouseRepository.java
-│   ├── DuplexRepository.java
-│   ├── TownHouseRepository.java
-│   ├── OwnerRepository.java
-│   ├── ReviewerRepository.java
-│   ├── ReviewRepository.java
-│   ├── SchoolRepository.java
-│   └── PropertyContractRepository.java
+├── repository/                     # Spring Data JPA Repositories
 │
-├── service
+├── service/
 │   ├── ApartmentService.java
 │   ├── HouseService.java
 │   ├── DuplexService.java
@@ -64,261 +60,145 @@ src/main/java/com/example/apartment_predictor
 │   ├── ReviewerService.java
 │   ├── ReviewService.java
 │   ├── PropertyService.java
-│   └── PropertyContractService.java
+│   ├── PropertyContractService.java
+│   ├── DistanceService.java
+│   ├── HaversineService.java
+│   └── ReviewerService.java
 │
-└── utils
-    ├── PopulateDB
-    ├── ApartmentJsonWriter.java
-    └── PrintingUtils.java
+├── graph/                         # Sistema de grafos Manhattan
+│   ├── Graph.java
+│   ├── Node.java
+│   ├── Edge.java
+│   ├── AStar.java                # Algoritmo A* para pathfinding
+│   └── ManhattanGraphService.java
+│
+├── utils/
+│   ├── PopulateDB.java           # Orquestador de población
+│   ├── DataGenerator.java        # Generación de datos
+│   ├── DatabaseSeeder.java       # Guardado en BD
+│   ├── GraphInitializer.java      # Inicialización del grafo
+│   ├── DistanceCalculator.java    # Utilidad Haversine
+│   ├── ApartmentJsonWriter.java
+│   └── PrintingUtils.java
+│
+├── dto/
+│   └── SchoolDistanceDTO.java
+│
+└── exception/
+    ├── PropertyNotFoundException.java
+    └── UnknownPropertyTypeException.java
 ```
 
-------------------------------------------------------------
-# Modelo de Datos
+## Modelo de Datos
 
 El sistema utiliza **herencia JPA con SINGLE_TABLE** para unificar todas las propiedades en una sola tabla.
 
-## Property (clase base)
-Atributos:
-- id
-- address
-- owner
-- nearbySchools (ManyToMany)
-- propertyContracts (OneToMany)
-- reviews (OneToMany)
+### Property (clase base)
+- id, address, owner, nearbySchools (ManyToMany), propertyContracts (OneToMany), reviews (OneToMany)
 
-Subtipos:
-- Apartment
-- House
-- Duplex
-- TownHouse
+**Subtipos:** Apartment, House, Duplex, TownHouse
 
-## Apartment
-Atributos específicos:
-- name
-- price, area, bedrooms, bathrooms, stories
-- mainroad, guestroom, basement, hotwaterheating, airconditioning
-- parking, prefarea, furnishingstatus
+### Apartment
+Atributos específicos: name, price, area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus
 
-## House / Duplex / TownHouse
-Atributos:
-- name
-- address (heredado)
+### Owner / Reviewer (heredan de Person)
+Atributos de Owner: isBusiness, idLegalOwner, registrationDate, qtyDaysAsOwner
+Atributos de Reviewer: reputation, xAccount, webURL, qtyReviews
 
-Relaciones:
-- ManyToOne → Owner
-- ManyToMany → School
-- OneToMany → PropertyContract
-- OneToMany → Review
+### Review
+Atributos: title, content (Lob), rating, reviewDate
 
-## Owner (hereda de Person)
-Atributos:
-- isBusiness
-- idLegalOwner
-- registrationDate
-- qtyDaysAsOwner
+### School
+Atributos: name, address, type, educationLevel, location, rating, isPublic, latitude, longitude
 
-Relaciones:
-- OneToMany → PropertyContract
-- OneToMany → Apartment
-- OneToMany → House
-- OneToMany → Duplex
-- OneToMany → TownHouse
+### PropertyContract
+Atributos: contractName, contractDetails, agreedPrice, startDate, endDate, active
 
-## Reviewer (hereda de Person)
-Atributos:
-- reputation
-- isBusiness
-- xAccount
-- webURL
-- qtyReviews
+## Población Automática de Datos
 
-Relaciones:
-- OneToMany → Review
+La clase `PopulateDB` genera datos sintéticos usando DataFaker:
+- **Owners:** genera N propietarios con datos realistas
+- **Properties:** 40% Apartments, 20% Houses, 20% Duplex, 20% TownHouse
+- **Schools:** escuelas reales de Manhattan con coordenadas GPS
+- **Reviewers:** generate revisores con reputación
+- **Reviews:** genera reseñas y las asocia a propiedades
+- **Contracts:** genera contratos y los asocia a owners y properties
 
-## Review
-Atributos:
-- title
-- content (Lob)
-- rating
-- reviewDate
+## API REST
 
-Relaciones:
-- ManyToOne → Property
-- ManyToOne → Reviewer
+### Endpoints Principales
 
-## School
-Atributos:
-- name, address
-- type, educationLevel
-- location
-- rating
-- isPublic
+| Recurso | Endpoints |
+|---------|-----------|
+| Apartments | GET, POST /api/apartments, GET/PUT/DELETE /api/apartments/{id} |
+| Houses | GET, POST /api/houses, GET/PUT/DELETE /api/houses/{id} |
+| Duplexes | GET, POST /api/duplexes, GET/PUT/DELETE /api/duplexes/{id} |
+| TownHouses | GET, POST /api/townhouses, GET/PUT/DELETE /api/townhouses/{id} |
+| Owners | GET, POST /api/owners, GET/PUT/DELETE /api/owners/{id} |
+| Reviewers | GET, POST /api/reviewers, GET/PUT/DELETE /api/reviewers/{id} |
+| Reviews | GET/POST /api/reviews/property/{id} |
+| Contracts | GET, POST /api/contracts, PUT /api/contracts/{id}/close |
+| Schools | GET /api/schools |
+| Distances | GET /api/distance/{propertyId}/schools |
 
-Relaciones:
-- ManyToMany → Property
+### Documentación API (Swagger)
 
-## PropertyContract
-Atributos:
-- contractName
-- contractDetails
-- agreedPrice
-- startDate
-- endDate
-- active
+Una vez iniciada la aplicación, accede a:
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8080/v3/api-docs
 
-Relaciones:
-- ManyToOne → Owner
-- ManyToOne → Property
+## Sistema de Grafos Manhattan
 
-------------------------------------------------------------
-# Población Automática de Datos
+El proyecto incluye un sistema de grafos para calcular distancias en Manhattan:
+- **Nodos:** 8 intersecciones en Manhattan con coordenadas reales
+- **Aristas:** conexiones entre nodos con distancias Haversine
+- **Algoritmo A\*:** implementación para encontrar el path más corto
 
-La clase PopulateDB genera datos completamente sintéticos sin DataFaker:
+## Configuración
 
-### Owners
-- Genera N owners con:
-  - nombre aleatorio
-  - email
-  - teléfono
-  - datos legales
-  - fechas y métricas
+### application.properties
+```properties
+app.populate-on-start=false
+spring.datasource.url=jdbc:h2:file:./db/apartments
+spring.h2.console.enabled=true
+```
 
-### Properties
-Genera propiedades en proporción:
-- 40% Apartments
-- 20% Houses
-- 20% Duplex
-- 20% TownHouse
+### Variables de Entorno
+- `app.populate-on-start`: Enable/disable población automática al iniciar
 
-Cada propiedad:
-- se asigna a un Owner
-- recibe atributos aleatorios
-- se guarda en su repositorio correspondiente
+## Ejecución
 
-### Schools
-- Genera N escuelas
-- Se asignan aleatoriamente a cada propiedad (1–3 por propiedad)
+```bash
+# Compilar
+./mvnw clean compile
 
-### Reviewers
-- Genera reviewers con:
-  - reputación
-  - redes sociales
-  - actividad
+# Ejecutar
+./mvnw spring-boot:run
 
-### Reviews
-- Se generan reviews sin asignar
-- Luego se asignan:
-  - a propiedades
-  - a reviewers
+# O desde IDE (IntelliJ)
+# Run ApartmentPredictorApplication
+```
 
-### Contracts
-- Se generan contratos sin asignar
-- Luego se asignan:
-  - a un Owner aleatorio
-  - a una Property aleatoria
+**Accesos:**
+- API REST: http://localhost:8080/api/*
+- H2 Console: http://localhost:8080/h2-console
+- Swagger UI: http://localhost:8080/swagger-ui.html
 
-### Resultado final
-- Base de datos completamente poblada
-- Relaciones consistentes
-- Datos variados y realistas
+## Mejoras Implementadas
 
-------------------------------------------------------------
-# API REST
+- [x] Batch operations con `saveAll()` para mejor rendimiento
+- [x] Extracción de código duplicado (DistanceCalculator)
+- [x] Refactorización de PopulateDB (DataGenerator, DatabaseSeeder, GraphInitializer)
+- [x] Excepciones custom (PropertyNotFoundException, UnknownPropertyTypeException)
+- [x] Uso de Optional<Double> en A*
+- [x] Lombok @Data para reducir boilerplate
+- [x] SLF4J Logging替换 System.out
+- [x] Paginación en queries de escuelas
+- [x] OpenAPI/Swagger para documentación
+- [x] Javadoc en clases principales
 
-## Apartments
-GET /api/apartments  
-GET /api/apartments/{id}  
-POST /api/apartments  
-PUT /api/apartments/{id}  
-DELETE /api/apartments/{id}  
-PUT /api/apartments/{id}/assign-schools
-
-## Houses
-GET /api/houses  
-GET /api/houses/{id}  
-POST /api/houses  
-PUT /api/houses/{id}  
-DELETE /api/houses/{id}
-
-## Duplexes
-GET /api/duplexes  
-GET /api/duplexes/{id}  
-POST /api/duplexes  
-PUT /api/duplexes/{id}  
-DELETE /api/duplexes/{id}
-
-## TownHouses
-GET /api/townhouses  
-GET /api/townhouses/{id}  
-POST /api/townhouses  
-PUT /api/townhouses/{id}  
-DELETE /api/townhouses/{id}
-
-## Owners
-GET /api/owners  
-GET /api/owners/{id}  
-POST /api/owners  
-PUT /api/owners/{id}  
-DELETE /api/owners/{id}  
-GET /api/owners/{id}/houses  
-GET /api/owners/{id}/duplexes  
-GET /api/owners/{id}/townhouses
-
-## Reviewers
-GET /api/reviewers  
-GET /api/reviewers/{id}  
-POST /api/reviewers  
-PUT /api/reviewers/{id}  
-DELETE /api/reviewers/{id}  
-GET /api/reviewers/{id}/reviews
-
-## Reviews
-GET /api/reviews/property/{id}  
-POST /api/reviews/property/{id}  
-DELETE /api/reviews/{reviewId}
-
-## Property Contracts
-GET /api/contracts  
-GET /api/contracts/{id}  
-POST /api/contracts  
-PUT /api/contracts/{id}/close  
-DELETE /api/contracts/{id}
-
-## Populate Database
-GET /api/populate  
-Parámetros opcionales:
-- owners
-- properties
-- reviews
-- schools
-
-------------------------------------------------------------
-# Configuración
-
-Archivo application.properties:
-
-- H2 en modo archivo
-- populate-on-start configurable
-- rutas CSV configurables
-- Hibernate ddl-auto=update
-
-------------------------------------------------------------
-# Ejecución
-
-1. Clonar el repositorio
-2. Ejecutar con Maven o desde el IDE
-3. Acceder a la consola H2:  
-   http://localhost:8080/h2-console
-4. API disponible en:  
-   http://localhost:8080/api/*
-
-------------------------------------------------------------
-# Autor
+## Autor
 
 Proyecto desarrollado por Óscar.
 
 Backend modular, escalable y preparado para integrarse con frontend en Vite/React.
-```
-
-
-

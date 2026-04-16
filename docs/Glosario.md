@@ -1,6 +1,6 @@
 # Glosario de Anotaciones y Conceptos Técnicos
-Proyecto: ApartmentPredictor  
-Tecnologías: Spring Boot 3, Java 21, JPA/Hibernate, H2 Database
+Proyecto: ApartmentPredictor
+Tecnologías: Spring Boot 3.2, Java 21, JPA/Hibernate, H2 Database, Lombok, OpenAPI
 
 ---
 
@@ -23,180 +23,66 @@ En este proyecto, la mayoría de entidades usan UUID manual:
 this.id = UUID.randomUUID().toString();
 ```
 
-Ventajas:
-- No depende del motor de BD
-- Evita colisiones
-- Ideal para microservicios o datos generados fuera de la BD
-
 ---
 
 ## @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-El proyecto actual usa SINGLE_TABLE, no JOINED.
+El proyecto usa SINGLE_TABLE, no JOINED.
 
 Esto significa:
 - Una sola tabla para todas las propiedades
 - Una columna discriminadora indica el subtipo
 - Mejor rendimiento
-- Menos joins
-- Más simple de mantener
 
 ---
 
 ## @DiscriminatorColumn(name = "property_type")
 Crea una columna que indica el tipo real de la entidad hija.
 
-Ejemplos:
-- APARTMENT
-- HOUSE
-- DUPLEX
-- TOWNHOUSE
-
 ---
 
-## @DiscriminatorValue("APARTMENT")
-Define el valor que se guardará en `property_type` para esa subclase.
-
----
-
-## @ManyToOne
-Relación muchos-a-uno.
-
-Ejemplos en el proyecto:
-- Review → Property
-- Review → Reviewer
-- PropertyContract → Owner
-- PropertyContract → Property
-
----
-
-## @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-Relación uno-a-muchos.
-
-Ejemplos:
-- Property → Reviews
-- Property → PropertyContracts
-- Owner → Properties
-
----
-
-## @ManyToMany
-Relación muchos-a-muchos.
-
-Ejemplo:
-- Property ↔ School
+## @ManyToOne, @OneToMany, @ManyToMany
+Relaciones JPA usadas en el proyecto:
+- Property → Owner (ManyToOne)
+- Property → Reviews (OneToMany)
+- Property ↔ School (ManyToMany)
+- PropertyContract → Owner/Property (ManyToOne)
 
 ---
 
 ## @JoinTable
-Define la tabla intermedia en relaciones ManyToMany.
-
-Ejemplo:
-
-```java
-@JoinTable(
-    name = "property_school",
-    joinColumns = @JoinColumn(name = "property_id"),
-    inverseJoinColumns = @JoinColumn(name = "school_id")
-)
-```
-
----
-
-## @JoinColumn(name = "owner_id")
-Define la clave foránea en relaciones ManyToOne.
+Define la tabla intermedia en relaciones ManyToMany (Property ↔ School).
 
 ---
 
 ## @Lob
-Indica que un campo es un texto largo.
-
-Ejemplo:
-- Review.content
+Indica que un campo es un texto largo. Ejemplo: Review.content
 
 ---
 
-## @JsonManagedReference
-Evita recursión infinita en relaciones bidireccionales.  
-Se coloca en el lado "padre".
-
-Ejemplo:
-- Property.reviews
-
----
-
-## @JsonBackReference
-Complemento de `@JsonManagedReference`.  
-Se coloca en el lado "hijo".
-
-Ejemplo:
-- Review.property
+## @JsonManagedReference / @JsonBackReference
+Evita recursión infinita en relaciones bidireccionales.
 
 ---
 
 ## @JsonIgnore
-Evita que un campo se serialice a JSON.  
-Útil para romper ciclos o evitar datos sensibles.
+Evita que un campo se serialice a JSON.
 
 ---
 
-## @Transient
-Indica que un campo NO debe persistirse en la BD.
-
-Ejemplo recomendado:
-
-```java
-@Transient
-public String getType() {
-    return this.getClass().getSimpleName();
-}
-```
-
----
-
-# 2. ANOTACIONES SPRING (SERVICIOS, CONTROLADORES, INYECCIÓN)
+# 2. ANOTACIONES SPRING / LOMBOK
 
 ## @SpringBootApplication
-Anotación principal de Spring Boot. Combina:
-- @Configuration
-- @EnableAutoConfiguration
-- @ComponentScan
+Anotación principal de Spring Boot.
 
 ---
 
 ## @Autowired
 Inyección automática de dependencias.
 
-Ejemplo:
-
-```java
-@Autowired
-private ApartmentRepository apartmentRepository;
-```
-
 ---
 
-## @Service
-Indica que la clase contiene lógica de negocio.
-
-Ejemplos:
-- ApartmentService
-- OwnerService
-- PropertyContractService
-
----
-
-## @Repository
-Indica que la clase es un repositorio de acceso a datos.  
-Spring Data JPA genera automáticamente las implementaciones CRUD.
-
----
-
-## @Component
-Componente genérico gestionado por Spring.
-
-Ejemplo:
-- PopulateDB
-- PrintingUtils
+## @Service, @Repository, @Component
+Anotaciones de estereotipos Spring.
 
 ---
 
@@ -205,196 +91,115 @@ Controlador REST que devuelve JSON.
 
 ---
 
-## @RequestMapping("/api")
-Define la ruta base del controlador.
-
----
-
 ## @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
 Definen endpoints HTTP.
 
-- GET → obtener
-- POST → crear
-- PUT → actualizar
-- DELETE → eliminar
+---
+
+## @PathVariable, @RequestBody
+Extraen valores de la URL y convierten JSON → objeto Java.
 
 ---
 
-## @PathVariable
-Extrae valores de la URL.
-
-Ejemplo:
-
-```java
-@GetMapping("/owners/{id}")
-public Owner getOwner(@PathVariable String id)
-```
+## @CrossOrigin
+Permite peticiones desde el frontend (React/Vite).
 
 ---
 
-## @RequestBody
-Convierte automáticamente JSON → objeto Java.
+## @Data (Lombok)
+Genera automáticamente getters, setters, equals, hashCode, toString.
 
 ---
 
-## @CrossOrigin(origins = "http://localhost:5173")
-Permite peticiones desde el frontend (React/Vite).  
-Evita errores CORS.
-
----
-
-## @Value("${app.populate-on-start}")
-Inyecta valores desde application.properties.
+## @EqualsAndHashCode(callSuper = true) (Lombok)
+Incluye campos heredados en equals/hashCode.
 
 ---
 
 # 3. CONCEPTOS JPA / HIBERNATE
 
 ## Herencia SINGLE_TABLE
-Ventajas:
-- Más rápida
-- Menos joins
-- Más simple
+- Más rápida, menos joins
+- Campos nulos en la tabla para subclases
 
-Desventajas:
-- Muchos campos nulos en la tabla
-- Menos normalizada
+## CascadeType.ALL
+Propaga operaciones save/delete a entidades relacionadas.
 
----
-
-## Relaciones bidireccionales
-El proyecto usa varias relaciones bidireccionales:
-
-- Property ↔ Review
-- Property ↔ School
-- Owner ↔ Property
-- Owner ↔ PropertyContract
-
-Se controlan con:
-- @JsonManagedReference
-- @JsonBackReference
+## entityManager.clear()
+Limpia el contexto de persistencia para evitar conflictos de objetos duplicados.
 
 ---
 
-## Cascading (CascadeType.ALL)
-Propaga operaciones:
-- save
-- delete
-- update
+# 4. SISTEMA DE GRAFOS MANHATTAN
 
-Ejemplo:  
-Si se borra un Property → se borran sus Reviews.
+## Haversine
+Fórmula para calcular distancia en línea recta entre dos puntos GPS.
 
----
+## Manhattan Distance
+Distancia siguiendo el trazado de calles (como en Manhattan).
 
-## FetchType
-El proyecto usa principalmente:
-- LAZY (por defecto en ManyToMany y ManyToOne)
-- EAGER (solo cuando es necesario)
+## Algoritmo A*
+Algoritmo de pathfinding que encuentra el camino más corto en un grafo.
+
+## DistanceCalculator
+Clase utilitaria que implementa la fórmula Haversine para todas las distancias del proyecto.
 
 ---
 
-## Sesión de Hibernate (Persistence Context)
-Hibernate mantiene un "contexto de persistencia" donde almacena temporalmente todas las entidades cargadas durante una transacción.
+# 5. EXCEPCIONES CUSTOM
 
-Conceptos clave:
+## PropertyNotFoundException
+Lanzada cuando no se encuentra una propiedad por ID.
 
-- La sesión contiene **instancias vivas** de entidades.
-- Si se intenta guardar otra instancia con el **mismo ID**, Hibernate lanza:  
-  `DuplicateKeyException` o `NonUniqueObjectException`.
-- Esto puede ocurrir incluso si la BD está vacía, porque el conflicto sucede **en memoria**, no en la BD.
-- Para evitar conflictos, se puede limpiar la sesión con:
-
-```java
-entityManager.clear();
-```
-
-Esto elimina todas las entidades cargadas en memoria y evita comparaciones entre objetos antiguos y nuevos.
-
-En este proyecto se usa para evitar errores al generar PropertyContracts durante el populate.
+## UnknownPropertyTypeException
+Lanzada cuando el tipo de propiedad no es reconocido.
 
 ---
 
-# 4. CONCEPTOS SPRING BOOT
+# 6. OPENAPI / SWAGGER
 
-## CommandLineRunner / @PostConstruct
-En la versión actual se usa @PostConstruct para:
+## springdoc-openapi
+Biblioteca que genera documentación automática de la API REST.
 
-- Verificar si la BD está vacía
-- Ejecutar PopulateDB.populateAll()
+## @Tag, @Operation, @ApiResponse
+Anotaciones para documentar endpoints en Swagger.
 
----
-
-## H2 Database (modo archivo)
-Configuración:
-
-```
-spring.datasource.url=jdbc:h2:file:./db/apartmentpredictordb
-```
-
-Ventajas:
-- Persistente
-- Ligera
-- Ideal para desarrollo
+## OpenApiConfig
+Clase de configuración para personalizar la documentación de la API.
 
 ---
 
-## application.properties
-Controla:
-- BD
-- Hibernate
-- CORS
-- Rutas CSV
-- populate-on-start
-
----
-
-# 5. CONCEPTOS DEL DOMINIO (PROYECTO)
+# 7. CONCEPTOS DEL DOMINIO
 
 ## Property
-Entidad base de todas las propiedades inmobiliarias.
-
----
-
-## Apartment / House / Duplex / TownHouse
-Subclases de Property.
-
----
-
-## Owner
-Persona propietaria de propiedades y contratos.
-
----
-
-## Reviewer
-Persona que escribe reviews.
-
----
-
-## Review
-Opinión sobre una propiedad.
-
----
+Entidad base con coordenadas GPS (latitude, longitude) y nearestNodeId.
 
 ## School
-Escuela cercana a una propiedad.
+Escuela con coordenadas GPS y distancia al nodo Manhattan más cercano.
 
----
-
-## PropertyContract
-Contrato entre Owner y Property.
-
----
+## SchoolDistanceDTO
+DTO que contiene escuela + distancia Haversine + distancia Manhattan.
 
 ## PopulateDB
-Generador de datos sintéticos:
+Orquestador que usa DataGenerator, DatabaseSeeder y GraphInitializer.
 
-- Owners
-- Properties
-- Schools
-- Reviewers
-- Reviews
-- Contracts
+## DataGenerator
+Genera datos sintéticos con DataFaker.
+
+## DatabaseSeeder
+Guarda datos en BD usando batch operations (saveAll).
+
+## GraphInitializer
+Inicializa el grafo Manhattan con 8 nodos (intersecciones reales).
+
+---
+
+# 8. CONFIGURACIÓN
+
+## application.properties
+- spring.datasource.url=jdbc:h2:file:./db/apartments
+- spring.h2.console.enabled=true
+- app.populate-on-start=false
 
 ---
 

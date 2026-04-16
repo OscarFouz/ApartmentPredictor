@@ -1,28 +1,25 @@
-```md
-# MANUAL TÉCNICO  
-Proyecto: ApartmentPredictor  
-Tecnologías: Spring Boot 3, Java 21, JPA/Hibernate, H2 Database, Maven
+# MANUAL TÉCNICO
+Proyecto: ApartmentPredictor
+Tecnologías: Spring Boot 3.2, Java 21, JPA/Hibernate, H2 Database, Maven, Lombok, OpenAPI (springdoc)
 
 ---
 
 # 1. Introducción
 
-ApartmentPredictor es un backend modular diseñado para gestionar un ecosistema inmobiliario completo basado en un modelo unificado de propiedades (Property).  
+ApartmentPredictor es un backend modular diseñado para gestionar un ecosistema inmobiliario completo basado en un modelo unificado de propiedades (Property).
 El sistema soporta:
 
-- Apartamentos  
-- Casas  
-- Dúplex  
-- TownHouses  
-- Propietarios  
-- Contratos  
-- Reseñas  
-- Reviewers  
-- Escuelas cercanas  
+- Apartamentos
+- Casas
+- Dúplex
+- TownHouses
+- Propietarios
+- Contratos
+- Reseñas
+- Reviewers
+- Escuelas cercanas
 
-Incluye un sistema avanzado de **población automática de datos**, API REST completa, relaciones JPA complejas, herencia con SINGLE_TABLE y una arquitectura orientada a servicios.
-
-Este manual describe la arquitectura interna, el modelo de datos, los servicios, los controladores, la configuración y el flujo interno del sistema.
+Incluye un sistema avanzado de **población automática de datos**, API REST completa, relaciones JPA complejas, herencia con SINGLE_TABLE, un sistema de grafos Manhattan para cálculo de distancias, y documentación OpenAPI/Swagger.
 
 ---
 
@@ -30,19 +27,25 @@ Este manual describe la arquitectura interna, el modelo de datos, los servicios,
 
 El proyecto sigue una arquitectura en capas:
 
-- **Controller** → expone la API REST  
-- **Service** → lógica de negocio  
-- **Repository** → acceso a datos con Spring Data JPA  
-- **Model** → entidades JPA  
-- **Utils** → utilidades auxiliares  
-- **PopulateDB** → generador de datos sintéticos
+- **Controller** → expone la API REST
+- **Service** → lógica de negocio
+- **Repository** → acceso a datos con Spring Data JPA
+- **Model** → entidades JPA (con Lombok @Data)
+- **Config** → configuración de Swagger/OpenAPI
+- **DTO** → objetos de transferencia de datos
+- **Exception** → excepciones custom
+- **Graph** → sistema de grafos Manhattan (A*, Haversine)
+- **Utils** → utilidades y generación de datos
 
 Estructura:
 
 ```txt
 src/main/java/com/example/apartment_predictor
 │
-├── controller
+├── config/
+│   └── OpenApiConfig.java              # Configuración Swagger
+│
+├── controller/
 │   ├── ApartmentController.java
 │   ├── HouseController.java
 │   ├── DuplexController.java
@@ -51,32 +54,41 @@ src/main/java/com/example/apartment_predictor
 │   ├── ReviewerController.java
 │   ├── ReviewController.java
 │   ├── PropertyContractController.java
+│   ├── DistanceController.java
+│   ├── SchoolController.java
 │   └── PopulateDBController.java
 │
-├── model
-│   ├── Property.java
+├── dto/
+│   └── SchoolDistanceDTO.java           # DTO para distancias
+│
+├── exception/
+│   ├── PropertyNotFoundException.java
+│   └── UnknownPropertyTypeException.java
+│
+├── graph/                              # Sistema de grafos Manhattan
+│   ├── Graph.java
+│   ├── Node.java
+│   ├── Edge.java
+│   ├── AStar.java                     # Algoritmo A*
+│   └── ManhattanGraphService.java
+│
+├── model/
+│   ├── Property.java                   # Clase base abstracta (@Data)
 │   ├── Apartment.java
 │   ├── House.java
 │   ├── Duplex.java
 │   ├── TownHouse.java
-│   ├── Owner.java
-│   ├── Reviewer.java
+│   ├── Owner.java                     # Hereda de Person
+│   ├── Reviewer.java                  # Hereda de Person
+│   ├── Person.java                    # Clase base abstracta (@Data)
 │   ├── Review.java
 │   ├── School.java
-│   └── Person.java
+│   └── PropertyContract.java
 │
-├── repository
-│   ├── ApartmentRepository.java
-│   ├── HouseRepository.java
-│   ├── DuplexRepository.java
-│   ├── TownHouseRepository.java
-│   ├── OwnerRepository.java
-│   ├── ReviewerRepository.java
-│   ├── ReviewRepository.java
-│   ├── SchoolRepository.java
-│   └── PropertyContractRepository.java
+├── repository/
+│   └── (JpaRepositories para cada entidad)
 │
-├── service
+├── service/
 │   ├── ApartmentService.java
 │   ├── HouseService.java
 │   ├── DuplexService.java
@@ -86,9 +98,15 @@ src/main/java/com/example/apartment_predictor
 │   ├── ReviewService.java
 │   ├── PropertyService.java
 │   ├── PropertyContractService.java
-│   └── PopulateDB.java
+│   ├── DistanceService.java           # Servicio de distancias
+│   └── HaversineService.java          # Cálculo Haversine
 │
-└── utils
+└── utils/
+    ├── PopulateDB.java                # Orquestador de población
+    ├── DataGenerator.java             # Generación de datos
+    ├── DatabaseSeeder.java            # Guardado en BD
+    ├── GraphInitializer.java          # Inicialización del grafo
+    ├── DistanceCalculator.java        # Utilidad Haversine
     ├── ApartmentJsonWriter.java
     └── PrintingUtils.java
 ```
@@ -101,9 +119,12 @@ El sistema utiliza **herencia JPA con SINGLE_TABLE**, lo que permite almacenar t
 
 ## 3.1 Property (clase base)
 
-Atributos principales:
+Atributos principales (generados por Lombok @Data):
 - id
 - address
+- price
+- latitude, longitude (coordenadas GPS)
+- nearestNodeId (nodo más cercano en el grafo Manhattan)
 - owner
 - nearbySchools (ManyToMany)
 - propertyContracts (OneToMany)
@@ -119,31 +140,15 @@ Es la base para:
 
 Atributos específicos:
 - name
-- price
-- area
-- bedrooms
-- bathrooms
-- stories
-- mainroad
-- guestroom
-- basement
-- hotwaterheating
-- airconditioning
-- parking
-- prefarea
-- furnishingstatus
+- price, area, bedrooms, bathrooms, stories
+- mainroad, guestroom, basement, hotwaterheating, airconditioning
+- parking, prefarea, furnishingstatus
 
 ## 3.3 House / Duplex / TownHouse
 
 Atributos:
 - name
 - address heredado
-
-Relaciones:
-- ManyToOne → Owner
-- ManyToMany → School
-- OneToMany → PropertyContract
-- OneToMany → Review
 
 ## 3.4 Owner (hereda de Person)
 
@@ -152,13 +157,6 @@ Atributos:
 - idLegalOwner
 - registrationDate
 - qtyDaysAsOwner
-
-Relaciones:
-- OneToMany → PropertyContract
-- OneToMany → Apartment
-- OneToMany → House
-- OneToMany → Duplex
-- OneToMany → TownHouse
 
 ## 3.5 Reviewer (hereda de Person)
 
@@ -169,34 +167,24 @@ Atributos:
 - webURL
 - qtyReviews
 
-Relaciones:
-- OneToMany → Review
-
 ## 3.6 Review
 
 Atributos:
 - title
-- content
+- content (Lob)
 - rating
 - reviewDate
-
-Relaciones:
-- ManyToOne → Property
-- ManyToOne → Reviewer
 
 ## 3.7 School
 
 Atributos:
-- name
-- address
-- type
-- educationLevel
+- name, address
+- type, educationLevel
 - location
 - rating
 - isPublic
-
-Relaciones:
-- ManyToMany → Property
+- latitude, longitude (coordenadas GPS)
+- nearestNodeId
 
 ## 3.8 PropertyContract
 
@@ -204,26 +192,20 @@ Atributos:
 - contractName
 - contractDetails
 - agreedPrice
-- startDate
-- endDate
+- startDate, endDate
 - active
-
-Relaciones:
-- ManyToOne → Owner
-- ManyToOne → Property
 
 ---
 
 # 4. Repositorios
 
-Todos los repositorios extienden CrudRepository o JpaRepository.
-
-Ejemplos:
+Todos los repositorios extienden JpaRepository.
 
 ```java
-public interface ApartmentRepository extends CrudRepository<Apartment, String> {}
-public interface SchoolRepository extends JpaRepository<School, String> {}
-public interface PropertyContractRepository extends CrudRepository<PropertyContract, String> {}
+public interface ApartmentRepository extends JpaRepository<Apartment, String> {}
+public interface SchoolRepository extends JpaRepository<School, String> {
+    List<School> findTop10By(Pageable pageable);  // Paginación para mejor rendimiento
+}
 ```
 
 ---
@@ -239,55 +221,26 @@ Funciones:
 - updateById
 - delete
 
-## 5.2 PropertyService
+## 5.2 DistanceService
+
+Servicio para calcular distancias entre propiedades y escuelas:
+- getSchoolsWithDistances(propertyId) → lista de escuelas con distancias Haversine y Manhattan
+
+## 5.3 HaversineService / ManhattanGraphService
+
+- HaversineService: cálculo directo de distancia Haversine
+- ManhattanGraphService: sistema de grafos con algoritmo A* para pathfinding Manhattan
+
+## 5.4 PropertyService
 
 Servicio unificado para buscar cualquier tipo de propiedad por ID.
 
-```java
-public Property findById(String id)
-```
+## 5.5 PopulateDB (Sistema de Generación)
 
-Busca en:
-- ApartmentRepository
-- HouseRepository
-- DuplexRepository
-- TownHouseRepository
-
-## 5.3 ReviewerService
-
-Gestión de reviewers:
-- CRUD
-- obtener reviews asociadas
-
-## 5.4 ReviewService
-
-Gestión de reviews:
-- guardar
-- eliminar
-
-## 5.5 PropertyContractService
-
-Gestión de contratos:
-- crear contrato
-- cerrar contrato
-- eliminar contrato
-- buscar por ID
-
-## 5.6 PopulateDB
-
-Generador completo de datos sintéticos:
-- Owners
-- Properties
-- Schools
-- Reviewers
-- Reviews
-- Contracts
-
-Incluye asignación de relaciones:
-- Schools → Properties
-- Reviews → Properties
-- Reviews → Reviewers
-- Contracts → Owners + Properties
+Orquestador que utiliza:
+- **DataGenerator**: genera datos sintéticos (owners, properties, schools, reviewers, reviews, contracts)
+- **DatabaseSeeder**: guarda datos en BD usando saveAll() batch
+- **GraphInitializer**: inicializa el grafo Manhattan
 
 ---
 
@@ -326,70 +279,68 @@ CRUD completo para cada tipo.
 - PUT /api/contracts/{id}/close
 - DELETE /api/contracts/{id}
 
-## 6.7 PopulateDBController
-- GET /api/populate  
-  Parámetros:
-- owners
-- properties
-- reviews
-- schools
+## 6.7 DistanceController
+- GET /api/distance/{propertyId}/schools
+
+## 6.8 SchoolController
+- GET /api/schools
+
+## 6.9 PopulateDBController
+- GET /api/populate
 
 ---
 
-# 7. Configuración del Sistema
+# 7. Sistema de Grafos Manhattan
+
+El proyecto incluye un sistema de grafos para calcular distancias en Manhattan:
+- **Graph**: estructura de datos para nodos y aristas
+- **Node**: representa una intersección con lat/lon
+- **Edge**: conexión entre nodos con distancia Haversine
+- **AStar**: implementación del algoritmo A* para pathfinding
+- **ManhattanGraphService**: servicio que usa el grafo para calcular distancias
+
+---
+
+# 8. Excepciones Custom
+
+- **PropertyNotFoundException**: cuando no se encuentra una propiedad
+- **UnknownPropertyTypeException**: cuando el tipo de propiedad no es reconocido
+
+---
+
+# 9. Documentación API (OpenAPI/Swagger)
+
+Una vez iniciada la aplicación:
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8080/v3/api-docs
+
+---
+
+# 10. Configuración del Sistema
 
 Archivo `application.properties`:
 
-```
-spring.datasource.url=jdbc:h2:file:./db/apartmentpredictordb
-spring.datasource.username=oscar
-spring.datasource.password=1234
+```properties
+spring.datasource.url=jdbc:h2:file:./db/apartments
+spring.datasource.username=sa
+spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
 spring.h2.console.enabled=true
-app.populate-on-start=true
-```
-
-Consola H2:
-```
-http://localhost:8080/h2-console
+app.populate-on-start=false
 ```
 
 ---
 
-# 8. Flujo Interno de la Aplicación
-
-1. Spring Boot arranca la aplicación.
-2. `ApartmentPredictorApplication` ejecuta `@PostConstruct`.
-3. Si la base de datos está vacía y `app.populate-on-start=true`:
-    - Se ejecuta PopulateDB.populateAll()
-4. Se generan Owners, Properties, Schools, Reviewers, Reviews y Contracts.
-5. Se asignan relaciones entre entidades.
-6. La API REST queda disponible.
-7. Los controladores gestionan las peticiones.
-8. Los servicios aplican la lógica de negocio.
-9. Los repositorios realizan operaciones CRUD.
-
----
-
-# 9. Utilidades
-
-## 9.1 ApartmentJsonWriter
-Permite exportar apartamentos a JSON.
-
-## 9.2 PrintingUtils
-Funciones para imprimir listas de entidades en consola.
-
----
-
-# 10. Estado del Proyecto
+# 11. Estado del Proyecto
 
 - Backend completamente funcional
-- Modelo unificado Property
-- Herencia JPA con SINGLE_TABLE
+- Modelo unificado Property con herencia JPA SINGLE_TABLE
 - Relaciones complejas entre entidades
-- Población automática avanzada
-- API REST lista para frontend
+- Sistema de grafos Manhattan con A*
+- Población automática con batch operations (saveAll)
+- API REST documentada con Swagger/OpenAPI
 - Arquitectura modular y escalable
+- Uso de Lombok para reducir boilerplate
+- SLF4J Logging para mejor trazabilidad
 
 ---
-```
