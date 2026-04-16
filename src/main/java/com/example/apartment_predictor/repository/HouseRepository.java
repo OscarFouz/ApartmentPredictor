@@ -13,17 +13,9 @@ public interface HouseRepository extends JpaRepository<House, String> {
     
     @Query("SELECT h FROM House h WHERE " +
            "(:minPrice IS NULL OR h.price >= :minPrice) AND " +
-           "(:maxPrice IS NULL OR h.price <= :maxPrice) AND " +
-           "(:minArea IS NULL OR h.area >= :minArea) AND " +
-           "(:maxArea IS NULL OR h.area <= :maxArea) AND " +
-           "(:minBedrooms IS NULL OR h.bedrooms >= :minBedrooms) AND " +
-           "(:maxBedrooms IS NULL OR h.bedrooms <= :maxBedrooms)")
+           "(:maxPrice IS NULL OR h.price <= :maxPrice)")
     Page<House> findByFilters(
             @Param("minPrice") Integer minPrice,
             @Param("maxPrice") Integer maxPrice,
-            @Param("minArea") Integer minArea,
-            @Param("maxArea") Integer maxArea,
-            @Param("minBedrooms") Integer minBedrooms,
-            @Param("maxBedrooms") Integer maxBedrooms,
             Pageable pageable);
 }

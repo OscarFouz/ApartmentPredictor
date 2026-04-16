@@ -13,17 +13,9 @@ public interface TownHouseRepository extends JpaRepository<TownHouse, String> {
     
     @Query("SELECT t FROM TownHouse t WHERE " +
            "(:minPrice IS NULL OR t.price >= :minPrice) AND " +
-           "(:maxPrice IS NULL OR t.price <= :maxPrice) AND " +
-           "(:minArea IS NULL OR t.area >= :minArea) AND " +
-           "(:maxArea IS NULL OR t.area <= :maxArea) AND " +
-           "(:minBedrooms IS NULL OR t.bedrooms >= :minBedrooms) AND " +
-           "(:maxBedrooms IS NULL OR t.bedrooms <= :maxBedrooms)")
+           "(:maxPrice IS NULL OR t.price <= :maxPrice)")
     Page<TownHouse> findByFilters(
             @Param("minPrice") Integer minPrice,
             @Param("maxPrice") Integer maxPrice,
-            @Param("minArea") Integer minArea,
-            @Param("maxArea") Integer maxArea,
-            @Param("minBedrooms") Integer minBedrooms,
-            @Param("maxBedrooms") Integer maxBedrooms,
             Pageable pageable);
 }

@@ -14,6 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,16 +58,26 @@ public class PropertyService {
             };
         }
         
-        Page<Apartment> apartments = apartmentRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
-                .map(p -> (Property) p);
-        Page<House> houses = houseRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
-                .map(p -> (Property) p);
-        Page<Duplex> duplexes = duplexRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
-                .map(p -> (Property) p);
-        Page<TownHouse> townHouses = townRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
-                .map(p -> (Property) p);
+        var apartments = apartmentRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
+                .getContent();
+        var houses = houseRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
+                .getContent();
+        var duplexes = duplexRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
+                .getContent();
+        var townHouses = townRepo.findByFilters(minPrice, maxPrice, minArea, maxArea, minBedrooms, maxBedrooms, pageRequest)
+                .getContent();
         
-        return apartments;
+        java.util.List<Property> allProperties = new java.util.ArrayList<>();
+        allProperties.addAll(apartments);
+        allProperties.addAll(houses);
+        allProperties.addAll(duplexes);
+        allProperties.addAll(townHouses);
+        
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + pageRequest.getPageSize(), allProperties.size());
+        List<Property> pageContent = start < allProperties.size() ? allProperties.subList(start, end) : java.util.Collections.emptyList();
+        
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageRequest, allProperties.size());
     }
 
     public Property create(Property property) {
